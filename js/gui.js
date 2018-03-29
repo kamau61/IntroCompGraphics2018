@@ -1,3 +1,6 @@
+//  Check the website to see more details on how to use it.
+//  http://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage
+
 //  initialize
 var gui = new dat.GUI();
 
