@@ -1,13 +1,19 @@
-//  Check the website to see more details on how to use it.
-//  http://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage
+var params = {
+    CamPosX: 0,
+    CamPosY: 0,
+    CamPosZ: 5
+};
 
-//  initialize
-var gui = new dat.GUI();
+var gui = new dat.GUI({width: 300});
+var folderCamera = gui.addFolder('Camera');
+folderCamera.add(params, 'CamPosX', -10, 10).step(.01).onChange(function (value) {
+    camera.position.x = params.CamPosX
+});
+folderCamera.add(params, 'CamPosY', -10, 10).step(.01).onChange(function (value) {
+    camera.position.y = params.CamPosY
+});
+folderCamera.add(params, 'CamPosZ', 1.5, 10).step(.01).onChange(function (value) {
+    camera.position.z = params.CamPosZ
+});
+folderCamera.open();
 
-//  Camera parameters
-var pc = camera.position;
-var fc = gui.addFolder('Camera');
-  fc.add(pc, 'x').listen();
-  fc.add(pc, 'y').listen();
-  fc.add(pc, 'z').listen();
-  fc.open();
