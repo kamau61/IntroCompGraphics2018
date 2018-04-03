@@ -2,8 +2,8 @@ window.PLANET = window.PLANET || {};
 PLANET.main = PLANET.main || {};
 
 //variables that need global access
-var scene, camera, renderer, light, cube, sphere, inControl;
-const CUBE_SIZE = 1, SPHERE_RADIUS = 60;
+var scene, camera, renderer, light, cube, spheres, inControl;
+const CUBE_SIZE = 5, SPHERE_RADIUS = 60, CAMERA_DISTANCE = 80, CUBE_ROTATION = 0.05, SPHERE_ROTATION = 0.005;
 
 PLANET.main.main = function() {
     //init scene
@@ -22,7 +22,7 @@ PLANET.main.main = function() {
     //init camera
     var aspect = window.innerWidth / window.innerHeight;
     camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 5000);
-    camera.position.set(0, 10, 70);
+    camera.position.set(0, 0, CAMERA_DISTANCE);
     //init light
     light = new THREE.DirectionalLight(0xffffff, 0.8);
     light.position.set(-80, 80, 80);
@@ -35,17 +35,19 @@ PLANET.main.main = function() {
 PLANET.main.addObjects = function() {
     cube = new PLANET.cube.Cube(CUBE_SIZE);
     scene.add(cube);
-    sphere = new PLANET.sphere.Sphere(SPHERE_RADIUS);
-    scene.add(sphere);
+    spheres = [];
+    scene.add(spheres[0] = new PLANET.sphere.Sphere(SPHERE_RADIUS));
+    scene.add(spheres[1] = new PLANET.sphere.Sphere(SPHERE_RADIUS + 20));
 };
 
 PLANET.main.render = function() {
     requestAnimationFrame(PLANET.main.render);
 
     if(!inControl) {
-        cube.rotation.x += 0.05;
-        cube.rotation.y += 0.05;
-        sphere.rotation.y -= 0.005;
+        cube.rotation.x += CUBE_ROTATION;
+        cube.rotation.y += CUBE_ROTATION;
+        spheres[0].rotation.y -= SPHERE_ROTATION;
+        spheres[1].rotation.y += SPHERE_ROTATION;
     }
 
     renderer.render(scene, camera);
