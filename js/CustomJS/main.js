@@ -4,6 +4,9 @@ PLANET.main = PLANET.main || {};
 //variables that need global access
 var scene, camera, renderer, light, inControl, canvas, gui;
 var params = {
+    NoiseSeed: 'PLANET',
+    NoiseMag: 0.05,
+    NoiseLevel: 3,
     PlanetRadius: 100,
     PlanetDetail: 6,
     PlanetWireframe: false,

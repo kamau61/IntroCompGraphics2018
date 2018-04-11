@@ -27,6 +27,12 @@ PLANET.debug.Debug = function() {
     planetControls.add(params, 'TerrainDisplacement', 0, 0.2).step(0.01).onChange(function() {
         PLANET.debug.updatePlanet();
     }).listen();
+    planetControls.add(params, 'NoiseMag', 0, 0.5).step(0.001).onChange(function() {
+        PLANET.debug.updatePlanet();
+    }).listen();
+    planetControls.add(params, 'NoiseLevel', 1, 10).step(1).onChange(function() {
+        PLANET.debug.updatePlanet();
+    }).listen();
     planetControls.open();
     gui.add(options, 'reset');
 };
