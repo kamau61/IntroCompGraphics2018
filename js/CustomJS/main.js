@@ -10,6 +10,7 @@ var params = {
     PlanetFlatShading: true,
     PlanetRotation: true,
     PlanetRotationY: 0.001,
+    TerrainDisplacement: 0.05,
     CameraMin: 1.1,
     CameraMax: 2,
     CameraDefault: 1.8
@@ -56,10 +57,6 @@ PLANET.main.render = function() {
                 planet.rotation.y += params.PlanetRotationY;
             }
         }
-        // cube.rotation.x += params.CubeRotation;
-        // cube.rotation.y += params.CubeRotation;
-        // spheres[0].rotation.y -= params.SphereRotation;
-        // spheres[1].rotation.y -= params.SphereDirection? params.SphereRotation : -params.SphereRotation;
     }
 
     renderer.render(scene, camera);
