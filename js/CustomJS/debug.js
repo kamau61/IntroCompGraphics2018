@@ -58,7 +58,7 @@ PLANET.debug.updatePlanetMaterial = function(wireframe, flatShafing) {
 };
 
 PLANET.debug.updateCamera = function(distance) {
-    controls.minDistance = distance * params.CameraMin;
+    controls.minDistance = distance * (1 + params.TerrainDisplacement);
     controls.maxDistance = distance * params.CameraMax;
     camera.position.set(0, 0, distance * params.CameraDefault);
     controls.update();

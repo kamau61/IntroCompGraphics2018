@@ -11,7 +11,6 @@ var params = {
     PlanetRotation: true,
     PlanetRotationY: 0.001,
     TerrainDisplacement: 0.05,
-    CameraMin: 1.1,
     CameraMax: 2,
     CameraDefault: 1.8
 };

@@ -13,7 +13,7 @@ PLANET.controls.Controls = function() {
 
     //mouse controls
     controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.minDistance = params.PlanetRadius * params.CameraMin;
+    controls.minDistance = params.PlanetRadius * (1 + params.TerrainDisplacement);
     controls.maxDistance = params.PlanetRadius * params.CameraMax;
 
     //for stopping animations during user control
