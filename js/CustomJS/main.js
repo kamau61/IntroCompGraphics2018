@@ -5,15 +5,15 @@ PLANET.main = PLANET.main || {};
 var scene, camera, renderer, light, inControl, canvas, gui;
 var params = {
     NoiseSeed: 'PLANET',
-    NoiseMag: 0.05,
-    NoiseLevel: 3,
+    NoiseOffset: 0.02,
+    // NoiseLevel: 3,
     PlanetRadius: 100,
-    PlanetDetail: 5,
+    PlanetDetail: 7,
     PlanetWireframe: false,
     PlanetFlatShading: true,
     PlanetRotation: true,
     PlanetRotationY: 0.001,
-    TerrainDisplacement: 0.05,
+    TerrainDisplacement: 0.08,
     CameraMax: 2,
     CameraDefault: 1.8
 };
@@ -39,6 +39,7 @@ PLANET.main.main = function() {
     var distance = params.PlanetRadius * params.CameraDefault;
     light = new THREE.DirectionalLight(0xffffff, 0.8);
     light.position.set(-distance, distance, distance);
+    light.castShadow = true;
     scene.add(light);
     PLANET.main.addObjects();
     PLANET.controls.Controls();
