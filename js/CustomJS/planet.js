@@ -1,26 +1,23 @@
 window.PLANET = window.PLANET || {};
 PLANET.planet = PLANET.planet || {};
 
-PLANET.planet.Planet = function(radius, detail) {
+PLANET.planet.Planet = function() {
     THREE.Object3D.call(this);
-    var geometry = new THREE.IcosahedronGeometry(radius, detail);
-    geometry.verticesNeedUpdate = true;
-    var material = new THREE.MeshPhongMaterial({
-        wireframe: params.PlanetWireframe,
-        flatShading: params.PlanetFlatShading,
-        castShadow: true,
-        receiveShadow: true
-    });
-    PLANET.planet.displaceTerrain(geometry);
-    this.terrain = new THREE.Mesh(geometry, material);
-    this.add(this.terrain);
+    simplex = new SimplexNoise();
+    this.baseGeometry = new THREE.IcosahedronGeometry(params.PlanetRadius, params.PlanetDetail);
+    this.baseGeometry.needsUpdate = true;
+    this.baseGeometry.verticesNeedUpdate = true;
+    this.add(PLANET.terrain.Terrain(this.baseGeometry));
+    this.add(PLANET.ocean.Ocean(this.baseGeometry));
 };
 
 PLANET.planet.Planet.prototype = Object.create(THREE.Object3D.prototype);
 
-PLANET.planet.displaceTerrain = function(geometry) {
-    for(var i = 0; i < geometry.vertices.length; i++) {
-        v = geometry.vertices[i];
-        v.setLength(v.length() + (Math.random() * params.PlanetRadius * params.TerrainDisplacement));
-    }
-}
+PLANET.planet.update = function () {
+    PLANET.terrain.update();
+    PLANET.ocean.update();
+};
+
+PLANET.planet.animate = function() {
+    PLANET.ocean.animate();
+};

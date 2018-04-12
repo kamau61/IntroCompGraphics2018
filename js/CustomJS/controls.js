@@ -1,6 +1,7 @@
 window.PLANET = window.PLANET || {};
 PLANET.controls = PLANET.controls || {};
 
+//TODO make camera tilt according to the distance between planet and camera
 
 PLANET.controls.Controls = function() {
 
