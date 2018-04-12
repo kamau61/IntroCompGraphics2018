@@ -2,24 +2,27 @@ window.PLANET = window.PLANET || {};
 PLANET.main = PLANET.main || {};
 
 //variables that need global access
-var scene, camera, renderer, light, inControl, canvas, gui;
+var scene, camera, renderer, light, inControl, canvas, gui, simplex, timer;
 var params = {
-    NoiseSeed: 'PLANET',
-    NoiseOffset: 0.02,
-    // NoiseLevel: 3,
     PlanetRadius: 100,
     PlanetDetail: 7,
     PlanetWireframe: false,
     PlanetFlatShading: true,
-    PlanetRotation: true,
-    PlanetRotationY: 0.001,
-    TerrainDisplacement: 0.08,
+    PlanetRotationY: 0,
+    TerrainDisplacement: 0.1,
+    TerrainDensity: 0.1,
+    TerrainDetail: 9,
+    WaterLevel: 100,
+    WaveSpeed: 0.25,
+    WaveLength: 1,
+    WaveHeight: 0.05,
     CameraMax: 2,
     CameraDefault: 1.8
 };
 var planet;
 
 PLANET.main.main = function () {
+    timer = 0;
     //init scene
     scene = new THREE.Scene();
     renderer = new THREE.WebGLRenderer();
@@ -55,12 +58,12 @@ PLANET.main.addObjects = function () {
 
 PLANET.main.render = function () {
     requestAnimationFrame(PLANET.main.render);
-
+    timer += 1 / 10;
+    if(timer > 1000000) timer = 0;
     if (!inControl) {
         if (planet) {
-            if (params.PlanetRotation) {
-                planet.rotation.y += params.PlanetRotationY;
-            }
+            planet.rotation.y += params.PlanetRotationY;
+            PLANET.planet.animate();
         }
     }
 
