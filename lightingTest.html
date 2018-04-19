@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset=utf-8>
+		<title>Day Night Cycle</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+	</head>
+	<body>
+		<script src="js/ThreeJS/three.js"></script>
+		<script src='js/CustomJS/threex.daynight.js'></script>
+
+		<script>
+			/////////////////////////////////////////////////////
+			// SCENE, CAMERA, RENDERER AND RESIZER     				 //
+			/////////////////////////////////////////////////////
+			var THREEx	= THREEx	|| {};
+			THREEx.DayNight	= {};
+			var onRenderFcts= [];
+
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+			var renderer = new THREE.WebGLRenderer();
+
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			document.body.appendChild(renderer.domElement);
+			camera.position.z = 60;
+
+			var MyResize = function ( )
+      {
+        var width = window.innerWidth;
+        var height = window.innerHeight;
+        renderer.setSize(width,height);
+        camera.aspect = width/height;
+        camera.updateProjectionMatrix();
+        renderer.render(scene,camera);
+      };
+      window.addEventListener( 'resize', MyResize);
+
+
+
+
+
+			/////////////////////////////////////////////////////
+			// LIGHTING AND MESHES                             //
+			/////////////////////////////////////////////////////
+			var geometrySphere = new THREE.SphereGeometry(8,100);
+			var materialSphere = new THREE.MeshLambertMaterial({color: 0x7fb0ff});
+			var sphere = new THREE.Mesh(geometrySphere, materialSphere);
+			scene.add(sphere);
+
+			var light = new THREE.AmbientLight( 0x25105c ); // soft white light
+			scene.add( light );
+
+			sunLight = new THREE.PointLight( 0xffffff, 0.5, 1000);
+			moonLight = new THREE.PointLight( 0xeeeeff, 0.01 );
+			scene.add( sunLight );
+			scene.add( moonLight );
+			sunObj = new THREE.SphereGeometry( 100, 8, 8 );
+			moonObj = new THREE.SphereGeometry( 100, 8, 8 );
+			materialLightSun = new THREE.MeshBasicMaterial( { color: 0xffaa00 } );
+			materialLightMoon = new THREE.MeshBasicMaterial( { color: 0xeeeeee } );
+			sun = new THREE.Mesh( sunObj, materialLightSun );
+			moon = new THREE.Mesh( moonObj, materialLightMoon );
+			sun.scale.set( 0.01, 0.01, 0.01 );
+			moon.scale.set( 0.001, 0.001, 0.001 );
+			sunLight.add( sun );
+			moonLight.add( moon );
+
+
+
+
+
+			/////////////////////////////////////////////////////
+      // SKYSPHERE					                             //
+      /////////////////////////////////////////////////////
+
+			createSky	= function(){
+				var geometry	= new THREE.SphereGeometry( 300, 32, 15 );
+				var shader	= THREEx.DayNight.Sky.Shader
+				var uniforms	= THREE.UniformsUtils.clone(shader.uniforms)
+				var material	= new THREE.ShaderMaterial({
+					/*For vertex shader if added in later
+					vertexShader	: shader.vertexShader,*/
+					//Colour the skybox
+					fragmentShader	: shader.fragmentShader,
+					//Parameters that are passed into the shader program
+					uniforms	: uniforms,
+					//Render the colour of the inside of the sky sphere
+					side		: THREE.BackSide
+				});
+
+			var sky	= new createSky();
+			scene.add(sky.object3d);
+			onRenderFcts.push(function(delta, now){
+				sunSphere.update(sunDistance);
+			});
+
+				var skySphere	= new THREE.Mesh( geometry, material );
+				this.object3d	= skySphere;
+
+				Sky.update	= function(sunDistance){
+					if( phase === 'day' ){
+						uniforms.skyColor.value.set("rgb(0,120,255)");
+						//uniforms.bottomColor.value.set("rgb(255,"+ (Math.floor(Math.sin(sunDistance)*200)+55) + "," + (Math.floor(Math.sin(sunDistance)*200)) +")");
+					} else if( phase === 'twilight' ){
+						uniforms.skyColor.value.set("rgb(255, 69, 0)");
+						//uniforms.topColor.value.set("rgb(0," + (120-Math.floor(Math.sin(sunDistance)*240*-1)) + "," + (255-Math.floor(Math.sin(sunDistance)*510*-1)) +")");
+						//uniforms.bottomColor.value.set("rgb(" + (255-Math.floor(Math.sin(sunDistance)*510*-1)) + "," + (55-Math.floor(Math.sin(sunDistance)*110*-1)) + ",0)");
+					} else if( phase === 'night' ){
+						uniforms.skyColor.value.set("rgb(50, 0, 50)");
+					} else {
+						uniforms.skyColor.value.set('black');
+					}
+				}
+			}
+
+
+
+
+
+			/////////////////////////////////////////////////////
+			// GLSL CODE FOR SHADERS	                         //
+			/////////////////////////////////////////////////////
+
+			THREEx.DayNight.Sky.Shader	= {
+				//Uniforms: Parameters that can be passed into the program
+				uniforms	: {
+					skyColor	: { type: "c", value: new THREE.Color()},
+				},
+				//Can add vertexShader here if added later
+				fragmentShader	: [
+					'uniform vec3 skyColor;',
+					'void main() {',
+						//gl_fragColor = vec4( Red, Green, Blue, Alpha)
+						'	gl_FragColor = vec4(skyColor, 2.0 );',
+					'}',
+				].join('\n'),
+			}
+
+
+
+
+
+			/////////////////////////////////////////////////////
+			// RENDER LOOP                                     //
+			/////////////////////////////////////////////////////
+			var clock = new THREE.Clock();
+			var phase = 'day';
+			var Animate = function()
+			{
+				// Rotation of sun and moon
+				var r = clock.getElapsedTime();
+				sunLight.position.x = 50 * Math.cos( r );
+				sunLight.position.z = 50 * Math.sin( r );
+				moonLight.position.x = 50 * -Math.cos( r );
+				moonLight.position.z = 50 * -Math.sin( r );
+
+				var sunDistance = Math.sqrt(Math.pow(camera.position.x-sun.position.x, 2) +
+																Math.pow(camera.position.y-sun.position.y, 2) +
+																Math.pow(camera.position.z-sun.position.z, 2));
+
+				if( sunDistance > 59){
+					phase = 'day';
+				}else if( sunDistance > 39 ){
+					phase = 'twilight';
+				}else if( sunDistance > 29 ){
+					phase = 'dark';
+				}else{
+					phase = 'night';
+				}
+
+				renderer.render(scene, camera);
+				requestAnimationFrame(Animate);
+
+			};
+			requestAnimationFrame(Animate);
+
+		</script>
+	</body>
+</html>
