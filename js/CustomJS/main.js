@@ -12,6 +12,8 @@ var params = {
     TerrainDisplacement: 0.1,
     TerrainDensity: 0.1,
     TerrainDetail: 9,
+    SnowLevel: 0.5,
+    BeachLevel: 0.1,
     WaterLevel: 100,
     WaveSpeed: 0.25,
     WaveLength: 1,
@@ -53,7 +55,7 @@ PLANET.main.main = function () {
 
 PLANET.main.addObjects = function () {
     planet = new PLANET.planet.Planet(params.PlanetRadius, params.PlanetDetail);
-    scene.add(planet)
+    scene.add(planet);
 };
 
 PLANET.main.render = function () {
@@ -66,6 +68,5 @@ PLANET.main.render = function () {
             PLANET.planet.animate();
         }
     }
-
     renderer.render(scene, camera);
 };

@@ -6,10 +6,13 @@ PLANET.terrain.Terrain = function (base) {
     var geometry = base.clone();
     var material = new THREE.MeshPhongMaterial({
         wireframe: params.PlanetWireframe,
-        flatShading: params.PlanetFlatShading
+        flatShading: params.PlanetFlatShading,
+        vertexColors: THREE.FaceColors
     });
     PLANET.terrain.displaceTerrain(geometry);
     this.terrain = new THREE.Mesh(geometry, material);
+    this.terrain.castShadow = true;
+    this.terrain.receiveShadow = true;
     this.terrain.name = "Terrain";
     return this.terrain;
 };
@@ -17,19 +20,9 @@ PLANET.terrain.Terrain = function (base) {
 PLANET.terrain.Terrain.prototype = Object.create(THREE.Object3D.prototype);
 
 PLANET.terrain.displaceTerrain = function (geometry) {
-
-
-    //perlin noise
-    // var max = params.PlanetRadius * params.TerrainDisplacement;
-    // for(var i = 0; i < geometry.vertices.length; i++) {
-    //     v = geometry.vertices[i];
-    //     v.setLength(v.length() + (noise.perlin3(v.x/params.TerrainDensity, v.y/params.TerrainDensity, v.z/params.TerrainDensity) * max));
-    // }
-
     // 3d simplex noise leveled
     var v, len, offset = params.TerrainDensity;
     var max = params.PlanetRadius * params.TerrainDisplacement;
-    // var gen = new SimplexNoise();
     for(var i = 0; i < geometry.vertices.length; i++) {
         v = geometry.vertices[i];
         len = 0;
@@ -37,28 +30,43 @@ PLANET.terrain.displaceTerrain = function (geometry) {
             offset = params.TerrainDensity * params.TerrainDisplacement * Math.pow(2, j);
             len += (simplex.noise3d(v.x * offset, v.y * offset, v.z * offset) * max) / Math.pow(2, j);
         }
-        v.setLength(v.length() + len);
+        v.setLength(params.PlanetRadius + len);
     }
+    PLANET.terrain.colorTerrain(geometry);
+};
 
-    //3d simplex noise level 1 seeded
-    // var gen = new SimplexNoise(), v;
-    // for(var i = 0; i < geometry.vertices.length; i++) {
-    //     v = geometry.vertices[i];
-    //     v.setLength(v.length() + (gen.noise3d(v.x * params.TerrainDensity, v.y * params.TerrainDensity, v.z * params.TerrainDensity) * params.PlanetRadius * params.TerrainDisplacement));
-    // }
-
-    //white noise
-    // for(var i = 0; i < geometry.vertices.length; i++) {
-    //     v = geometry.vertices[i];
-    //     v.setLength(v.length() + (Math.random() * params.PlanetRadius * params.TerrainDisplacement));
-    // }
+PLANET.terrain.colorTerrain = function(geometry) {
+    var f, v = [3], vi = ['a', 'b', 'c'],
+        pos = new THREE.Vector3();
+    var ocean = new THREE.Color('steelblue'),
+        beach = new THREE.Color('sandybrown'),
+        grass = new THREE.Color('olivedrab'),
+        snow = new THREE.Color('snow');
+    for(var i = 0; i < geometry.faces.length; i++) {
+        f = geometry.faces[i];
+        pos.set(0, 0, 0);
+        for(var j = 0; j < vi.length; j++) {
+            v[j] = geometry.vertices[f[vi[j]]];
+            pos.x += v[j].x;
+            pos.y += v[j].y;
+            pos.z += v[j].z;
+        }
+        pos.x /= vi.length;
+        pos.y /= vi.length;
+        pos.z /= vi.length;
+        if(pos.length() > params.PlanetRadius * (1 + params.TerrainDisplacement * (1 - params.SnowLevel))) {
+            f.color = snow;
+        } else if(pos.length() > params.WaterLevel + params.BeachLevel * params.TerrainDisplacement * params.PlanetRadius) {
+            f.color = grass;
+        } else if(pos.length() > params.WaterLevel - params.BeachLevel * params.TerrainDisplacement * params.PlanetRadius) {
+            f.color = beach;
+        } else {
+            f.color = ocean;
+        }
+    }
 };
 
 PLANET.terrain.update = function () {
-    this.terrain.geometry = planet.baseGeometry.clone();
-    this.terrain.material = new THREE.MeshPhongMaterial({
-        wireframe: params.PlanetWireframe,
-        flatShading: params.PlanetFlatShading
-    });
     PLANET.terrain.displaceTerrain(this.terrain.geometry);
-}
+    this.terrain.geometry.elementsNeedUpdate = true;
+};
