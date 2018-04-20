@@ -17,7 +17,11 @@ var params = {
     WaveLength: 1,
     WaveHeight: 0.05,
     CameraMax: 2,
-    CameraDefault: 1.8
+    CameraDefault: 1.8,
+    MoonDistance: 200,
+    MoonSize: 30,
+    SunDistance: 500,
+    SunSize: 200
 };
 var planet;
 
@@ -39,11 +43,8 @@ PLANET.main.main = function () {
         renderer.render(scene, camera);
     });
     //init light
-    var distance = params.PlanetRadius * params.CameraDefault;
-    light = new THREE.DirectionalLight(0xffffff, 0.8);
-    light.position.set(-distance, distance, distance);
-    light.castShadow = true;
-    scene.add(light);
+    light = new PLANET.lighting.Lighting();
+
     PLANET.main.addObjects();
     PLANET.controls.Controls();
     PLANET.debug.Debug();
@@ -66,6 +67,7 @@ PLANET.main.render = function () {
             PLANET.planet.animate();
         }
     }
+    PLANET.lighting.animate();
 
     renderer.render(scene, camera);
 };
