@@ -1,9 +1,8 @@
 window.PLANET = window.PLANET || {};
 PLANET.terrain = PLANET.terrain || {};
 
-PLANET.terrain.Terrain = function (base) {
+PLANET.terrain.Terrain = function (geometry) {
     THREE.Object3D.call(this);
-    var geometry = base.clone();
     var material = new THREE.MeshPhongMaterial({
         wireframe: params.PlanetWireframe,
         flatShading: params.PlanetFlatShading
@@ -11,6 +10,8 @@ PLANET.terrain.Terrain = function (base) {
     PLANET.terrain.displaceTerrain(geometry);
     this.terrain = new THREE.Mesh(geometry, material);
     this.terrain.name = "Terrain";
+    this.terrain.castShadow = true;
+    this.terrain.receiveShadow = true;
     return this.terrain;
 };
 

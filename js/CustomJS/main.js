@@ -17,7 +17,8 @@ var params = {
     WaveLength: 1,
     WaveHeight: 0.05,
     CameraMax: 2,
-    CameraDefault: 1.8
+    CameraDefault: 1.8,
+    CloudCount: 1
 };
 var planet;
 
@@ -26,10 +27,13 @@ PLANET.main.main = function () {
     //init scene
     scene = new THREE.Scene();
     renderer = new THREE.WebGLRenderer();
+
     renderer.setSize(window.innerWidth, window.innerHeight);
+
     canvas = document.createElement('div');
-    canvas.appendChild(renderer.domElement);
     document.body.appendChild(canvas);
+    canvas.appendChild(renderer.domElement);
+
     window.addEventListener('resize', function () {
         var width = window.innerWidth;
         var height = window.innerHeight;
@@ -47,19 +51,18 @@ PLANET.main.main = function () {
     PLANET.main.addObjects();
     PLANET.controls.Controls();
     PLANET.debug.Debug();
-    console.log(scene);
     PLANET.main.render();
 };
 
 PLANET.main.addObjects = function () {
-    planet = new PLANET.planet.Planet(params.PlanetRadius, params.PlanetDetail);
+    planet = new PLANET.planet.Planet();
     scene.add(planet)
 };
 
 PLANET.main.render = function () {
     requestAnimationFrame(PLANET.main.render);
     timer += 1 / 10;
-    if(timer > 1000000) timer = 0;
+    if (timer > 1000000) timer = 0;
     if (!inControl) {
         if (planet) {
             planet.rotation.y += params.PlanetRotationY;

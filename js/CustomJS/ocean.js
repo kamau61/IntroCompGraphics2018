@@ -1,21 +1,20 @@
 window.PLANET = window.PLANET || {};
 PLANET.ocean = PLANET.ocean || {};
 
-PLANET.ocean.Ocean = function(base) {
+PLANET.ocean.Ocean = function(geometry) {
     THREE.Object3D.call(this);
-    var geometry = base.clone();
     params.WaterLevel = geometry.vertices[0].length();
     var material = new THREE.MeshStandardMaterial({
         wireframe: params.PlanetWireframe,
         flatShading: params.PlanetFlatShading,
-        caseShadow: true,
-        receiveShadow: true,
         color: new THREE.Color(0x44B8ED),
         transparent: true,
         opacity: 0.8
     });
     this.ocean = new THREE.Mesh(geometry, material);
     this.ocean.name = "Ocean";
+    this.ocean.castShadow = true;
+    this.ocean.receiveShadow = true;
     return this.ocean;
 };
 
@@ -27,8 +26,6 @@ PLANET.ocean.update = function() {
     this.ocean.material = new THREE.MeshStandardMaterial({
         wireframe: params.PlanetWireframe,
         flatShading: params.PlanetFlatShading,
-        caseShadow: true,
-        receiveShadow: true,
         color: new THREE.Color(0x44B8ED),
         transparent: true,
         opacity: 0.8
