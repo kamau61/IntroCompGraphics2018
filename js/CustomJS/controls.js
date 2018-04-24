@@ -13,13 +13,27 @@ PLANET.controls.Controls = function() {
     PLANET.controls.addResizeListener();
 
     //mouse controls
-    controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.minDistance = params.PlanetRadius * (1 + params.TerrainDisplacement);
-    controls.maxDistance = params.PlanetRadius * params.CameraMax;
+    //controls = new THREE.OrbitControls(camera, renderer.domElement);
+    PLANET.controls = new flyControls(camera);
+    PLANET.controls.minDistance = params.PlanetRadius * (1 + params.TerrainDisplacement);
+    PLANET.controls.maxDistance = params.PlanetRadius * params.CameraMax;
 
     //for stopping animations during user control
     inControl = false;
-    PLANET.controls.addMouseEventListener();
+    var addMouseEventListener = function() {
+        canvas.addEventListener('mousedown', function(ev) {
+            inControl = true;
+            if(ev.button === 2) {
+                controls.reset();
+            }
+        });
+
+        canvas.addEventListener('mouseup', function() {
+            inControl = false;
+        });
+    };
+
+    addMouseEventListener();
 };
 
 PLANET.controls.addResizeListener = function() {
@@ -29,18 +43,5 @@ PLANET.controls.addResizeListener = function() {
         renderer.setSize(width, height);
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
-    });
-};
-
-PLANET.controls.addMouseEventListener = function() {
-    canvas.addEventListener('mousedown', function(ev) {
-        inControl = true;
-        if(ev.button === 2) {
-            controls.reset();
-        }
-    });
-
-    canvas.addEventListener('mouseup', function() {
-        inControl = false;
     });
 };

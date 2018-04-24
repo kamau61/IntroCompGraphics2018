@@ -67,5 +67,6 @@ PLANET.main.render = function () {
         }
     }
 
+    PLANET.controls.update();
     renderer.render(scene, camera);
 };

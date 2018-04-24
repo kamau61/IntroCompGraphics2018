@@ -51,11 +51,11 @@ PLANET.debug.Debug = function() {
     };
 
     var updateCamera = function() {
-        controls.minDistance = params.PlanetRadius * (1 + params.TerrainDisplacement);
-        controls.maxDistance = params.PlanetRadius * params.CameraMax;
+        PLANET.controls.minDistance = params.PlanetRadius * (1 + params.TerrainDisplacement);
+        PLANET.controls.maxDistance = params.PlanetRadius * params.CameraMax;
         camera.position.set(0, 0, params.PlanetRadius * params.CameraDefault);
-        controls.update();
-        controls.saveState();
+        PLANET.controls.update();
+        PLANET.controls.saveState();
     };
 
     gui = new dat.GUI();
@@ -79,6 +79,17 @@ PLANET.debug.Debug = function() {
     oceanControls.add(options, 'smoothOcean');
     oceanControls.add(options, 'roughOcean');
 
-    planetControls.open();
+    //planetControls.open();
+
+    var cameraControls = gui.addFolder('Camera');
+    cameraControls.add(camera.position, 'x').listen();
+    cameraControls.add(camera.position, 'y').listen();
+    cameraControls.add(camera.position, 'z').listen();
+    cameraControls.add(PLANET.controls, 'movSpeed', 0, 100).name('Moving Speed').listen();
+    cameraControls.add(PLANET.controls, 'rotSpeed', 0, 10).name('Rotating Speed').listen();
+    cameraControls.add(PLANET.controls, 'minDistance', 0, 200).name('Minimum Distance').listen();
+    cameraControls.add(PLANET.controls, 'maxDistance', 200, 1000).name('Maximum Distance').listen();
+    cameraControls.open();
+
     gui.add(options, 'reset');
 };
