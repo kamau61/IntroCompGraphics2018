@@ -1,9 +1,8 @@
-// This set of controls performs orbiting, dollying (zooming), and panning.
-// Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).
+//    Modified version of THREE.OrbitControls
 //
 //    Orbit - left mouse / touch: one finger move
 //    Zoom - middle mouse, or mousewheel / touch: two finger spread or squish
-//    Pan - right mouse, or arrow keys / touch: three finger swipe
+//    Pan - A (left) and S (right) when on the surface of planet
 
 PLANET.OrbitControls = function ( object, domElement ) {
 
@@ -52,6 +51,7 @@ PLANET.OrbitControls = function ( object, domElement ) {
 
     this.enablePan = true;
     this.panSpeed = 10.0;
+    this.pan = 0;
 
 	// Set to true to automatically rotate around the target
 	// If auto-rotate is enabled, you must call controls.update() in your animation loop
@@ -136,6 +136,8 @@ PLANET.OrbitControls = function ( object, domElement ) {
 
 		return function update() {
 
+		    //TODO fix orbit direction after panning
+
 			var position = scope.object.position;
 
 			offset.copy( position ).sub( scope.target );
@@ -190,10 +192,7 @@ PLANET.OrbitControls = function ( object, domElement ) {
 
 			scale = 1;
 
-			//TODO fix rotation when dollyout with 180 pan
-            scope.panAxis.setZ(mapLinear(spherical.radius, scope.minDistance, scope.maxDistance, 1, 0));
-            // scope.panAxis.setX(mapLinear(spherical.radius, scope.minDistance, scope.maxDistance, 0, 1));
-            scope.object.rotateOnAxis(scope.panAxis, pan);
+            scope.object.rotateOnAxis(scope.panAxis, mapLinear(spherical.radius, scope.minDistance, scope.maxDistance, scope.pan, 0));
 			camera = scope.object.clone();
 			camera.rotateOnAxis(scope.tiltAxis, mapLinear(spherical.radius, scope.minDistance, scope.maxDistance, Math.PI / 2, 0));
 
@@ -263,8 +262,6 @@ PLANET.OrbitControls = function ( object, domElement ) {
 	var scale = 1;
 	var zoomChanged = false;
 
-	var pan = 0;
-
 	var rotateStart = new THREE.Vector2();
 	var rotateEnd = new THREE.Vector2();
 	var rotateDelta = new THREE.Vector2();
@@ -295,8 +292,10 @@ PLANET.OrbitControls = function ( object, domElement ) {
 
 	function panLeft (angle) {
 
-	    pan += angle;
-	    if(Math.abs(pan) === Math.PI) { pan = Math.PI - pan; }
+	    scope.pan += angle;
+        if(Math.abs(scope.pan) > Math.PI) {
+	        scope.pan > 0 ? scope.pan -= Math.PI * 2 : scope.pan += Math.PI * 2;
+        }
 
     }
 
@@ -306,6 +305,7 @@ PLANET.OrbitControls = function ( object, domElement ) {
 
 	}
 
+	//TODO fix rotate limits at N and S poles
 	function rotateUp( angle ) {
 
 		sphericalDelta.phi -= angle;
@@ -422,6 +422,7 @@ PLANET.OrbitControls = function ( object, domElement ) {
 
 			case scope.keys.UP:
 			case scope.keys.ALT_UP:
+			    //TODO move towards camera front when reaching min distance
 				dollyOut( getZoomScale() );
                 scope.update();
 				break;
