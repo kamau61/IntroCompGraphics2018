@@ -51,23 +51,39 @@ PLANET.debug.Debug = function() {
     };
 
     var updateCamera = function() {
+<<<<<<< HEAD
         PLANET.controls.minDistance = params.PlanetRadius * (1 + params.TerrainDisplacement);
         PLANET.controls.maxDistance = params.PlanetRadius * params.CameraMax;
         camera.position.set(0, 0, params.PlanetRadius * params.CameraDefault);
         PLANET.controls.update();
         PLANET.controls.saveState();
+=======
+        controls.minDistance = params.PlanetRadius * (1 + params.TerrainDisplacement);
+        controls.maxDistance = params.PlanetRadius * params.CameraMax;
+        camera.position.set(0, 0, params.PlanetRadius * params.CameraMax);
+        controls.update();
+        controls.saveState();
+>>>>>>> b2a56284eec4cb23c3889f0af910446b1e52979f
     };
+
+    var updateControls = function() {
+        controls.autoRotate = params.CameraAutoRotate;
+    }
 
     gui = new dat.GUI();
     var planetControls = gui.addFolder('Planet');
+    var cameraControls = planetControls.addFolder('Camera');
     //the final planet wouldn't be rotating
-    planetControls.add(params, 'PlanetRotationY', 0, 0.05).listen();
-    planetControls.add(params, 'PlanetFlatShading').onChange(update).listen();
-    planetControls.add(params, 'PlanetWireframe').onChange(update).listen();
+    cameraControls.add(params, 'CameraAutoRotate').onChange(updateControls).listen();
+    // planetControls.add(params, 'PlanetRotationY', 0, 0.05).listen();
+    // planetControls.add(params, 'PlanetFlatShading').onChange(update).listen();
+    // planetControls.add(params, 'PlanetWireframe').onChange(update).listen();
     var terrainControls = planetControls.addFolder('Terrain');
     terrainControls.add(params, 'TerrainDensity', 0, 1).onChange(update).listen();
     terrainControls.add(params, 'TerrainDisplacement', 0, 0.5).onChange(update).listen();
     terrainControls.add(params, 'TerrainDetail', 1, 10).step(1).onChange(update).listen();
+    terrainControls.add(params, 'SnowLevel', 0, 1).step(0.1).onChange(update).listen();
+    terrainControls.add(params, 'BeachLevel', 0, 0.1).step(0.01).onChange(update).listen();
     terrainControls.add(options, 'generate');
     terrainControls.add(options, 'smoothTerrain');
     terrainControls.add(options, 'sharpTerrain');
