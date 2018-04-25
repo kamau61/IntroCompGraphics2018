@@ -53,15 +53,21 @@ PLANET.debug.Debug = function() {
     var updateCamera = function() {
         controls.minDistance = params.PlanetRadius * (1 + params.TerrainDisplacement);
         controls.maxDistance = params.PlanetRadius * params.CameraMax;
-        camera.position.set(0, 0, params.PlanetRadius * params.CameraDefault);
+        camera.position.set(0, 0, params.PlanetRadius * params.CameraMax);
         controls.update();
         controls.saveState();
     };
 
+    var updateControls = function() {
+        controls.autoRotate = params.CameraAutoRotate;
+    }
+
     gui = new dat.GUI();
     var planetControls = gui.addFolder('Planet');
+    var cameraControls = planetControls.addFolder('Camera');
     //the final planet wouldn't be rotating
-    planetControls.add(params, 'PlanetRotationY', 0, 0.05).listen();
+    cameraControls.add(params, 'CameraAutoRotate').onChange(updateControls).listen();
+    // planetControls.add(params, 'PlanetRotationY', 0, 0.05).listen();
     // planetControls.add(params, 'PlanetFlatShading').onChange(update).listen();
     // planetControls.add(params, 'PlanetWireframe').onChange(update).listen();
     var terrainControls = planetControls.addFolder('Terrain');

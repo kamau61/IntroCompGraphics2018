@@ -2,10 +2,11 @@ window.PLANET = window.PLANET || {};
 PLANET.main = PLANET.main || {};
 
 //variables that need global access
-var scene, camera, renderer, light, inControl, canvas, gui, simplex, timer;
+var scene, camera, renderer, light, canvas, gui, simplex, timer;
 var params = {
     PlanetRadius: 100,
-    PlanetDetail: 7,
+    // PlanetDetail: 7,
+    PlanetDetail:5,
     PlanetWireframe: false,
     PlanetFlatShading: true,
     PlanetRotationY: 0,
@@ -19,9 +20,11 @@ var params = {
     WaveLength: 1,
     WaveHeight: 0.05,
     CameraMax: 2,
-    CameraDefault: 1.8
+    CameraAutoRotate: false,
+
 };
 var planet;
+var axis = new THREE.Vector3(1, 0, 0);
 
 PLANET.main.main = function () {
     timer = 0;
@@ -41,7 +44,7 @@ PLANET.main.main = function () {
         renderer.render(scene, camera);
     });
     //init light
-    var distance = params.PlanetRadius * params.CameraDefault;
+    var distance = params.PlanetRadius * params.CameraMax;
     light = new THREE.DirectionalLight(0xffffff, 0.8);
     light.position.set(-distance, distance, distance);
     light.castShadow = true;
@@ -62,11 +65,9 @@ PLANET.main.render = function () {
     requestAnimationFrame(PLANET.main.render);
     timer += 1 / 10;
     if(timer > 1000000) timer = 0;
-    if (!inControl) {
-        if (planet) {
-            planet.rotation.y += params.PlanetRotationY;
-            PLANET.planet.animate();
-        }
+    if (planet) {
+        planet.rotation.y += params.PlanetRotationY;
+        PLANET.planet.animate();
     }
     renderer.render(scene, camera);
 };
