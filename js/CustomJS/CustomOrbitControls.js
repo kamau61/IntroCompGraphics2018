@@ -1,9 +1,8 @@
-// This set of controls performs orbiting, dollying (zooming), and panning.
-// Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).
+//    Modified version of THREE.OrbitControls
 //
 //    Orbit - left mouse / touch: one finger move
 //    Zoom - middle mouse, or mousewheel / touch: two finger spread or squish
-//    Pan - right mouse, or arrow keys / touch: three finger swipe
+//    Pan - A (left) and S (right) when on the surface of planet
 
 PLANET.OrbitControls = function ( object, domElement ) {
 
@@ -24,17 +23,8 @@ PLANET.OrbitControls = function ( object, domElement ) {
 	this.minDistance = params.PlanetRadius * (1 + params.TerrainDisplacement);
 	this.maxDistance = params.PlanetRadius * params.CameraMax;
 
-	// How far you can orbit vertically, upper and lower limits.
-	// Range is 0 to Math.PI radians.
-	// this.minPolarAngle = 0; // radians
-	// this.maxPolarAngle = Math.PI; // radians
-    this.minPolarAngle = - Infinity;
-    this.maxPolarAngle = Infinity;
-
 	// How far you can orbit horizontally, upper and lower limits.
 	// If set, must be a sub-interval of the interval [ - Math.PI, Math.PI ].
-	this.minAzimuthAngle = - Infinity; // radians
-	this.maxAzimuthAngle = Infinity; // radians
 
 	// Set to true to enable damping (inertia)
 	// If damping is enabled, you must call controls.update() in your animation loop
@@ -48,15 +38,8 @@ PLANET.OrbitControls = function ( object, domElement ) {
 
 	// Set to false to disable rotating
 	this.enableRotate = true;
-	this.rotateSpeed = 2.0; //TODO rotation speed maps to zoom/scale
 
-    this.enablePan = true;
-    this.panSpeed = 10.0;
-
-	// Set to true to automatically rotate around the target
-	// If auto-rotate is enabled, you must call controls.update() in your animation loop
-	this.autoRotate = params.CameraAutoRotate;
-	this.autoRotateSpeed = 2.0; // 30 seconds per round when fps is 60
+    this.pan = 0;
 
 	// Set to false to disable use of the keys
 	this.enableKeys = true;
@@ -136,6 +119,8 @@ PLANET.OrbitControls = function ( object, domElement ) {
 
 		return function update() {
 
+		    //TODO fix orbit direction after panning
+
 			var position = scope.object.position;
 
 			offset.copy( position ).sub( scope.target );
@@ -146,7 +131,7 @@ PLANET.OrbitControls = function ( object, domElement ) {
 			// angle from z-axis around y-axis
 			spherical.setFromVector3( offset );
 
-			if ( scope.autoRotate && state === STATE.NONE ) {
+			if ( params.AutoRotate && state === STATE.NONE ) {
 
 				rotateLeft( getAutoRotationAngle() );
 
@@ -154,12 +139,6 @@ PLANET.OrbitControls = function ( object, domElement ) {
 
 			spherical.theta += sphericalDelta.theta;
 			spherical.phi += sphericalDelta.phi;
-
-			// restrict theta to be between desired limits
-			spherical.theta = Math.max( scope.minAzimuthAngle, Math.min( scope.maxAzimuthAngle, spherical.theta ) );
-
-			// restrict phi to be between desired limits
-			spherical.phi = Math.max( scope.minPolarAngle, Math.min( scope.maxPolarAngle, spherical.phi ) );
 
 			spherical.makeSafe();
 
@@ -190,10 +169,7 @@ PLANET.OrbitControls = function ( object, domElement ) {
 
 			scale = 1;
 
-			//TODO fix rotation when dollyout with 180 pan
-            scope.panAxis.setZ(mapLinear(spherical.radius, scope.minDistance, scope.maxDistance, 1, 0));
-            // scope.panAxis.setX(mapLinear(spherical.radius, scope.minDistance, scope.maxDistance, 0, 1));
-            scope.object.rotateOnAxis(scope.panAxis, pan);
+            scope.object.rotateOnAxis(scope.panAxis, mapLinear(spherical.radius, scope.minDistance, scope.maxDistance, scope.pan, 0));
 			camera = scope.object.clone();
 			camera.rotateOnAxis(scope.tiltAxis, mapLinear(spherical.radius, scope.minDistance, scope.maxDistance, Math.PI / 2, 0));
 
@@ -263,8 +239,6 @@ PLANET.OrbitControls = function ( object, domElement ) {
 	var scale = 1;
 	var zoomChanged = false;
 
-	var pan = 0;
-
 	var rotateStart = new THREE.Vector2();
 	var rotateEnd = new THREE.Vector2();
 	var rotateDelta = new THREE.Vector2();
@@ -275,16 +249,16 @@ PLANET.OrbitControls = function ( object, domElement ) {
 
 	function getAutoRotationAngle() {
 
-		return 2 * Math.PI / 60 / 60 * scope.autoRotateSpeed;
+		return 2 * Math.PI / 60 / 60 * params.AutoRotateSpeed;
 
 	}
 
 	function getRotationAngle() {
-	    return 8 * Math.PI / 60 / 60 * scope.rotateSpeed;
+	    return 8 * Math.PI / 60 / 60 * params.RotateSpeed;//TODO rotation speed maps to zoom
     }
 
     function getPanAngle() {
-	    return 8 * Math.PI / 60 / 60 * scope.panSpeed;
+	    return 8 * Math.PI / 60 / 60 * params.PanSpeed;
     }
 
 	function getZoomScale() {
@@ -295,8 +269,10 @@ PLANET.OrbitControls = function ( object, domElement ) {
 
 	function panLeft (angle) {
 
-	    pan += angle;
-	    if(Math.abs(pan) === Math.PI) { pan = Math.PI - pan; }
+	    scope.pan += angle;
+        if(Math.abs(scope.pan) > Math.PI) {
+	        scope.pan > 0 ? scope.pan -= Math.PI * 2 : scope.pan += Math.PI * 2;
+        }
 
     }
 
@@ -306,6 +282,7 @@ PLANET.OrbitControls = function ( object, domElement ) {
 
 	}
 
+	//TODO fix rotate limits at N and S poles
 	function rotateUp( angle ) {
 
 		sphericalDelta.phi -= angle;
@@ -350,7 +327,7 @@ PLANET.OrbitControls = function ( object, domElement ) {
 
 		rotateEnd.set( event.clientX, event.clientY );
 
-		rotateDelta.subVectors( rotateEnd, rotateStart ).multiplyScalar( scope.rotateSpeed );
+		rotateDelta.subVectors( rotateEnd, rotateStart ).multiplyScalar( params.RotateSpeed );
 
 		var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
 
@@ -422,6 +399,7 @@ PLANET.OrbitControls = function ( object, domElement ) {
 
 			case scope.keys.UP:
 			case scope.keys.ALT_UP:
+			    //TODO move towards camera front when reaching min distance
 				dollyOut( getZoomScale() );
                 scope.update();
 				break;
@@ -483,7 +461,7 @@ PLANET.OrbitControls = function ( object, domElement ) {
 
 		rotateEnd.set( event.touches[ 0 ].pageX, event.touches[ 0 ].pageY );
 
-		rotateDelta.subVectors( rotateEnd, rotateStart ).multiplyScalar( scope.rotateSpeed );
+		rotateDelta.subVectors( rotateEnd, rotateStart ).multiplyScalar( params.RotateSpeed );
 
 		var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
 

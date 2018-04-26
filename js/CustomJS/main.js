@@ -5,8 +5,8 @@ PLANET.main = PLANET.main || {};
 var scene, camera, renderer, light, canvas, gui, simplex, timer;
 var params = {
     PlanetRadius: 100,
-    // PlanetDetail: 7,
-    PlanetDetail:5,
+    PlanetDetail: 7,
+    // PlanetDetail:5, //for testing
     PlanetWireframe: false,
     PlanetFlatShading: true,
     PlanetRotationY: 0,
@@ -20,7 +20,11 @@ var params = {
     WaveLength: 1,
     WaveHeight: 0.05,
     CameraMax: 2,
-    CameraAutoRotate: false,
+    AutoRotate: false,
+    AutoRotateSpeed: 2, // 30 seconds per round when fps is 60
+    ZoomSpeed: 1,
+    RotateSpeed: 2,
+    PanSpeed: 10
 
 };
 var planet;
@@ -57,7 +61,7 @@ PLANET.main.main = function () {
 };
 
 PLANET.main.addObjects = function () {
-    planet = new PLANET.planet.Planet(params.PlanetRadius, params.PlanetDetail);
+    planet = new PLANET.planet.Planet();
     scene.add(planet);
 };
 
@@ -68,6 +72,9 @@ PLANET.main.render = function () {
     if (planet) {
         planet.rotation.y += params.PlanetRotationY;
         PLANET.planet.animate();
+    }
+    if (params.AutoRotate) {
+        controls.update();
     }
     renderer.render(scene, camera);
 };
