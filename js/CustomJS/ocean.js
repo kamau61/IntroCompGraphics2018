@@ -9,13 +9,13 @@ PLANET.ocean.Ocean = function(base) {
         //TODO make all these linked to param
         wireframe: params.PlanetWireframe,
         flatShading: params.PlanetFlatShading,
-        caseShadow: true,
-        receiveShadow: true,
         color: new THREE.Color('steelblue'),
         transparent: true,
         opacity: 0.8
     });
     this.ocean = new THREE.Mesh(geometry, material);
+    this.ocean.castShadow = true;
+    this.ocean.receiveShadow = true;
     this.ocean.name = "Ocean";
     return this.ocean;
 };
@@ -44,4 +44,5 @@ PLANET.ocean.animate = function() {
         v.setLength(params.WaterLevel + len * params.WaveHeight);
     }
     this.ocean.geometry.verticesNeedUpdate = true;
+    this.ocean.geometry.computeVertexNormals();
 };

@@ -32,6 +32,8 @@ PLANET.terrain.displaceTerrain = function (geometry) {
         }
         v.setLength(params.PlanetRadius + len);
     }
+    geometry.elementsNeedUpdate = true;
+    geometry.computeVertexNormals();
     PLANET.terrain.colorTerrain(geometry);
 };
 
@@ -69,4 +71,5 @@ PLANET.terrain.colorTerrain = function(geometry) {
 PLANET.terrain.update = function () {
     PLANET.terrain.displaceTerrain(this.terrain.geometry);
     this.terrain.geometry.elementsNeedUpdate = true;
+    PLANET.terrain.computeVertexNormals();
 };
