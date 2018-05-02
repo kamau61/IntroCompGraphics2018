@@ -5,8 +5,8 @@ PLANET.main = PLANET.main || {};
 var scene, camera, renderer, light, canvas, gui, simplex, timer;
 var params = {
     PlanetRadius: 100,
-    PlanetDetail: 7,
-    // PlanetDetail:5, //for testing
+    // PlanetDetail: 7,
+    PlanetDetail:6, //for testing
     PlanetWireframe: false,
     PlanetFlatShading: true,
     PlanetRotationY: 0,

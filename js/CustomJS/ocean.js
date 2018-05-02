@@ -11,7 +11,7 @@ PLANET.ocean.Ocean = function(base) {
         flatShading: params.PlanetFlatShading,
         color: new THREE.Color('steelblue'),
         transparent: true,
-        opacity: 0.8
+        opacity: 0.9
     });
     this.ocean = new THREE.Mesh(geometry, material);
     this.ocean.castShadow = true;
@@ -44,5 +44,4 @@ PLANET.ocean.animate = function() {
         v.setLength(params.WaterLevel + len * params.WaveHeight);
     }
     this.ocean.geometry.verticesNeedUpdate = true;
-    this.ocean.geometry.computeVertexNormals();
 };
