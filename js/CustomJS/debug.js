@@ -51,30 +51,14 @@ PLANET.debug.Debug = function() {
     };
 
     var updateCamera = function() {
-<<<<<<< HEAD
         PLANET.controls.minDistance = params.PlanetRadius * (1 + params.TerrainDisplacement);
         PLANET.controls.maxDistance = params.PlanetRadius * params.CameraMax;
-        camera.position.set(0, 0, params.PlanetRadius * params.CameraDefault);
+        camera.position.set(0, 0, params.PlanetRadius * params.CameraMax);
         PLANET.controls.update();
         PLANET.controls.saveState();
-=======
-        controls.minDistance = params.PlanetRadius * (1 + params.TerrainDisplacement);
-        controls.maxDistance = params.PlanetRadius * params.CameraMax;
-        camera.position.set(0, 0, params.PlanetRadius * params.CameraMax);
-        controls.update();
-        controls.saveState();
->>>>>>> b2a56284eec4cb23c3889f0af910446b1e52979f
     };
 
     gui = new dat.GUI();
-    var cameraControls = gui.addFolder('Camera');
-    //the final planet wouldn't be rotating
-    cameraControls.add(params, 'AutoRotate').listen();
-    cameraControls.add(params, 'AutoRotateSpeed', 0.5, 5).step(0.5).listen();
-    cameraControls.add(params, 'ZoomSpeed', 0.5, 5).step(0.5).listen();
-    cameraControls.add(params, 'RotateSpeed', 1, 10).step(1).listen();
-    cameraControls.add(params, 'PanSpeed', 5, 20).step(1).listen();
-    cameraControls.open();
     var planetControls = gui.addFolder('Planet');
     // planetControls.add(params, 'PlanetRotationY', 0, 0.05).listen();
     // planetControls.add(params, 'PlanetFlatShading').onChange(update).listen();
@@ -99,9 +83,6 @@ PLANET.debug.Debug = function() {
     oceanControls.add(options, 'roughOcean');
     oceanControls.open();
 
-<<<<<<< HEAD
-    //planetControls.open();
-
     var cameraControls = gui.addFolder('Camera');
     cameraControls.add(camera.position, 'x').listen();
     cameraControls.add(camera.position, 'y').listen();
@@ -111,8 +92,5 @@ PLANET.debug.Debug = function() {
     cameraControls.add(PLANET.controls, 'minDistance', 0, 200).name('Minimum Distance').listen();
     cameraControls.add(PLANET.controls, 'maxDistance', 200, 1000).name('Maximum Distance').listen();
     cameraControls.open();
-
-=======
->>>>>>> 15711b1a4a2b629e9263a048c107e1a4332efda6
     gui.add(options, 'reset');
 };

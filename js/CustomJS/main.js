@@ -20,8 +20,6 @@ var params = {
     WaveLength: 1,
     WaveHeight: 0.05,
     CameraMax: 2,
-    AutoRotate: false,
-    AutoRotateSpeed: 2, // 30 seconds per round when fps is 60
     ZoomSpeed: 1,
     RotateSpeed: 2,
     PanSpeed: 10
@@ -73,16 +71,6 @@ PLANET.main.render = function () {
         planet.rotation.y += params.PlanetRotationY;
         PLANET.planet.animate();
     }
-<<<<<<< HEAD
-<<<<<<< HEAD
-
     PLANET.controls.update();
-=======
->>>>>>> b2a56284eec4cb23c3889f0af910446b1e52979f
-=======
-    if (params.AutoRotate) {
-        controls.update();
-    }
->>>>>>> 15711b1a4a2b629e9263a048c107e1a4332efda6
     renderer.render(scene, camera);
 };
