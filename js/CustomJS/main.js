@@ -6,16 +6,22 @@ var scene, camera, renderer, light, canvas, gui, simplex, timer;
 var params = {
     PlanetRadius: 100,
     // PlanetDetail: 7,
-    PlanetDetail:6, //for testing
+    PlanetDetail: 5, //for testing
     PlanetWireframe: false,
     PlanetFlatShading: true,
     PlanetRotationY: 0,
     TerrainDisplacement: 0.1,
     TerrainDensity: 0.1,
     TerrainDetail: 9,
+    TerrainColor: 0x6B8E23, //olivedrab
     SnowLevel: 0.5,
+    SnowColor: 0xFFFAFA, //snow
     BeachLevel: 0.1,
+    BeachColor: 0xF4A460, //sandybrown
+    CoralColor: 0x4682B4, //steelblue
+    WaterColor: 0x4682B4, //steelblue
     WaterLevel: 100,
+    WaterOpacity: 0.9,
     WaveSpeed: 0.25,
     WaveLength: 1,
     WaveHeight: 0.05,

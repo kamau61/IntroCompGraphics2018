@@ -40,10 +40,6 @@ PLANET.terrain.displaceTerrain = function (geometry) {
 PLANET.terrain.colorTerrain = function(geometry) {
     var f, v = [3], vi = ['a', 'b', 'c'],
         pos = new THREE.Vector3();
-    var ocean = new THREE.Color('steelblue'),
-        beach = new THREE.Color('sandybrown'),
-        grass = new THREE.Color('olivedrab'),
-        snow = new THREE.Color('snow');
     for(var i = 0; i < geometry.faces.length; i++) {
         f = geometry.faces[i];
         pos.set(0, 0, 0);
@@ -57,13 +53,13 @@ PLANET.terrain.colorTerrain = function(geometry) {
         pos.y /= vi.length;
         pos.z /= vi.length;
         if(pos.length() > params.PlanetRadius * (1 + params.TerrainDisplacement * (1 - params.SnowLevel))) {
-            f.color = snow;
+            f.color.setHex(params.SnowColor);
         } else if(pos.length() > params.WaterLevel + params.BeachLevel * params.TerrainDisplacement * params.PlanetRadius) {
-            f.color = grass;
+            f.color.setHex(params.TerrainColor);
         } else if(pos.length() > params.WaterLevel - params.BeachLevel * params.TerrainDisplacement * params.PlanetRadius) {
-            f.color = beach;
+            f.color.setHex(params.BeachColor);
         } else {
-            f.color = ocean;
+            f.color.setHex(params.CoralColor);
         }
     }
 };
@@ -71,5 +67,5 @@ PLANET.terrain.colorTerrain = function(geometry) {
 PLANET.terrain.update = function () {
     PLANET.terrain.displaceTerrain(this.terrain.geometry);
     this.terrain.geometry.elementsNeedUpdate = true;
-    PLANET.terrain.computeVertexNormals();
+    this.terrain.geometry.computeVertexNormals();
 };

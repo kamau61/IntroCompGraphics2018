@@ -9,9 +9,9 @@ PLANET.ocean.Ocean = function(base) {
         //TODO make all these linked to param
         wireframe: params.PlanetWireframe,
         flatShading: params.PlanetFlatShading,
-        color: new THREE.Color('steelblue'),
+        color: new THREE.Color(params.WaterColor),
         transparent: true,
-        opacity: 0.9
+        opacity: params.WaterOpacity
     });
     this.ocean = new THREE.Mesh(geometry, material);
     this.ocean.castShadow = true;
@@ -25,6 +25,8 @@ PLANET.ocean.Ocean.prototype = Object.create(THREE.Object3D.prototype);
 PLANET.ocean.update = function() {
     // this.ocean.geometry = planet.baseGeometry.clone();
     // this.ocean.geometry.scale(params.WaterLevel, params.WaterLevel, params.WaterLevel);
+    this.ocean.material.color.setHex(params.WaterColor);
+    this.ocean.material.opacity = params.WaterOpacity;
     // this.ocean.material = new THREE.MeshStandardMaterial({
     //     wireframe: params.PlanetWireframe,
     //     flatShading: params.PlanetFlatShading,

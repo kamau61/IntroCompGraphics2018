@@ -9,9 +9,11 @@ PLANET.debug.Debug = function() {
             params.PlanetRotation = true;
             params.PlanetRotationY = 0;
             this.smoothTerrain();
+            this.earthColor();
             params.WaterLevel = params.PlanetRadius;
+            params.WaterColor = 0x4682B4;
+            params.WaterOpacity = 0.9;
             this.roughOcean();
-            update();
         },
         generate: function() {
             simplex = new SimplexNoise();
@@ -31,6 +33,20 @@ PLANET.debug.Debug = function() {
             params.PlanetRadius = 100;
             params.PlanetDetail = 7;
             params.TerrainDisplacement = 0.25;
+            update();
+        },
+        earthColor: function() {
+            params.SnowColor = 0xFFFAFA;
+            params.TerrainColor = 0x6B8E23;
+            params.BeachColor = 0xF4A460;
+            params.CoralColor = 0x4682B4;
+            update();
+        },
+        greyScale: function() {
+            params.SnowColor = 0xFFFFFF;
+            params.TerrainColor = 0xF2F2F2;
+            params.BeachColor = 0xCCCCCC;
+            params.CoralColor = 0x808080;
             update();
         },
         smoothOcean: function() {
@@ -68,14 +84,22 @@ PLANET.debug.Debug = function() {
     terrainControls.add(params, 'TerrainDensity', 0, 1).onChange(update).listen();
     terrainControls.add(params, 'TerrainDisplacement', 0, 0.5).onChange(update).listen();
     terrainControls.add(params, 'TerrainDetail', 1, 10).step(1).onChange(update).listen();
+    terrainControls.addColor(params, 'TerrainColor').onChange(update).listen();
     terrainControls.add(params, 'SnowLevel', 0, 1).step(0.1).onChange(update).listen();
+    terrainControls.addColor(params, 'SnowColor').onChange(update).listen();
     terrainControls.add(params, 'BeachLevel', 0, 0.1).step(0.01).onChange(update).listen();
+    terrainControls.addColor(params, 'BeachColor').onChange(update).listen();
+    terrainControls.addColor(params, 'CoralColor').onChange(update).listen();
     terrainControls.add(options, 'generate');
     terrainControls.add(options, 'smoothTerrain');
     terrainControls.add(options, 'sharpTerrain');
+    terrainControls.add(options, 'earthColor');
+    terrainControls.add(options, 'greyScale');
     terrainControls.open();
     var oceanControls = planetControls.addFolder('Ocean');
     oceanControls.add(params, 'WaterLevel', params.PlanetRadius - params.TerrainDisplacement * params.PlanetRadius, params.PlanetRadius + params.TerrainDisplacement * params.PlanetRadius).listen();
+    oceanControls.addColor(params, 'WaterColor').onChange(update).listen();
+    oceanControls.add(params, 'WaterOpacity', 0, 1).step(0.1).onChange(update).listen();
     oceanControls.add(params, 'WaveSpeed', 0, 1).listen();
     oceanControls.add(params, 'WaveLength', 1, 5).listen();
     oceanControls.add(params, 'WaveHeight', 0, 0.3).listen();
