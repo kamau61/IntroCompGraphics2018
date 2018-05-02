@@ -13,6 +13,40 @@ PLANET.controls.Controls = function() {
     // PLANET.controls.addResizeListener();
 
     //mouse controls
+<<<<<<< HEAD
+    //controls = new THREE.OrbitControls(camera, renderer.domElement);
+    PLANET.controls = new flyControls(camera);
+    PLANET.controls.minDistance = params.PlanetRadius * (1 + params.TerrainDisplacement);
+    PLANET.controls.maxDistance = params.PlanetRadius * params.CameraMax;
+
+    //for stopping animations during user control
+    inControl = false;
+    var addMouseEventListener = function() {
+        canvas.addEventListener('mousedown', function(ev) {
+            inControl = true;
+            if(ev.button === 2) {
+                controls.reset();
+            }
+        });
+
+        canvas.addEventListener('mouseup', function() {
+            inControl = false;
+        });
+    };
+
+    addMouseEventListener();
+};
+
+PLANET.controls.addResizeListener = function() {
+    window.addEventListener('resize', function() {
+        var width = window.innerWidth;
+        var height = window.innerHeight;
+        renderer.setSize(width, height);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+    });
+};
+=======
     // controls = new THREE.OrbitControls(camera, renderer.domElement);
     // controls.minDistance = params.PlanetRadius * (1 + params.TerrainDisplacement);
     // controls.maxDistance = params.PlanetRadius * params.CameraMax;
@@ -52,3 +86,4 @@ PLANET.controls.Controls = function() {
     inControl = false;
     // PLANET.controls.addMouseEventListener();
 };
+>>>>>>> b2a56284eec4cb23c3889f0af910446b1e52979f

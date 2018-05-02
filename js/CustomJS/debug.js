@@ -51,11 +51,19 @@ PLANET.debug.Debug = function() {
     };
 
     var updateCamera = function() {
+<<<<<<< HEAD
+        PLANET.controls.minDistance = params.PlanetRadius * (1 + params.TerrainDisplacement);
+        PLANET.controls.maxDistance = params.PlanetRadius * params.CameraMax;
+        camera.position.set(0, 0, params.PlanetRadius * params.CameraDefault);
+        PLANET.controls.update();
+        PLANET.controls.saveState();
+=======
         controls.minDistance = params.PlanetRadius * (1 + params.TerrainDisplacement);
         controls.maxDistance = params.PlanetRadius * params.CameraMax;
         camera.position.set(0, 0, params.PlanetRadius * params.CameraMax);
         controls.update();
         controls.saveState();
+>>>>>>> b2a56284eec4cb23c3889f0af910446b1e52979f
     };
 
     gui = new dat.GUI();
@@ -91,5 +99,20 @@ PLANET.debug.Debug = function() {
     oceanControls.add(options, 'roughOcean');
     oceanControls.open();
 
+<<<<<<< HEAD
+    //planetControls.open();
+
+    var cameraControls = gui.addFolder('Camera');
+    cameraControls.add(camera.position, 'x').listen();
+    cameraControls.add(camera.position, 'y').listen();
+    cameraControls.add(camera.position, 'z').listen();
+    cameraControls.add(PLANET.controls, 'movSpeed', 0, 100).name('Moving Speed').listen();
+    cameraControls.add(PLANET.controls, 'rotSpeed', 0, 10).name('Rotating Speed').listen();
+    cameraControls.add(PLANET.controls, 'minDistance', 0, 200).name('Minimum Distance').listen();
+    cameraControls.add(PLANET.controls, 'maxDistance', 200, 1000).name('Maximum Distance').listen();
+    cameraControls.open();
+
+=======
+>>>>>>> 15711b1a4a2b629e9263a048c107e1a4332efda6
     gui.add(options, 'reset');
 };
