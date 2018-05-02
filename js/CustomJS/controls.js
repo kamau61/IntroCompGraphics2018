@@ -6,7 +6,7 @@ PLANET.controls.Controls = function() {
     //init camera
     var aspect = window.innerWidth / window.innerHeight;
     camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 5000);
-    camera.position.set(0, 0, params.PlanetRadius * params.CameraMax);
+    //camera.position.set(0, 0, params.PlanetRadius * params.CameraMax);
     // cameraPos = camera.clone();
     // startRotation = camera.rotation.clone();
 
@@ -14,6 +14,8 @@ PLANET.controls.Controls = function() {
 
     //mouse controls
     PLANET.controls = new flyControls(camera);
+//    PLANET.controls.object.set(0, 0, params.PlanetRadius * params.CameraMax);
+    scene.add(PLANET.controls.object);
     PLANET.controls.minDistance = params.PlanetRadius * (1 + params.TerrainDisplacement);
     PLANET.controls.maxDistance = params.PlanetRadius * params.CameraMax;
 
