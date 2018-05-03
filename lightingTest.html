@@ -1,179 +1,268 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset=utf-8>
-    <title>Day Night Cycle</title>
-    <style>
-        body {
-            margin: 0;
-        }
+	<head>
+		<meta charset=utf-8>
+		<title>Day Night Cycle</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+	</head>
+	<body>
+		<script src="js/ThreeJS/three.js"></script>
+		<script src="js/ThreeJS/OrbitControls.js"></script>
 
-        canvas {
-            width: 100%;
-            height: 100%
-        }
-    </style>
-</head>
-<body>
-<script src="js/ThreeJS/three.js"></script>
-<script src='js/CustomJS/threex.daynight.js'></script>
-<script src="js/ThreeJS/OrbitControls.js"></script>
-<
+		<script>
+			/////////////////////////////////////////////////////
+			// SCENE, CAMERA, RENDERER AND RESIZER     				 //
+			/////////////////////////////////////////////////////
 
-<script>
-    /////////////////////////////////////////////////////
-    // SCENE, CAMERA, RENDERER AND RESIZER
-    /////////////////////////////////////////////////////
-    var THREEx = THREEx || {};
-    THREEx.DayNight = {};
-    var onRenderFcts = [];
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+			var renderer = new THREE.WebGLRenderer();
 
-    var scene = new THREE.Scene();
-    var camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-    var renderer = new THREE.WebGLRenderer();
+			controls = new THREE.OrbitControls(camera, renderer.domElement);
 
-    controls = new THREE.OrbitControls(camera, renderer.domElement);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			document.body.appendChild(renderer.domElement);
+			camera.position.z = 60;
 
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
-    camera.position.z = 60;
-
-    var MyResize = function () {
+			var MyResize = function ( )
+      {
         var width = window.innerWidth;
         var height = window.innerHeight;
-        renderer.setSize(width, height);
-        camera.aspect = width / height;
+        renderer.setSize(width,height);
+        camera.aspect = width/height;
         camera.updateProjectionMatrix();
-        renderer.render(scene, camera);
-    };
-    window.addEventListener('resize', MyResize);
+        renderer.render(scene,camera);
+      };
+      window.addEventListener( 'resize', MyResize);
 
 
-    /////////////////////////////////////////////////////
-    // LIGHTING AND MESHES
-    /////////////////////////////////////////////////////
-    var geometrySphere = new THREE.SphereGeometry(8, 100);
-    var materialSphere = new THREE.MeshLambertMaterial({color: 0x7fb0ff});
-    var sphere = new THREE.Mesh(geometrySphere, materialSphere);
-    scene.add(sphere);
-
-    var light = new THREE.AmbientLight(0x25105c); // soft white light
-    scene.add(light);
-
-    sunLight = new THREE.PointLight(0xffffff, 0.5, 1000);
-    moonLight = new THREE.PointLight(0xeeeeff, 0.01);
-    scene.add(sunLight);
-    scene.add(moonLight);
-    sunObj = new THREE.SphereGeometry(100, 8, 8);
-    moonObj = new THREE.SphereGeometry(100, 8, 8);
-    materialLightSun = new THREE.MeshBasicMaterial({color: 0xffaa00});
-    materialLightMoon = new THREE.MeshBasicMaterial({color: 0xeeeeee});
-    sun = new THREE.Mesh(sunObj, materialLightSun);
-    moon = new THREE.Mesh(moonObj, materialLightMoon);
-    sun.scale.set(0.1, 0.1, 0.1);
-    moon.scale.set(0.01, 0.01, 0.01);
-    sunLight.add(sun);
-    moonLight.add(moon);
 
 
-    /////////////////////////////////////////////////////
-    // SKYSPHERE
-    /////////////////////////////////////////////////////
 
-    createSky = function () {
-        var geometry = new THREE.SphereGeometry(300, 32, 15);
-        var shader = THREEx.DayNight.Sky.Shader
-        var uniforms = THREE.UniformsUtils.clone(shader.uniforms)
-        var material = new THREE.ShaderMaterial({
-            /*For vertex shader if added in later
-            vertexShader	: shader.vertexShader,*/
-            //Colour the skybox
-            fragmentShader: shader.fragmentShader,
-            //Parameters that are passed into the shader program
-            uniforms: uniforms,
-            //Render the colour of the inside of the sky sphere
-            side: THREE.BackSide
-        });
+			/////////////////////////////////////////////////////
+			// LIGHTING AND MESHES                             //
+			/////////////////////////////////////////////////////
 
-        var sky = new createSky();
-        scene.add(sky.object3d);
-        onRenderFcts.push(function (delta, now) {
-            sunSphere.update(sunDistance);
-        });
+			//EARTH
+			var geometrySphere = new THREE.SphereGeometry(8,100);
+			var materialSphere = new THREE.MeshLambertMaterial({color: 0x7fb0ff});
+			var sphere = new THREE.Mesh(geometrySphere, materialSphere);
+			scene.add(sphere);
 
-        var skySphere = new THREE.Mesh(geometry, material);
-        this.object3d = skySphere;
+			var dayLight = new THREE.AmbientLight( 0x82e5ff, 0.75 );
+			var sunset1Light = new THREE.AmbientLight( 0x7b77b1, 0.75 );
+			var sunset2Light = new THREE.AmbientLight( 0xbf4ab1, 0.75 );
+			var sunset3Light = new THREE.AmbientLight( 0xc81c61, 0.75 );
+			var duskLight = new THREE.AmbientLight( 0x7d119e, 0.75 );
+			var nightLight = new THREE.AmbientLight( 0x181d38, 0.75 );
+			var nullLight = new THREE.AmbientLight( 0x404040, 0.75 ); //soft white light
+			scene.add( dayLight );
+			scene.add( sunset1Light );
+			scene.add( sunset2Light );
+			scene.add( sunset3Light );
+			scene.add( duskLight );
+			scene.add( nightLight );
+			scene.add( nullLight );
 
-        Sky.update = function (sunDistance) {
-            if (phase === 'day') {
-                uniforms.skyColor.value.set("rgb(0,120,255)");
-                //uniforms.bottomColor.value.set("rgb(255,"+ (Math.floor(Math.sin(sunDistance)*200)+55) + "," + (Math.floor(Math.sin(sunDistance)*200)) +")");
-            } else if (phase === 'twilight') {
-                uniforms.skyColor.value.set("rgb(255, 69, 0)");
-                //uniforms.topColor.value.set("rgb(0," + (120-Math.floor(Math.sin(sunDistance)*240*-1)) + "," + (255-Math.floor(Math.sin(sunDistance)*510*-1)) +")");
-                //uniforms.bottomColor.value.set("rgb(" + (255-Math.floor(Math.sin(sunDistance)*510*-1)) + "," + (55-Math.floor(Math.sin(sunDistance)*110*-1)) + ",0)");
-            } else if (phase === 'night') {
-                uniforms.skyColor.value.set("rgb(50, 0, 50)");
-            } else {
-                uniforms.skyColor.value.set('black');
-            }
-        }
-    }
+			//SUN AND MOON
+			sunLight = new THREE.PointLight( 0xffffff, 0.5, 1000);
+			moonLight = new THREE.PointLight( 0xeeeeff, 0.01 );
+			scene.add( sunLight );
+			scene.add( moonLight );
+			sunObj = new THREE.SphereGeometry( 100, 8, 8 );
+			moonObj = new THREE.SphereGeometry( 100, 8, 8 );
+			materialLightSun = new THREE.MeshBasicMaterial( { color: 0xffaa00 } );
+			materialLightMoon = new THREE.MeshBasicMaterial( { color: 0xeeeeee } );
+			sun = new THREE.Mesh( sunObj, materialLightSun );
+			moon = new THREE.Mesh( moonObj, materialLightMoon );
+			sun.scale.set( 0.01, 0.01, 0.01 );
+			moon.scale.set( 0.001, 0.001, 0.001 );
+			sunLight.add( sun );
+			moonLight.add( moon );
 
 
-    /////////////////////////////////////////////////////
-    // GLSL CODE FOR SHADERS
-    /////////////////////////////////////////////////////
-
-    // THREEx.DayNight.Sky.Shader = {
-    //     //Uniforms: Parameters that can be passed into the program
-    //     uniforms: {
-    //         skyColor: {type: "c", value: new THREE.Color()}
-    //     },
-    //     //Can add vertexShader here if added later
-    //     fragmentShader: [
-    //         'uniform vec3 skyColor;',
-    //         'void main() {',
-    //         //gl_fragColor = vec4( Red, Green, Blue, Alpha)
-    //         '	gl_FragColor = vec4(skyColor, 2.0 );',
-    //         '}'
-    //     ].join('\n')
-    // };
 
 
-    /////////////////////////////////////////////////////
-    // RENDER LOOP
-    /////////////////////////////////////////////////////
-    var clock = new THREE.Clock();
-    var phase = 'day';
-    var Animate = function () {
-        // Rotation of sun and moon
-        var r = clock.getElapsedTime()/5;
-        sunLight.position.x = 200 * Math.cos(r);
-        sunLight.position.z = 200 * Math.sin(r);
-        moonLight.position.x = 50 * -Math.cos(r);
-        moonLight.position.z = 50 * -Math.sin(r);
 
-        var sunDistance = Math.sqrt(Math.pow(camera.position.x - sun.position.x, 2) +
-            Math.pow(camera.position.y - sun.position.y, 2) +
-            Math.pow(camera.position.z - sun.position.z, 2));
+			/////////////////////////////////////////////////////
+      // SKYSPHERE					                             //
+      /////////////////////////////////////////////////////
 
-        if (sunDistance > 59) {
-            phase = 'day';
-        } else if (sunDistance > 39) {
-            phase = 'twilight';
-        } else if (sunDistance > 29) {
-            phase = 'dark';
-        } else {
-            phase = 'night';
-        }
+			CreateSky	= function(){
+				var geometry	= new THREE.SphereGeometry( 300, 32, 15 );
 
-        renderer.render(scene, camera);
-        requestAnimationFrame(Animate);
+				// GLSL CODE FOR SHADERS
+				var shader = {
+					//Uniforms: Parameters that can be passed into the program
+					uniforms	: {
+						skyColor	: { type: "c", value: new THREE.Color()},
+					},
+					//Can add vertexShader here if added later
+					fragmentShader	: [
+						'uniform vec3 skyColor;',
+						'void main() {',
+							//gl_fragColor = vec4( Red, Green, Blue, Alpha)
+							'	gl_FragColor = vec4(skyColor, 2.0 );',
+						'}',
+					].join('\n'),
+				};
 
-    };
-    requestAnimationFrame(Animate);
+				var uniforms	= THREE.UniformsUtils.clone(shader.uniforms);
+				var material	= new THREE.ShaderMaterial({
+					/*For vertex shader if added in later
+					vertexShader	: shader.vertexShader,*/
+					//Colour the skybox
+					fragmentShader	: shader.fragmentShader,
+					//Parameters that are passed into the shader program
+					uniforms	: uniforms,
+					//Render the colour of the inside of the sky sphere
+					side		: THREE.BackSide
+				});
 
-</script>
-</body>
+				var skySphere	= new THREE.Mesh( geometry, material );
+				this.object3d = skySphere;
+				scene.add(skySphere);
+
+				var LightsOff = function () {
+					dayLight.visible = false;
+					sunset1Light.visible = false;
+					sunset2Light.visible = false;
+					sunset3Light.visible = false;
+					duskLight.visible = false;
+					nightLight.visible = false;
+					nullLight.visible = false;
+				};
+
+
+				var startValue;
+				var endValue;
+				var stepNum;
+				var lastStep;
+				var currentPhase = 0;
+				var nextPhase = 1;
+				var boundary = 80;
+
+				function interpolate(startValue, endValue, stepNum, lastStep)
+				{
+					return (endValue - startValue) * stepNum / lastStep + startValue;
+				}
+
+
+				const phase = {
+					0: {r:130, g:229, b:255},
+					1: {r:123, g:119, b:177},
+					2: {r:191, g:74, b:177},
+					3: {r:200, g:28, b:97},
+					4: {r:125, g:17, b:158},
+					5: {r:24, g:29, b:56},
+					6: {r:0, g:0, b:0}
+				};
+
+				CreateSky.update	= function(){
+					if (theta >= 0 && theta < 80)
+					{
+						currentPhase = 0;
+						nextPhase = 1;
+						boundary = 80;
+					} else if (theta >= 80 && theta < 90) {
+						currentPhase = 1;
+						nextPhase = 2;
+						boundary = 90;
+					} else if (theta >= 90 && theta < 100) {
+						currentPhase = 2;
+						nextPhase = 3;
+						boundary = 100;
+					} else if (theta >= 100 && theta < 110) {
+						currentPhase = 3;
+						nextPhase = 4;
+						boundary = 110;
+					}else if (theta >= 110 && theta < 120) {
+						currentPhase = 4;
+						nextPhase = 5;
+						boundary = 120;
+					} else if (theta >= 120 && theta < 130) {
+						currentPhase = 5;
+						nextPhase = 6;
+						boundary = 130;
+					} else if (theta >= 130 && theta < 140) {
+						currentPhase = 6;
+						nextPhase = 0;
+						boundary = 140;
+					}
+
+					var r = Math.round(interpolate(phase[currentPhase].r, phase[nextPhase].r, theta, boundary));
+					var g = Math.round(interpolate(phase[currentPhase].g, phase[nextPhase].g, theta, boundary));
+					var b = Math.round(interpolate(phase[currentPhase].b, phase[nextPhase].b, theta, boundary));
+
+					uniforms.skyColor.value.set("rgb(" + r + "," + g + "," + b +")");
+
+
+					/*if( phase === 'day' ){
+						uniforms.skyColor.value.set("rgb(130, 229, 255)");
+						LightsOff();
+						dayLight.visible = true;
+					}else if( phase === 'sunset1' ){
+						uniforms.skyColor.value.set("rgb(123, 119, 177)");
+						LightsOff();
+						sunset1Light.visible = true;
+					}else if( phase === 'sunset2' ){
+						uniforms.skyColor.value.set("rgb(191, 74, 177)");
+						LightsOff();
+						sunset2Light.visible = true;
+					}else if( phase === 'sunset3' ){
+						uniforms.skyColor.value.set("rgb(200, 28, 97)");
+						LightsOff();
+						sunset3Light.visible = true;
+					}else if( phase === 'dusk' ){
+						uniforms.skyColor.value.set("rgb(125, 17, 158)");
+						LightsOff();
+						duskLight.visible = true;
+					}else if( phase === 'night' ){
+						uniforms.skyColor.value.set("rgb(24, 29, 56)");
+						LightsOff();
+						nightLight.visible = true;
+					}else {
+						uniforms.skyColor.value.set('black');
+						LightsOff();
+						nullLight.visible = true;
+					}*/
+				}
+			}
+
+			var sky	= new CreateSky();
+			scene.add(sky.object3d);
+
+			/////////////////////////////////////////////////////
+			// RENDER LOOP                                     //
+			/////////////////////////////////////////////////////
+			var clock = new THREE.Clock();
+			var sunRadius = 75;
+			var moonRadius = 60;
+			var theta = 0;
+
+			var Animate = function()
+			{
+				// Rotation of sun and moon
+				var r = clock.getElapsedTime();
+				sunLight.position.x = sunRadius * Math.cos( r );
+				sunLight.position.z = sunRadius * Math.sin( r );
+				moonLight.position.x = moonRadius * -Math.cos( r );
+				moonLight.position.z = moonRadius * -Math.sin( r );
+
+				theta = Math.atan2(camera.position.x - sunLight.position.x, camera.position.z - sunLight.position.z) * 180 / Math.PI;
+
+
+				CreateSky.update();
+
+				renderer.render(scene, camera);
+				requestAnimationFrame(Animate);
+
+			};
+			requestAnimationFrame(Animate);
+
+		</script>
+	</body>
 </html>
