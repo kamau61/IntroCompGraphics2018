@@ -1,7 +1,7 @@
 window.PLANET = window.PLANET || {};
 PLANET.debug = PLANET.debug || {};
 
-PLANET.debug.Debug = function() {
+PLANET.debug.Debug = function () {
     var options = {
         reset: function () {
             params.PlanetWireframe = false;
@@ -13,44 +13,40 @@ PLANET.debug.Debug = function() {
             this.roughOcean();
             update();
         },
-        generate: function() {
+        generate: function () {
             simplex = new SimplexNoise();
             update();
         },
-        smoothTerrain: function() {
+        smoothTerrain: function () {
             params.PlanetRadius = 100;
-            params.PlanetDetail = 7;
             params.TerrainDisplacement = 0.1;
             params.TerrainDensity = 0.1;
-            params.TerrainDetail = 9;
             update();
         },
-        sharpTerrain: function() {
+        sharpTerrain: function () {
             params.TerrainDensity = 0.03;
-            params.TerrainDetail = 9;
             params.PlanetRadius = 100;
-            params.PlanetDetail = 7;
             params.TerrainDisplacement = 0.25;
             update();
         },
-        smoothOcean: function() {
+        smoothOcean: function () {
             params.WaveSpeed = 0.25;
             params.WaveLength = 5;
             params.WaveHeight = 0.025;
         },
-        roughOcean: function() {
+        roughOcean: function () {
             params.WaveSpeed = 0.25;
             params.WaveLength = 1;
             params.WaveHeight = 0.05;
         }
     };
 
-    var update = function() {
+    var update = function () {
         PLANET.planet.update();
         updateCamera(params.PlanetRadius);
     };
 
-    var updateCamera = function() {
+    var updateCamera = function () {
         controls.minDistance = params.PlanetRadius * (1 + params.TerrainDisplacement);
         controls.maxDistance = params.PlanetRadius * params.CameraMax;
         camera.position.set(0, 0, params.PlanetRadius * params.CameraMax);
@@ -83,7 +79,8 @@ PLANET.debug.Debug = function() {
     terrainControls.add(options, 'sharpTerrain');
     terrainControls.open();
     var oceanControls = planetControls.addFolder('Ocean');
-    oceanControls.add(params, 'WaterLevel', params.PlanetRadius - params.TerrainDisplacement * params.PlanetRadius, params.PlanetRadius + params.TerrainDisplacement * params.PlanetRadius).listen();
+    oceanControls.add(params, 'WaterLevel', params.PlanetRadius - params.TerrainDisplacement * params.PlanetRadius,
+        params.PlanetRadius + params.TerrainDisplacement * params.PlanetRadius).listen();
     oceanControls.add(params, 'WaveSpeed', 0, 1).listen();
     oceanControls.add(params, 'WaveLength', 1, 5).listen();
     oceanControls.add(params, 'WaveHeight', 0, 0.3).listen();

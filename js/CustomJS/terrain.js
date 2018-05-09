@@ -1,9 +1,11 @@
 window.PLANET = window.PLANET || {};
 PLANET.terrain = PLANET.terrain || {};
 
-PLANET.terrain.Terrain = function (base) {
+PLANET.terrain.Terrain = function (bufferGeometry) {
     THREE.Object3D.call(this);
-    var geometry = base.clone();
+    var geometry = new THREE.Geometry();
+    geometry.fromBufferGeometry(bufferGeometry);
+
     var material = new THREE.MeshPhongMaterial({
         wireframe: params.PlanetWireframe,
         flatShading: params.PlanetFlatShading,
@@ -23,10 +25,10 @@ PLANET.terrain.displaceTerrain = function (geometry) {
     // 3d simplex noise leveled
     var v, len, offset = params.TerrainDensity;
     var max = params.PlanetRadius * params.TerrainDisplacement;
-    for(var i = 0; i < geometry.vertices.length; i++) {
+    for (var i = 0; i < geometry.vertices.length; i++) {
         v = geometry.vertices[i];
         len = 0;
-        for(var j = 1; j <= params.TerrainDetail; j++) {
+        for (var j = 1; j <= params.TerrainDetail; j++) {
             offset = params.TerrainDensity * params.TerrainDisplacement * Math.pow(2, j);
             len += (simplex.noise3d(v.x * offset, v.y * offset, v.z * offset) * max) / Math.pow(2, j);
         }
@@ -35,17 +37,17 @@ PLANET.terrain.displaceTerrain = function (geometry) {
     PLANET.terrain.colorTerrain(geometry);
 };
 
-PLANET.terrain.colorTerrain = function(geometry) {
+PLANET.terrain.colorTerrain = function (geometry) {
     var f, v = [3], vi = ['a', 'b', 'c'],
         pos = new THREE.Vector3();
     var ocean = new THREE.Color('steelblue'),
         beach = new THREE.Color('sandybrown'),
         grass = new THREE.Color('olivedrab'),
         snow = new THREE.Color('snow');
-    for(var i = 0; i < geometry.faces.length; i++) {
+    for (var i = 0; i < geometry.faces.length; i++) {
         f = geometry.faces[i];
         pos.set(0, 0, 0);
-        for(var j = 0; j < vi.length; j++) {
+        for (var j = 0; j < vi.length; j++) {
             v[j] = geometry.vertices[f[vi[j]]];
             pos.x += v[j].x;
             pos.y += v[j].y;
@@ -54,11 +56,11 @@ PLANET.terrain.colorTerrain = function(geometry) {
         pos.x /= vi.length;
         pos.y /= vi.length;
         pos.z /= vi.length;
-        if(pos.length() > params.PlanetRadius * (1 + params.TerrainDisplacement * (1 - params.SnowLevel))) {
+        if (pos.length() > params.PlanetRadius * (1 + params.TerrainDisplacement * (1 - params.SnowLevel))) {
             f.color = snow;
-        } else if(pos.length() > params.WaterLevel + params.BeachLevel * params.TerrainDisplacement * params.PlanetRadius) {
+        } else if (pos.length() > params.WaterLevel + params.BeachLevel * params.TerrainDisplacement * params.PlanetRadius) {
             f.color = grass;
-        } else if(pos.length() > params.WaterLevel - params.BeachLevel * params.TerrainDisplacement * params.PlanetRadius) {
+        } else if (pos.length() > params.WaterLevel - params.BeachLevel * params.TerrainDisplacement * params.PlanetRadius) {
             f.color = beach;
         } else {
             f.color = ocean;

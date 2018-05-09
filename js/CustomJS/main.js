@@ -5,8 +5,7 @@ PLANET.main = PLANET.main || {};
 var scene, camera, renderer, light, canvas, gui, simplex, timer;
 var params = {
     PlanetRadius: 100,
-    PlanetDetail: 7,
-    // PlanetDetail:5, //for testing
+    PlanetDetail: 'sphere-8.ply',
     PlanetWireframe: false,
     PlanetFlatShading: true,
     PlanetRotationY: 0,
@@ -31,9 +30,9 @@ var planet;
 var axis = new THREE.Vector3(1, 0, 0);
 
 PLANET.main.main = function () {
-    timer = 0;
     //init scene
     scene = new THREE.Scene();
+    PLANET.main.loadModels();
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     canvas = document.createElement('div');
@@ -53,28 +52,38 @@ PLANET.main.main = function () {
     light.position.set(-distance, distance, distance);
     light.castShadow = true;
     scene.add(light);
-    PLANET.main.addObjects();
+    // PLANET.main.addObjects();
     PLANET.controls.Controls();
     PLANET.debug.Debug();
     console.log(scene);
     PLANET.main.render();
 };
 
-PLANET.main.addObjects = function () {
-    planet = new PLANET.planet.Planet();
-    scene.add(planet);
+PLANET.main.loadModels = function () {
+    var loader = new THREE.PLYLoader();
+    loader.load('Resources/models/' + params.PlanetDetail, function (bufferGeometry) {
+            planet = new PLANET.planet.Planet(bufferGeometry);
+            scene.add(planet);
+        },
+        function (event) {
+            console.log('loaded: ' + event.loaded);
+        });
+};
+
+PLANET.main.addObjects = function (bufferGeometry) {
+
+
 };
 
 PLANET.main.render = function () {
     requestAnimationFrame(PLANET.main.render);
-    timer += 1 / 10;
-    if(timer > 1000000) timer = 0;
-    if (planet) {
-        planet.rotation.y += params.PlanetRotationY;
-        PLANET.planet.animate();
-    }
     if (params.AutoRotate) {
         controls.update();
+    }
+    timer += 1 / 10;
+    if (timer > 1000000) timer = 0;
+    if (planet) {
+        PLANET.planet.animate();
     }
     renderer.render(scene, camera);
 };
