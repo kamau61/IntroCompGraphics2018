@@ -63,7 +63,7 @@ PLANET.debug.Debug = function() {
 
     var update = function() {
         PLANET.planet.update();
-        updateCamera(params.PlanetRadius);
+        // updateCamera(params.PlanetRadius);
     };
 
     var updateCamera = function() {
