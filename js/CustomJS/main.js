@@ -24,7 +24,7 @@ var params = {
     MoonDistance: 200,
     MoonSize: 30,
     SunDistance: 500,
-    SunSize: 200
+    SunSize: 200,
     AutoRotate: false,
     AutoRotateSpeed: 2, // 30 seconds per round when fps is 60
     ZoomSpeed: 1,
