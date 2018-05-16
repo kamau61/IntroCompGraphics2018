@@ -57,6 +57,8 @@ PLANET.main.main = function () {
     light.position.set(-distance, distance, distance);
     light.castShadow = true;
     scene.add(light);
+    var ambLight = new THREE.AmbientLight(0xffffff, 1);
+    scene.add(ambLight);
     PLANET.main.addObjects();
     PLANET.controls.Controls();
     PLANET.debug.Debug();
@@ -77,6 +79,6 @@ PLANET.main.render = function () {
         planet.rotation.y += params.PlanetRotationY;
         PLANET.planet.animate();
     }
-    PLANET.controls.update();
+    // PLANET.controls.update();
     renderer.render(scene, camera);
 };

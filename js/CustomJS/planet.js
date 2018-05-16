@@ -4,6 +4,7 @@ PLANET.planet = PLANET.planet || {};
 PLANET.planet.Planet = function() {
     THREE.Object3D.call(this);
     simplex = new SimplexNoise();
+    this.name = 'planet';
     this.baseGeometry = new THREE.IcosahedronGeometry(params.PlanetRadius, params.PlanetDetail);
     this.baseGeometry.needsUpdate = true;
     this.baseGeometry.verticesNeedUpdate = true;
