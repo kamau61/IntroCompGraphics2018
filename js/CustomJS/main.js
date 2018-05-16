@@ -12,15 +12,19 @@ var params = {
     TerrainDisplacement: 0.1,
     TerrainDensity: 0.1,
     TerrainDetail: 9,
+    TerrainColor: 0x6B8E23, //olivedrab
     SnowLevel: 0.5,
+    SnowColor: 0xFFFAFA, //snow
     BeachLevel: 0.1,
+    BeachColor: 0xF4A460, //sandybrown
+    CoralColor: 0x4682B4, //steelblue
+    WaterColor: 0x4682B4, //steelblue
     WaterLevel: 100,
+    WaterOpacity: 0.9,
     WaveSpeed: 0.25,
     WaveLength: 1,
     WaveHeight: 0.05,
     CameraMax: 2,
-    AutoRotate: false,
-    AutoRotateSpeed: 2, // 30 seconds per round when fps is 60
     ZoomSpeed: 1,
     RotateSpeed: 2,
     PanSpeed: 10
@@ -30,6 +34,7 @@ var planet;
 var axis = new THREE.Vector3(1, 0, 0);
 
 PLANET.main.main = function () {
+    timer = 0;
     //init scene
     scene = new THREE.Scene();
     PLANET.main.loadModels();
@@ -52,6 +57,8 @@ PLANET.main.main = function () {
     light.position.set(-distance, distance, distance);
     light.castShadow = true;
     scene.add(light);
+    var ambLight = new THREE.AmbientLight(0xffffff, 1);
+    scene.add(ambLight);
     // PLANET.main.addObjects();
     PLANET.controls.Controls();
     PLANET.debug.Debug();
@@ -77,13 +84,12 @@ PLANET.main.addObjects = function (bufferGeometry) {
 
 PLANET.main.render = function () {
     requestAnimationFrame(PLANET.main.render);
-    if (params.AutoRotate) {
-        controls.update();
-    }
     timer += 1 / 10;
-    if (timer > 1000000) timer = 0;
+    if(timer > 1000000) timer = 0;
     if (planet) {
+        planet.rotation.y += params.PlanetRotationY;
         PLANET.planet.animate();
     }
+    // PLANET.controls.update();
     renderer.render(scene, camera);
 };
