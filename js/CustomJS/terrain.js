@@ -34,12 +34,7 @@ PLANET.terrain.displaceTerrain = function (geometry) {
     }
     geometry.elementsNeedUpdate = true;
     geometry.computeVertexNormals();
-    PLANET.terrain.colorTerrain(geometry);
-};
-
-PLANET.terrain.colorTerrain = function (geometry) {
-    var face, vertex, verticesIndex = ['a', 'b', 'c'],
-        position = new THREE.Vector3();
+    var face, position = new THREE.Vector3(), vertex, verticesIndex = ['a', 'b', 'c'];
     for (var i = 0; i < geometry.faces.length; i++) {
         face = geometry.faces[i];
         position.set(0, 0, 0);
@@ -52,12 +47,21 @@ PLANET.terrain.colorTerrain = function (geometry) {
         position.x /= verticesIndex.length;
         position.y /= verticesIndex.length;
         position.z /= verticesIndex.length;
-        face.position = position;
-        if (position.lengthSq() > Math.pow(params.PlanetRadius * (1 + params.TerrainDisplacement * (1 - params.SnowLevel)), 2)) {
+        face.position = position.clone();
+        face.height = position.lengthSq();
+    }
+    PLANET.terrain.colorTerrain(geometry);
+};
+
+PLANET.terrain.colorTerrain = function (geometry) {
+    var face;
+    for (var i = 0; i < geometry.faces.length; i++) {
+        face = geometry.faces[i];
+        if (face.height > Math.pow(params.PlanetRadius * (1 + params.TerrainDisplacement * (1 - params.SnowLevel)), 2)) {
             face.color.setHex(params.SnowColor);
-        } else if (position.lengthSq() > Math.pow(params.WaterLevel + params.BeachLevel * params.TerrainDisplacement * params.PlanetRadius, 2)) {
+        } else if (face.height > Math.pow(params.WaterLevel + params.BeachLevel * params.TerrainDisplacement * params.PlanetRadius, 2)) {
             face.color.setHex(params.TerrainColor);
-        } else if (position.lengthSq() > Math.pow(params.WaterLevel - params.BeachLevel * params.TerrainDisplacement * params.PlanetRadius, 2)) {
+        } else if (face.height > Math.pow(params.WaterLevel - params.BeachLevel * params.TerrainDisplacement * params.PlanetRadius, 2)) {
             face.color.setHex(params.BeachColor);
         } else {
             face.color.setHex(params.CoralColor);
@@ -74,46 +78,29 @@ PLANET.terrain.loadTrees = function (geometry) {
             if (child.isMesh) {
                 child.castShadow = true;
                 child.receiveShadow = true;
-                child.scale.set(0.02, 0.02, 0.02);
-                // child.scale.set(0.05, 0.05, 0.05);
+                child.scale.set(params.TreeScale, params.TreeScale, params.TreeScale);
                 child.position.set(0, 0, 0);
+                for (var i = 0; i < child.material.length; i++) {
+                    if (child.material[i].id > 11) {
+                        child.material[i].color.setHex(params.TerrainColor);
+                    }
+                }
                 baseTrees.push(child);
             }
         });
+        console.log(baseTrees);
         console.log("before");
         for (var i = 0; i < geometry.faces.length; i++) {
-            // position = geometry.faces[i].position;
-            // if(position.lengthSq() < Math.pow(params.PlanetRadius * (1 + params.TerrainDisplacement * (1 - params.SnowLevel)), 2) &&
-            //     position.lengthSq() > Math.pow(params.WaterLevel + params.BeachLevel * params.TerrainDisplacement * params.PlanetRadius, 2)) {
-            if (Math.random() > 0.99) {
-                var face = geometry.faces[i];
-                face.color.setHex(0x0b44545);
-                geometry.elementsNeedUpdate = true;
-                var getAveragePos = function (face) {
-                    var midPoint = new THREE.Vector3();
-                    midPoint.x = (
-                        geometry.vertices[face.a].x +
-                        geometry.vertices[face.b].x +
-                        geometry.vertices[face.c].x) / 3;
-                    midPoint.y = (
-                        geometry.vertices[face.a].y +
-                        geometry.vertices[face.b].y +
-                        geometry.vertices[face.c].y) / 3;
-                    midPoint.z = (
-                        geometry.vertices[face.a].z +
-                        geometry.vertices[face.b].z +
-                        geometry.vertices[face.c].z) / 3;
-                    return midPoint;
-                };
-
-                var averagePos = getAveragePos(face);
+            var face = geometry.faces[i];
+            if (face.color.getHex() === params.TerrainColor &&
+                simplex.noise3d(face.position.x, face.position.y, face.position.z) > params.TreeFrequency) {
                 var normal = new THREE.Vector3();
-                normal.sub(averagePos, new THREE.Vector3(0, 0, 0)).normalize();
+                normal.subVectors(face.position, new THREE.Vector3(0, 0, 0)).normalize();
                 var up = new THREE.Vector3(0, 1, 0);
-                var tree = baseTrees[7].clone();
+                var tree = baseTrees[Math.floor(Math.random() * baseTrees.length)].clone();
                 var axis = new THREE.Vector3(0, 0, 1);
-                tree.quaternion.setFromUnitVectors(axis, averagePos.clone().normalize());
-                tree.position.set(averagePos.x, averagePos.y, averagePos.z);
+                tree.quaternion.setFromUnitVectors(axis, face.position.clone().normalize());
+                tree.position.set(face.position.x, face.position.y, face.position.z);
                 scene.add(tree);
             }
         }

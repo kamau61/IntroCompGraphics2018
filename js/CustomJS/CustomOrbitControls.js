@@ -4,7 +4,7 @@
 //    Zoom - middle mouse, or mousewheel / touch: two finger spread or squish
 //    Pan - A (left) and S (right) when on the surface of planet
 
-PLANET.OrbitControls = function ( object, domElement ) {
+THREE.OrbitControls = function ( object, domElement ) {
 
 	this.object = object.clone();
 	this.camera = object;

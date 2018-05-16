@@ -23,19 +23,8 @@ PLANET.ocean.Ocean = function(base) {
 PLANET.ocean.Ocean.prototype = Object.create(THREE.Object3D.prototype);
 
 PLANET.ocean.update = function() {
-    // this.ocean.geometry = planet.baseGeometry.clone();
-    // this.ocean.geometry.scale(params.WaterLevel, params.WaterLevel, params.WaterLevel);
     this.ocean.material.color.setHex(params.WaterColor);
     this.ocean.material.opacity = params.WaterOpacity;
-    // this.ocean.material = new THREE.MeshStandardMaterial({
-    //     wireframe: params.PlanetWireframe,
-    //     flatShading: params.PlanetFlatShading,
-    //     caseShadow: true,
-    //     receiveShadow: true,
-    //     color: new THREE.Color(0x44B8ED),
-    //     transparent: true,
-    //     opacity: 0.8
-    // });
 };
 
 PLANET.ocean.animate = function() {

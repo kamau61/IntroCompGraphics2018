@@ -5,8 +5,8 @@ PLANET.main = PLANET.main || {};
 var scene, camera, renderer, light, canvas, gui, simplex, timer;
 var params = {
     PlanetRadius: 100,
-    // PlanetDetail: 7,
-    PlanetDetail: 5, //for testing
+    PlanetDetail: 7,
+    // PlanetDetail: 5, //for testing
     PlanetWireframe: false,
     PlanetFlatShading: true,
     PlanetRotationY: 0,
@@ -19,7 +19,8 @@ var params = {
     BeachLevel: 0.1,
     BeachColor: 0xF4A460, //sandybrown
     CoralColor: 0x4682B4, //steelblue
-    Season: 0,
+    TreeScale: 0.005, //recommanded 0.005 to detail level 7
+    TreeFrequency: 0.5, //less the number, higher the frequency
     WaterColor: 0x4682B4, //steelblue
     WaterLevel: 100,
     WaterOpacity: 0.9,
@@ -58,8 +59,8 @@ PLANET.main.main = function () {
     light.position.set(-distance, distance, distance);
     light.castShadow = true;
     scene.add(light);
-    var ambLight = new THREE.AmbientLight(0xffffff, 1);
-    scene.add(ambLight);
+    // var ambLight = new THREE.AmbientLight(0xffffff, 1);
+    // scene.add(ambLight);
     PLANET.main.addObjects();
     PLANET.controls.Controls();
     PLANET.debug.Debug();
