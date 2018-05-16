@@ -1,7 +1,7 @@
 window.PLANET = window.PLANET || {};
 PLANET.debug = PLANET.debug || {};
 
-PLANET.debug.Debug = function() {
+PLANET.debug.Debug = function () {
     var options = {
         reset: function () {
             params.PlanetWireframe = false;
@@ -15,11 +15,11 @@ PLANET.debug.Debug = function() {
             params.WaterOpacity = 0.9;
             this.roughOcean();
         },
-        generate: function() {
+        generate: function () {
             simplex = new SimplexNoise();
             update();
         },
-        smoothTerrain: function() {
+        smoothTerrain: function () {
             params.PlanetRadius = 100;
             params.PlanetDetail = 7;
             params.TerrainDisplacement = 0.1;
@@ -27,40 +27,40 @@ PLANET.debug.Debug = function() {
             params.TerrainDetail = 9;
             update();
         },
-        sharpTerrain: function() {
+        sharpTerrain: function () {
             params.TerrainDensity = 0.03;
             params.TerrainDetail = 9;
             params.PlanetRadius = 100;
             params.TerrainDisplacement = 0.25;
             update();
         },
-        earthColor: function() {
+        earthColor: function () {
             params.SnowColor = 0xFFFAFA;
             params.TerrainColor = 0x6B8E23;
             params.BeachColor = 0xF4A460;
             params.CoralColor = 0x4682B4;
             update();
         },
-        greyScale: function() {
+        greyScale: function () {
             params.SnowColor = 0xFFFFFF;
             params.TerrainColor = 0xF2F2F2;
             params.BeachColor = 0xCCCCCC;
             params.CoralColor = 0x808080;
             update();
         },
-        smoothOcean: function() {
+        smoothOcean: function () {
             params.WaveSpeed = 0.25;
             params.WaveLength = 5;
             params.WaveHeight = 0.025;
         },
-        roughOcean: function() {
+        roughOcean: function () {
             params.WaveSpeed = 0.25;
             params.WaveLength = 1;
             params.WaveHeight = 0.05;
         }
     };
 
-    var update = function() {
+    var update = function () {
         PLANET.planet.update();
         // updateCamera(params.PlanetRadius);
     };

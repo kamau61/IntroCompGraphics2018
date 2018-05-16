@@ -85,7 +85,7 @@ PLANET.main.addObjects = function (bufferGeometry) {
 PLANET.main.render = function () {
     requestAnimationFrame(PLANET.main.render);
     timer += 1 / 10;
-    if(timer > 1000000) timer = 0;
+    if (timer > 1000000) timer = 0;
     if (planet) {
         planet.rotation.y += params.PlanetRotationY;
         PLANET.planet.animate();

@@ -1,7 +1,7 @@
 window.PLANET = window.PLANET || {};
 PLANET.ocean = PLANET.ocean || {};
 
-PLANET.ocean.Ocean = function(bufferGeometry) {
+PLANET.ocean.Ocean = function (bufferGeometry) {
     THREE.Object3D.call(this);
     // var geometry = new THREE.Geometry();
     // console.log(bufferGeometry);
@@ -9,7 +9,7 @@ PLANET.ocean.Ocean = function(bufferGeometry) {
     // console.log(geometry);
 
     // geometry.scale(params.WaterLevel, params.WaterLevel, params.WaterLevel);
-    bufferGeometry.scale(100,100,100);
+    bufferGeometry.scale(100, 100, 100);
     var material = new THREE.MeshStandardMaterial({
         //TODO make all these linked to param
         wireframe: params.PlanetWireframe,
@@ -27,7 +27,7 @@ PLANET.ocean.Ocean = function(bufferGeometry) {
 
 PLANET.ocean.Ocean.prototype = Object.create(THREE.Object3D.prototype);
 
-PLANET.ocean.update = function() {
+PLANET.ocean.update = function () {
     // this.ocean.geometry.scale(params.WaterLevel, params.WaterLevel, params.WaterLevel);
     this.ocean.material.color.setHex(params.WaterColor);
     this.ocean.material.opacity = params.WaterOpacity;
@@ -40,11 +40,11 @@ PLANET.ocean.update = function() {
     // });
 };
 
-PLANET.ocean.animate = function() {
+PLANET.ocean.animate = function () {
     var v, len, spd = timer * params.WaveSpeed;
-    for(var i = 0; i < this.ocean.geometry.attributes.position.count; i += 3) {
+    for (var i = 0; i < this.ocean.geometry.attributes.position.count; i += 3) {
         v = this.ocean.geometry.attributes.position.array;
-        len = simplex.noise3d((v[i] + spd) / params.WaveLength, (v[i+1] + spd) / params.WaveLength, (v[i+2] + spd) / params.WaveLength);
+        len = simplex.noise3d((v[i] + spd) / params.WaveLength, (v[i + 1] + spd) / params.WaveLength, (v[i + 2] + spd) / params.WaveLength);
         // v.setLength(params.WaterLevel + len * params.WaveHeight);
     }
     this.ocean.geometry.verticesNeedUpdate = true;
