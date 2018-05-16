@@ -74,25 +74,21 @@ PLANET.terrain.loadTrees = function (geometry) {
             if (child.isMesh) {
                 child.castShadow = true;
                 child.receiveShadow = true;
-                // child.scale.set(0.02, 0.02, 0.02);
-                child.scale.set(0.05, 0.05, 0.05);
+                child.scale.set(0.02, 0.02, 0.02);
+                // child.scale.set(0.05, 0.05, 0.05);
                 child.position.set(0, 0, 0);
                 baseTrees.push(child);
             }
         });
         console.log("before");
-        // var position;
         for (var i = 0; i < geometry.faces.length; i++) {
             // position = geometry.faces[i].position;
             // if(position.lengthSq() < Math.pow(params.PlanetRadius * (1 + params.TerrainDisplacement * (1 - params.SnowLevel)), 2) &&
             //     position.lengthSq() > Math.pow(params.WaterLevel + params.BeachLevel * params.TerrainDisplacement * params.PlanetRadius, 2)) {
             if (Math.random() > 0.99) {
-                // if(i === 1200) {
                 var face = geometry.faces[i];
                 face.color.setHex(0x0b44545);
                 geometry.elementsNeedUpdate = true;
-                // PLANET.terrain.loadTree(baseTrees[Math.floor(Math.random() * baseTrees.length)].clone(), geometry.faces[i]);
-                // PLANET.terrain.loadTree(baseTrees[1].clone(), face);
                 var getAveragePos = function (face) {
                     var midPoint = new THREE.Vector3();
                     midPoint.x = (
@@ -111,66 +107,20 @@ PLANET.terrain.loadTrees = function (geometry) {
                 };
 
                 var averagePos = getAveragePos(face);
-                // var normal = face.normal;
                 var normal = new THREE.Vector3();
                 normal.sub(averagePos, new THREE.Vector3(0, 0, 0)).normalize();
                 var up = new THREE.Vector3(0, 1, 0);
-                var tree = baseTrees[1].clone();
-                // var box = new THREE.BoxGeometry(1, 1, 1);
-                // var tree = new THREE.Mesh(box, new THREE.MeshPhongMaterial());
-                var axis;
-                // if(normal.y === 1 || normal.y === -1) {
-                //     axis = new THREE.Vector3(1, 0, 0);
-                // } else {
-                //     axis = new THREE.Vector3().crossVectors(up, normal).normalize();
-                // }
-                // var radians = Math.acos(normal.dot(up));
-                // var matrix = new THREE.Matrix4().makeRotationAxis(axis, radians);
-                // tree.rotation.setFromRotationMatrix(matrix);
-
+                var tree = baseTrees[7].clone();
                 var axis = new THREE.Vector3(0, 0, 1);
                 tree.quaternion.setFromUnitVectors(axis, averagePos.clone().normalize());
-
-                // var offset = 0;
-                // tree.position.addVectors(face.position, normal.clone().multiplyScalar(offset));
-                // tree.position.x = face.position.x;
-                // tree.position.y = face.position.y;
-                // tree.position.z = face.position.z;
-
-                tree.position.x = averagePos.x;
-                tree.position.y = averagePos.y;
-                tree.position.z = averagePos.z;
-
+                tree.position.set(averagePos.x, averagePos.y, averagePos.z);
                 scene.add(tree);
             }
         }
-        // var f = geometry.faces[Math.floor(Math.random()*geometry.faces.length)];
-        // f.color.setHex(0x0b44545);
         geometry.elementsNeedUpdate = true;
-        // PLANET.terrain.loadTree(baseTrees[1].clone(), f);
         console.log("after");
         console.log(scene);
     });
-};
-
-PLANET.terrain.loadTree = function (tree, f) {
-    var axis, up = tree.up.clone(),
-        normal = f.normal.clone(),
-        radians, matrix = new THREE.Matrix4();
-    if (normal.y == 1 || normal.y == -1) {
-        axis = new THREE.Vector3(1, 0, 0);
-    } else {
-        axis = new THREE.Vector3().crossVectors(up, normal).normalize();
-    }
-    radians = Math.acos(normal.dot(up));
-    matrix.makeRotationAxis(axis, radians);
-    tree.setRotationFromMatrix(matrix);
-    tree.position.set(f.position.x, f.position.y, f.position.z);
-    // tree.position.set(0, 0, 0);
-    // tree.position.setLength(f.position.length());
-    // tree.position.addVectors(f.position, normal.clone().multiplyScalar(24));
-    // tree.position.addVectors(f.position, normal.clone());
-    scene.add(tree);
 };
 
 PLANET.terrain.update = function () {

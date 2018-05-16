@@ -19,6 +19,7 @@ var params = {
     BeachLevel: 0.1,
     BeachColor: 0xF4A460, //sandybrown
     CoralColor: 0x4682B4, //steelblue
+    Season: 0,
     WaterColor: 0x4682B4, //steelblue
     WaterLevel: 100,
     WaterOpacity: 0.9,

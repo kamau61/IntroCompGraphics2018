@@ -61,13 +61,16 @@
         function test () {
             var loader = new THREE.FBXLoader();
             loader.load('trees.fbx',function (object) {
+                var trees = [];
                 object.traverse( function (child) {
                     if (child.isMesh) {
                         child.castShadow = true;
                         child.receiveShadow = true;
-                        scene.add(child);
+                        child.position.set(0, 0, 0);
+                        trees.push(child);
                     }
                 });
+                scene.add(trees)
             });
 
         }
