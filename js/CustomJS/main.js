@@ -2,10 +2,10 @@ window.PLANET = window.PLANET || {};
 PLANET.main = PLANET.main || {};
 
 //variables that need global access
-var scene, camera, renderer, light, canvas, gui, simplex, timer;
+var scene, camera, renderer, light, canvas, gui, simplex, timer, manager;
 var params = {
     PlanetRadius: 100,
-    PlanetDetail: 'sphere-8.ply',
+    PlanetDetail: 7,
     PlanetWireframe: false,
     PlanetFlatShading: true,
     PlanetRotationY: 0,
@@ -13,9 +13,9 @@ var params = {
     TerrainDensity: 0.1,
     TerrainDetail: 9,
     TerrainColor: 0x6B8E23, //olivedrab
-    SnowLevel: 0.5,
+    SnowLevel: 6,
+    BeachLevel: 1,
     SnowColor: 0xFFFAFA, //snow
-    BeachLevel: 0.1,
     BeachColor: 0xF4A460, //sandybrown
     CoralColor: 0x4682B4, //steelblue
     WaterColor: 0x4682B4, //steelblue
@@ -32,6 +32,7 @@ var params = {
 };
 var planet;
 var axis = new THREE.Vector3(1, 0, 0);
+var baseTrees = [];
 
 PLANET.main.main = function () {
     timer = 0;
@@ -59,27 +60,55 @@ PLANET.main.main = function () {
     scene.add(light);
     var ambLight = new THREE.AmbientLight(0xffffff, 1);
     scene.add(ambLight);
-    // PLANET.main.addObjects();
     PLANET.controls.Controls();
     PLANET.debug.Debug();
-    console.log(scene);
     PLANET.main.render();
 };
 
 PLANET.main.loadModels = function () {
-    var loader = new THREE.PLYLoader();
-    loader.load('Resources/models/' + params.PlanetDetail, function (bufferGeometry) {
-            planet = new PLANET.planet.Planet(bufferGeometry);
-            scene.add(planet);
-        },
-        function (event) {
-            console.log('loaded: ' + event.loaded);
+    manager = new THREE.LoadingManager();
+
+    manager.onStart = function (url, itemsLoaded, itemsTotal) {
+        console.log('Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
+
+    };
+
+    manager.onLoad = function () {
+        console.log('Loading complete!');
+        planet = new PLANET.planet.Planet(planetGeometry);
+        scene.add(planet);
+        var loadingScreen = document.getElementById('loading-screen');
+        loadingScreen.classList.add('fade-out');
+        loadingScreen.addEventListener('transitionend', onTransitionEnd);
+        console.log(scene);
+    };
+
+    manager.onProgress = function (url, itemsLoaded, itemsTotal) {
+        console.log('Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
+    };
+
+    var plyLoader = new THREE.PLYLoader(manager);
+    var planetGeometry;
+    var fbxLoader = new THREE.FBXLoader(manager);
+
+    plyLoader.load('Resources/models/sphere-' + params.PlanetDetail + ".ply", function (bufferGeometry) {
+        planetGeometry = bufferGeometry;
+        // planet = new PLANET.planet.Planet(bufferGeometry);
+        // scene.add(planet);
+    });
+
+
+    fbxLoader.load('trees.fbx', function (object) {
+        object.traverse(function (child) {
+            if (child.isMesh) {
+                child.castShadow = true;
+                child.receiveShadow = true;
+                child.scale.set(0.02, 0.02, 0.02);
+                child.position.set(0, 0, 0);
+                baseTrees.push(child);
+            }
         });
-};
-
-PLANET.main.addObjects = function (bufferGeometry) {
-
-
+    });
 };
 
 PLANET.main.render = function () {
@@ -93,3 +122,9 @@ PLANET.main.render = function () {
     // PLANET.controls.update();
     renderer.render(scene, camera);
 };
+
+function onTransitionEnd(event) {
+
+    event.target.remove();
+
+}
