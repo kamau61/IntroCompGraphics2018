@@ -17,6 +17,7 @@
             padding: 0;
             overflow: hidden;
         }
+
         canvas {
             width: 100%;
             height: 100%;
@@ -25,68 +26,69 @@
     </style>
 </head>
 <body>
-    <script>
-        var scene, camera, controls, renderer, light, canvas;
+<script>
+    var scene, camera, controls, renderer, light, canvas;
 
-        function init () {
-            scene = new THREE.Scene();
-            renderer = new THREE.WebGLRenderer();
+    function init() {
+        scene = new THREE.Scene();
+        renderer = new THREE.WebGLRenderer();
+        var width = window.innerWidth;
+        var height = window.innerHeight;
+        renderer.setSize(width, height);
+        var aspect = width / height;
+        camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 5000);
+        camera.position.set(0, 0, 5);
+        canvas = document.createElement('div');
+        canvas.appendChild(renderer.domElement);
+        document.body.appendChild(canvas);
+        window.addEventListener('resize', function () {
             var width = window.innerWidth;
             var height = window.innerHeight;
             renderer.setSize(width, height);
-            var aspect = width / height;
-            camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 5000);
-            camera.position.set(0, 0, 5);
-            canvas = document.createElement('div');
-            canvas.appendChild(renderer.domElement);
-            document.body.appendChild(canvas);
-            window.addEventListener('resize', function () {
-                var width = window.innerWidth;
-                var height = window.innerHeight;
-                renderer.setSize(width, height);
-                camera.aspect = width / height;
-                camera.updateProjectionMatrix();
-                renderer.render(scene, camera);
-            });
-            light = new THREE.AmbientLight();
-            scene.add(light);
-            light = new THREE.SpotLight(0xffffff, 1);
-            light.position.set(0, 5000, 0);
-            scene.add(light);
-            // scene.add(new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshPhongMaterial()));
-            controls = new THREE.OrbitControls(camera, renderer.domElement);
-        }
-
-
-        function test () {
-            var loader = new THREE.FBXLoader();
-            loader.load('trees.fbx',function (object) {
-                var trees = [];
-                object.traverse( function (child) {
-                    if (child.isMesh) {
-                        child.castShadow = true;
-                        child.receiveShadow = true;
-                        child.position.set(0, 0, 0);
-                        trees.push(child);
-                    }
-                });
-                scene.add(trees)
-            });
-
-        }
-
-
-
-
-        function render () {
-            requestAnimationFrame(render);
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
             renderer.render(scene, camera);
-        }
+        });
+        light = new THREE.AmbientLight();
+        scene.add(light);
+        light = new THREE.SpotLight(0xffffff, 1);
+        light.position.set(0, 5000, 0);
+        scene.add(light);
+        // scene.add(new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshPhongMaterial()));
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+    }
 
-        init();
-        test();
-        console.log(scene);
-        render();
-    </script>
+
+    function test() {
+        var loader = new THREE.FBXLoader();
+        loader.load('trees.fbx', function (object) {
+            var trees = [];
+            object.traverse(function (child) {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    child.position.set(0, 0, 0);
+                    for (var i = 0; i < child.material.length; i++) {
+                        console.log(child.material[i]);
+                    }
+                    trees.push(child);
+                }
+            });
+            scene.add(trees)
+        });
+
+    }
+
+
+    function render() {
+        requestAnimationFrame(render);
+        renderer.render(scene, camera);
+    }
+
+    init();
+    test();
+    console.log(scene);
+    render();
+</script>
 </body>
 </html>

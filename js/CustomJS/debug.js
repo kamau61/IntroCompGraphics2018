@@ -5,7 +5,6 @@ PLANET.debug.Debug = function() {
     var options = {
         reset: function () {
             params.PlanetWireframe = false;
-            params.PlanetFlatShading = true;
             params.PlanetRotation = true;
             params.PlanetRotationY = 0;
             this.smoothTerrain();
@@ -37,16 +36,16 @@ PLANET.debug.Debug = function() {
         },
         earthColor: function() {
             params.SnowColor = 0xFFFAFA;
-            params.TerrainColor = 0x6B8E23;
-            params.BeachColor = 0xF4A460;
-            params.CoralColor = 0x4682B4;
+            params.SoilColor = 0x6B8E23;
+            params.SandColor = 0xF4A460;
+            params.SeabedColor = 0x4682B4;
             update();
         },
         greyScale: function() {
             params.SnowColor = 0xFFFFFF;
-            params.TerrainColor = 0xF2F2F2;
-            params.BeachColor = 0xCCCCCC;
-            params.CoralColor = 0x808080;
+            params.SoilColor = 0xF2F2F2;
+            params.SandColor = 0xCCCCCC;
+            params.SeabedColor = 0x808080;
             update();
         },
         smoothOcean: function() {
@@ -62,7 +61,8 @@ PLANET.debug.Debug = function() {
     };
 
     var update = function() {
-        PLANET.planet.update();
+        planet.update();
+        // PLANET.planet.update();
         // updateCamera(params.PlanetRadius);
     };
 
@@ -77,19 +77,18 @@ PLANET.debug.Debug = function() {
     gui = new dat.GUI();
     var planetControls = gui.addFolder('Planet');
     // planetControls.add(params, 'PlanetRotationY', 0, 0.05).listen();
-    // planetControls.add(params, 'PlanetFlatShading').onChange(update).listen();
     // planetControls.add(params, 'PlanetWireframe').onChange(update).listen();
     planetControls.open();
     var terrainControls = planetControls.addFolder('Terrain');
     terrainControls.add(params, 'TerrainDensity', 0, 1).onChange(update).listen();
     terrainControls.add(params, 'TerrainDisplacement', 0, 0.5).onChange(update).listen();
     terrainControls.add(params, 'TerrainDetail', 1, 10).step(1).onChange(update).listen();
-    terrainControls.addColor(params, 'TerrainColor').onChange(update).listen();
+    terrainControls.addColor(params, 'SoilColor').onChange(update).listen();
     terrainControls.add(params, 'SnowLevel', 0, 1).step(0.1).onChange(update).listen();
     terrainControls.addColor(params, 'SnowColor').onChange(update).listen();
     terrainControls.add(params, 'BeachLevel', 0, 0.1).step(0.01).onChange(update).listen();
-    terrainControls.addColor(params, 'BeachColor').onChange(update).listen();
-    terrainControls.addColor(params, 'CoralColor').onChange(update).listen();
+    terrainControls.addColor(params, 'SandColor').onChange(update).listen();
+    terrainControls.addColor(params, 'SeabedColor').onChange(update).listen();
     terrainControls.add(options, 'generate');
     terrainControls.add(options, 'smoothTerrain');
     terrainControls.add(options, 'sharpTerrain');
