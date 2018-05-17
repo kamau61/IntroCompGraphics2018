@@ -13,13 +13,13 @@ PLANET.controls.Controls = function() {
     // PLANET.controls.addResizeListener();
 
     //mouse controls
-    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls = new PLANET.OrbitControls(camera, renderer.domElement);
     scene.add(camera);
     // PLANET.controls = new flyControls(camera);
 //    PLANET.controls.object.set(0, 0, params.PlanetRadius * params.CameraMax);
 //     scene.add(PLANET.controls.object);
-    controls.minDistance = params.PlanetRadius * (1 + params.TerrainDisplacement);
-    controls.maxDistance = params.PlanetRadius * params.CameraMax;
+//     controls.minDistance = params.PlanetRadius * (1 + params.TerrainDisplacement);
+//     controls.maxDistance = params.PlanetRadius * params.CameraMax;
 
     //for stopping animations during user control
     // inControl = false;

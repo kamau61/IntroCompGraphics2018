@@ -6,17 +6,17 @@ PLANET.planet.Planet = function () {
     simplex = new SimplexNoise();
     this.name = 'Planet';
     let baseGeometry = new THREE.IcosahedronGeometry(params.PlanetRadius, params.PlanetDetail);
-    let terrain = PLANET.terrain.Terrain(baseGeometry);
-    this.add(terrain);
-    terrain.generate();
-    let ocean = PLANET.ocean.Ocean(baseGeometry);
-    this.add(ocean);
+    this.terrain = PLANET.terrain.Terrain(baseGeometry);
+    this.add(this.terrain);
+    this.terrain.generate();
+    this.ocean = PLANET.ocean.Ocean(baseGeometry);
+    this.add(this.ocean);
     this.animate = function () {
-        ocean.animate();
+        this.ocean.animate();
     };
     this.update = function () {
-        terrain.update();
-        ocean.update();
+        this.terrain.update();
+        this.ocean.update();
     };
 };
 

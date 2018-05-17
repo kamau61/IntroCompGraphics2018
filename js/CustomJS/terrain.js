@@ -38,10 +38,8 @@ PLANET.terrain.Terrain = function (base) {
         let position = new THREE.Vector3();
         let verticesIndex = ['a', 'b', 'c'];
         let vertex, lengthSq;
-        let normal = new THREE.Vector3();
-        let axis = new THREE.Vector3(0, 0, 1);
         let snowLevel = Math.pow(params.PlanetRadius * (1 + params.TerrainDisplacement * (1 - params.SnowLevel)), 2);
-        let beachLevel = Math.pow(params.WaterLevel + params.BeachLevel * params.TerrainDisplacement * params.PlanetRadius, 2);
+        let beachLevel = Math.pow(params.WaterLevel + params.SandLevel * params.TerrainDisplacement * params.PlanetRadius, 2);
         let seabedLevel = Math.pow(params.WaterLevel - params.WaveHeight * 10, 2);
         for (let face of geometry.faces) {
             //gets center from vertices
@@ -61,31 +59,27 @@ PLANET.terrain.Terrain = function (base) {
 
             //colors face
             if (lengthSq > snowLevel) {
-                face.color.setHex(params.SnowColor);
+                face.color.setHex(colors.SnowColor);
             } else if (lengthSq > beachLevel) {
                 // creates tree
                 let forest = simplex.noise3d(
                     face.position.x * params.ForestDensity,
                     face.position.y * params.ForestDensity,
                     face.position.z * params.ForestDensity);
-                if (forest > params.ForestTree) {
-                    let tree = res.Trees[Math.floor(Math.random() * res.Trees.length)].clone();
-                    normal.subVectors(face.position, new THREE.Vector3(0, 0, 0)).normalize();
-                    tree.quaternion.setFromUnitVectors(axis, face.position.clone().normalize());
-                    tree.position.set(face.position.x, face.position.y, face.position.z);
-                    tree.face = geometry.faces.indexOf(face);
+                if (forest > params.TreeSpread) {
+                    let tree = PLANET.tree.Tree(face);
                     terrain.trees.add(tree);
                     face.tree = terrain.trees.children.indexOf(tree);
-                    face.color.setHex(params.ForestColor);
-                } else if (forest > params.ForestGrass) {
-                    face.color.setHex(params.GrassColor);
+                    face.color.setHex(colors.ForestColor);
+                } else if (forest > params.GrassSpread) {
+                    face.color.setHex(colors.GrassColor);
                 } else {
-                    face.color.setHex(params.SoilColor);
+                    face.color.setHex(colors.SoilColor);
                 }
             } else if (lengthSq > seabedLevel) {
-                face.color.setHex(params.SandColor);
+                face.color.setHex(colors.SandColor);
             } else {
-                face.color.setHex(params.SeabedColor);
+                face.color.setHex(colors.SeabedColor);
             }
         }
         geometry.colorsNeedUpdate = true;
@@ -95,7 +89,53 @@ PLANET.terrain.Terrain = function (base) {
     };
 
     terrain.update = function () {
-
+        //support update of levels and colors
+        let snowLevel = Math.pow(params.PlanetRadius * (1 + params.TerrainDisplacement * (1 - params.SnowLevel)), 2);
+        let sandLevel = Math.pow(params.WaterLevel + params.SandLevel * params.TerrainDisplacement * params.PlanetRadius, 2);
+        let seabedLevel = Math.pow(params.WaterLevel - params.WaveHeight * 10, 2);
+        for (let face of geometry.faces) {
+            if (face.lengthSq > snowLevel) {
+                face.color.setHex(colors.SnowColor);
+                if (face.tree) {
+                    this.trees.children[face.tree].die();
+                }
+            } else if (face.lengthSq > sandLevel) {
+                // creates tree
+                let forest = simplex.noise3d(
+                    face.position.x * params.ForestDensity,
+                    face.position.y * params.ForestDensity,
+                    face.position.z * params.ForestDensity);
+                if (forest > params.TreeSpread) {
+                    face.color.setHex(colors.ForestColor);
+                } else if (forest > params.GrassSpread) {
+                    face.color.setHex(colors.GrassColor);
+                } else {
+                    face.color.setHex(colors.SoilColor);
+                }
+                if (face.tree) {
+                    this.trees.children[face.tree].live();
+                }
+            } else if (face.lengthSq > seabedLevel) {
+                face.color.setHex(colors.SandColor);
+                if (face.tree) {
+                    this.trees.children[face.tree].die();
+                }
+            } else {
+                face.color.setHex(colors.SeabedColor);
+            }
+        }
+        geometry.colorsNeedUpdate = true;
+        for (let tree of this.trees.children) {
+            for (let stage of tree.children) {
+                for (let material of stage.material) {
+                    if (material.name === "Trunk") {
+                        material.color.setHex(colors.TrunkColor);
+                    } else {
+                        material.color.setHex(colors.LeafColor);
+                    }
+                }
+            }
+        }
     };
 
     return terrain;
