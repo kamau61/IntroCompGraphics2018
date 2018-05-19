@@ -4,15 +4,10 @@ PLANET.debug = PLANET.debug || {};
 PLANET.debug.Debug = function () {
     let options = {
         reset: function () {
-            params.PlanetWireframe = false;
-            params.PlanetRotation = true;
-            params.PlanetRotationY = 0;
             this.smoothTerrain();
-            this.default();
-            params.WaterLevel = params.PlanetRadius;
-            params.WaterColor = 0x4682B4;
-            params.WaterOpacity = 0.9;
             this.roughOcean();
+            this.defaultColors();
+            this.defaultLevels();
         },
         generate: function () {
             simplex = new SimplexNoise();
@@ -34,7 +29,10 @@ PLANET.debug.Debug = function () {
             params.TerrainDisplacement = 0.25;
             update();
         },
-        default: function () {
+        defaultLevels: function () {
+            PLANET.climate.set(25.5);
+        },
+        defaultColors: function () {
             colors.TrunkColor = 0x393226;
             colors.LeafColor = 0x5d7650;
             colors.ForestColor = 0x7e874e;
@@ -44,6 +42,7 @@ PLANET.debug.Debug = function () {
             colors.SnowColor = 0xb6f5ff;
             colors.WaterColor = 0x49e8ff;
             colors.SeabedColor = 0x15454c;
+            params.WaterOpacity = 90;
             update();
         },
         greyScale: function () {
@@ -72,7 +71,6 @@ PLANET.debug.Debug = function () {
 
     let update = function () {
         planet.update();
-        // PLANET.planet.update();
         // updateCamera(params.PlanetRadius);
     };
 
@@ -89,30 +87,37 @@ PLANET.debug.Debug = function () {
     planetControls.add(params, 'Temperature')
         .min(CONSTANTS.FREEZE_POINT)
         .max(CONSTANTS.BOIL_POINT)
-        .step(0.1)
-        .onChange(function () {
-            PLANET.temperature.set(params.Temperature);
-        }).listen();
-    // planetControls.add(params, 'PlanetRotationY', 0, 0.05).listen();
-    // planetControls.add(params, 'PlanetWireframe').onChange(update).listen();
+        .onChange(function(){
+            planet.climate.set(params.Temperature);
+        })
+        .step(0.1).listen();
     planetControls.open();
     let terrainControls = planetControls.addFolder('Terrain');
+    //TODO onChange -> generate terrain
     terrainControls.add(params, 'TerrainDensity', 0, 1).onChange(update).listen();
-    terrainControls.add(params, 'TerrainDisplacement', 0, 0.5).onChange(update).listen();
+    terrainControls.add(params, 'TerrainDisplacement', 0, 50).onChange(update).listen();
     terrainControls.add(params, 'TerrainDetail', 1, 10).step(1).onChange(update).listen();
-    terrainControls.add(params, 'SnowLevel', 0, 1).step(0.1).onChange(update).listen();
-    terrainControls.add(params, 'SandLevel', 0, 0.1).step(0.01).onChange(update).listen();
     terrainControls.add(options, 'generate');
     terrainControls.add(options, 'smoothTerrain');
     terrainControls.add(options, 'sharpTerrain');
     let oceanControls = planetControls.addFolder('Ocean');
-    oceanControls.add(params, 'WaterLevel', params.PlanetRadius - params.TerrainDisplacement * params.PlanetRadius, params.PlanetRadius + params.TerrainDisplacement * params.PlanetRadius).listen();
-    oceanControls.add(params, 'WaterOpacity', 0, 1).step(0.1).onChange(update).listen();
+    oceanControls.add(params, 'WaterOpacity', 0, 100).onChange(update).listen();
     oceanControls.add(params, 'WaveSpeed', 0, 1).listen();
     oceanControls.add(params, 'WaveLength', 1, 5).listen();
     oceanControls.add(params, 'WaveHeight', 0, 0.3).listen();
     oceanControls.add(options, 'smoothOcean');
     oceanControls.add(options, 'roughOcean');
+    let forestControls = planetControls.addFolder('Forest');
+    //TODO onChange -> generate forest
+    forestControls.add(params, 'TreeSpread', -1, 1).onChange().listen();
+    forestControls.add(params, 'GrassSpread', -1, 1).onChange().listen();
+    forestControls.add(params, 'ForestDensity', -1, 1).onChange().listen();
+    let levelControls = planetControls.addFolder('Levels');
+    levelControls.add(params, 'SnowLevel', 0, 100).onChange(update).listen();
+    levelControls.add(params, 'SandLevel', 0, 100).onChange(update).listen();
+    levelControls.add(params, 'SeaLevel', 0, 100).onChange(update).listen();
+    levelControls.add(options, 'defaultLevels');
+    levelControls.open();
     let colorControls = planetControls.addFolder('Colors');
     colorControls.addColor(colors, 'TrunkColor').onChange(update).listen();
     colorControls.addColor(colors, 'LeafColor').onChange(update).listen();
@@ -123,7 +128,7 @@ PLANET.debug.Debug = function () {
     colorControls.addColor(colors, 'SnowColor').onChange(update).listen();
     colorControls.addColor(colors, 'WaterColor').onChange(update).listen();
     colorControls.addColor(colors, 'SeabedColor').onChange(update).listen();
-    colorControls.add(options, 'default');
+    colorControls.add(options, 'defaultColors');
     colorControls.add(options, 'greyScale');
     colorControls.open();
 

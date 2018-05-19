@@ -2,10 +2,8 @@ window.PLANET = window.PLANET || {};
 PLANET.terrain = PLANET.terrain || {};
 
 PLANET.terrain.Terrain = function (base) {
-    THREE.Object3D.call(this);
     let geometry = base.clone();
     let material = new THREE.MeshPhongMaterial({
-        wireframe: params.PlanetWireframe,
         flatShading: true,
         vertexColors: THREE.FaceColors
     });
@@ -22,25 +20,24 @@ PLANET.terrain.Terrain = function (base) {
 
         //shapes terrain
         let length, offset;
-        let max = params.PlanetRadius * params.TerrainDisplacement;
+        let max = params.PlanetRadius * params.TerrainDisplacement / 100;
         for (let vertex of geometry.vertices) {
             length = 0;
             for (let j = 1; j <= params.TerrainDetail; j++) {
-                offset = params.TerrainDensity * params.TerrainDisplacement * Math.pow(2, j);
+                offset = params.TerrainDensity * params.TerrainDisplacement / 100 * Math.pow(2, j);
                 length += (simplex.noise3d(vertex.x * offset, vertex.y * offset, vertex.z * offset) * max) / Math.pow(2, j);
             }
             vertex.setLength(params.PlanetRadius + length);
         }
         geometry.verticesNeedUpdate = true;
-        console.log("before");
 
         //colors terrain and adds trees
         let position = new THREE.Vector3();
         let verticesIndex = ['a', 'b', 'c'];
         let vertex, lengthSq;
-        let snowLevel = Math.pow(params.PlanetRadius * (1 + params.TerrainDisplacement * (1 - params.SnowLevel)), 2);
-        let beachLevel = Math.pow(params.WaterLevel + params.SandLevel * params.TerrainDisplacement * params.PlanetRadius, 2);
-        let seabedLevel = Math.pow(params.WaterLevel - params.WaveHeight * 10, 2);
+        let snowLevel = Math.pow(utils.getSnowLevel(), 2);
+        let sandLevel = Math.pow(utils.getSandLevel(), 2);
+        let seabedLevel = Math.pow(utils.getSeabedLevel(), 2);
         for (let face of geometry.faces) {
             //gets center from vertices
             position.set(0, 0, 0);
@@ -54,20 +51,20 @@ PLANET.terrain.Terrain = function (base) {
             position.y /= verticesIndex.length;
             position.z /= verticesIndex.length;
             face.position = position.clone();
-            lengthSq = position.lengthSq();
+            lengthSq = position.lengthSq();//lengthSq is a lot faster than length
             face.lengthSq = lengthSq;
 
             //colors face
             if (lengthSq > snowLevel) {
                 face.color.setHex(colors.SnowColor);
-            } else if (lengthSq > beachLevel) {
+            } else if (lengthSq > sandLevel) {
                 // creates tree
                 let forest = simplex.noise3d(
                     face.position.x * params.ForestDensity,
                     face.position.y * params.ForestDensity,
                     face.position.z * params.ForestDensity);
                 if (forest > params.TreeSpread) {
-                    let tree = PLANET.tree.Tree(face);
+                    let tree = new PLANET.tree.Tree(face);
                     terrain.trees.add(tree);
                     face.tree = terrain.trees.children.indexOf(tree);
                     face.color.setHex(colors.ForestColor);
@@ -84,15 +81,15 @@ PLANET.terrain.Terrain = function (base) {
         }
         geometry.colorsNeedUpdate = true;
         scene.add(terrain.trees);
-        console.log("after");
 
     };
 
+    //TODO update forest and terrain
     terrain.update = function () {
         //support update of levels and colors
-        let snowLevel = Math.pow(params.PlanetRadius * (1 + params.TerrainDisplacement * (1 - params.SnowLevel)), 2);
-        let sandLevel = Math.pow(params.WaterLevel + params.SandLevel * params.TerrainDisplacement * params.PlanetRadius, 2);
-        let seabedLevel = Math.pow(params.WaterLevel - params.WaveHeight * 10, 2);
+        let snowLevel = Math.pow(utils.getSnowLevel(), 2);
+        let sandLevel = Math.pow(utils.getSandLevel(), 2);
+        let seabedLevel = Math.pow(utils.getSeabedLevel(), 2);
         for (let face of geometry.faces) {
             if (face.lengthSq > snowLevel) {
                 face.color.setHex(colors.SnowColor);
@@ -125,6 +122,7 @@ PLANET.terrain.Terrain = function (base) {
             }
         }
         geometry.colorsNeedUpdate = true;
+
         for (let tree of this.trees.children) {
             for (let stage of tree.children) {
                 for (let material of stage.material) {
@@ -139,12 +137,4 @@ PLANET.terrain.Terrain = function (base) {
     };
 
     return terrain;
-};
-
-PLANET.terrain.Terrain.prototype = Object.create(THREE.Object3D.prototype);
-
-PLANET.terrain.update = function () {
-    PLANET.terrain.displaceTerrain(this.terrain.geometry);
-    this.terrain.geometry.elementsNeedUpdate = true;
-    this.terrain.geometry.computeVertexNormals();
 };

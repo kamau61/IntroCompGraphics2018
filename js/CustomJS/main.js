@@ -2,7 +2,7 @@ window.PLANET = window.PLANET || {};
 PLANET.main = PLANET.main || {};
 
 //variables that need global access
-let scene, camera, renderer, light, canvas, gui, simplex, timer;
+let scene, camera, renderer, light, canvas, gui, simplex, timer, utils;
 const CONSTANTS = {
     OPT_TEMP: 25.5,
     OPT_RANGE: 4.5,
@@ -10,26 +10,35 @@ const CONSTANTS = {
     BOIL_POINT: 100
 };
 let params = {
-    Temperature: 25.5,
     PlanetRadius: 100,
     PlanetDetail: 7,
-    // PlanetDetail: 5, //for testing
-    PlanetWireframe: false,
-    PlanetRotationY: 0,
-    TerrainDisplacement: 0.1,
+
+    //params regarding temperature
+    Temperature: 25.5,
+    // ReactionRate: 0.2,
+
+    //params regarding terrain generation
+    TerrainDisplacement: 10,//0.1,//10% of radius
     TerrainDensity: 0.1,
     TerrainDetail: 9,
-    SnowLevel: 0.5,
-    SandLevel: 0.1,
-    WaterLevel: 100,
+
+    //params regarding terrain type
+    SnowLevel: 50, //0.5,//50% of height above water from top
+    SandLevel: 10, //0.1,//10% of height above water
+    SeaLevel: 50, //100,//50% of terrain displacement
+
+    //params regarding forest
     TreeScale: 0.01, //TODO bind this with planet detail
     TreeSpread: 0.5,//0.6, //less the number, wider each forest, -1/+1
     GrassSpread: -0.5,//0, //less the number, wider each grassland, -1/+1
     ForestDensity: 0.2, //more the number, more forests, 0.1/0.3
-    WaterOpacity: 0.9,
+
+    //params regarding ocean
+    WaterOpacity: 90,
     WaveSpeed: 0.25,
     WaveLength: 1,
     WaveHeight: 0.05,
+
     CameraMax: 2,
     ZoomSpeed: 1,
     RotateSpeed: 2,
@@ -47,18 +56,15 @@ let colors = {
     SeabedColor: 0x15454c
 };
 let res = {
-    Types: {
-        fbx: 0
-    },
     Trees: [],
     DeadTrees: [],
     Loading: 0
 };
 let planet;
-let axis = new THREE.Vector3(1, 0, 0);
 
 PLANET.main.main = function () {
     timer = 0;
+    utils = new PLANET.utils();
     //init scene
     scene = new THREE.Scene();
     renderer = new THREE.WebGLRenderer();
@@ -137,7 +143,6 @@ PLANET.main.render = function () {
     timer += 1 / 10;
     if (timer > 1000000) timer = 0;
     if (planet) {
-        planet.rotation.y += params.PlanetRotationY;
         planet.animate();
     }
     // PLANET.controls.update();

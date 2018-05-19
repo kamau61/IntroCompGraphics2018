@@ -2,17 +2,15 @@ window.PLANET = window.PLANET || {};
 PLANET.tree = PLANET.tree || {};
 
 PLANET.tree.Tree = function (face) {
+    //get random tree
     let style = Math.floor(Math.random() * res.Trees.length);
     let tree = new THREE.Object3D();
     let scale = params.TreeScale * (1 - Math.random());
-    let alignOnFace = function (tree, face, scale) {
-        tree.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), face.position.clone().normalize());
-        tree.scale.set(scale, scale, scale);
-        tree.position.set(face.position.x, face.position.y, face.position.z);
-    };
     tree.alive = res.Trees[style].clone();
-    alignOnFace(tree.alive, face, scale);
+    utils.alignOnFace(tree.alive, face, scale);
     tree.add(tree.alive);
+
+    //get corresponding dead tree
     switch (style) {
         case 2:
         case 3:
@@ -37,19 +35,19 @@ PLANET.tree.Tree = function (face) {
             break;
     }
     tree.dead.visible = false;
-    alignOnFace(tree.dead, face, scale);
-    // tree.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), face.position.clone().normalize());
-    // tree.scale.set(scale, scale, scale);
-    // tree.position.set(face.position.x, face.position.y, face.position.z);
+    utils.alignOnFace(tree.dead, face, scale);
     tree.add(tree.dead);
+
     tree.die = function () {
         tree.dead.visible = true;
         tree.alive.visible = false;
     };
+
     tree.live = function () {
         tree.alive.visible = true;
         tree.dead.visible = false;
     };
+
     tree.remove = function () {
         tree.alive.visible = false;
         tree.dead.visible = false;

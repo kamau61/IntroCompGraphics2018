@@ -3,7 +3,7 @@
 //    Orbit - left mouse / touch: one finger move
 //    Zoom - middle mouse, or mousewheel / touch: two finger spread or squish
 //    Pan - A (left) and S (right) when on the surface of planet
-window.PLANET = window.PLANET || {}
+window.PLANET = window.PLANET || {};
 
 PLANET.OrbitControls = function (object, domElement) {
 
@@ -21,7 +21,7 @@ PLANET.OrbitControls = function (object, domElement) {
     this.target = new THREE.Vector3();
 
     // How far you can dolly in and out ( PerspectiveCamera only )
-    this.minDistance = params.PlanetRadius * (1 + params.TerrainDisplacement);
+    this.minDistance = utils.getPeakLevel();
     this.maxDistance = params.PlanetRadius * params.CameraMax;
 
     // How far you can orbit horizontally, upper and lower limits.
@@ -102,29 +102,23 @@ PLANET.OrbitControls = function (object, domElement) {
 
     };
 
-    var mapLinear = function (x, a1, a2, b1, b2) {
-
-        return b1 + (x - a1) * (b2 - b1) / (a2 - a1);
-
-    };
-
     // this method is exposed, but perhaps it would be better if we can make it private...
     this.update = function () {
 
-        var offset = new THREE.Vector3();
+        let offset = new THREE.Vector3();
 
         // so camera.up is the orbit axis
-        var quat = new THREE.Quaternion().setFromUnitVectors(object.up, new THREE.Vector3(0, 1, 0));
-        var quatInverse = quat.clone().inverse();
+        let quat = new THREE.Quaternion().setFromUnitVectors(object.up, new THREE.Vector3(0, 1, 0));
+        let quatInverse = quat.clone().inverse();
 
-        var lastPosition = new THREE.Vector3();
-        var lastQuaternion = new THREE.Quaternion();
+        let lastPosition = new THREE.Vector3();
+        let lastQuaternion = new THREE.Quaternion();
 
         return function update() {
 
             //TODO fix orbit direction after panning
 
-            var position = scope.object.position;
+            let position = scope.object.position;
 
             offset.copy(position).sub(scope.target);
 
@@ -172,9 +166,9 @@ PLANET.OrbitControls = function (object, domElement) {
 
             scale = 1;
 
-            scope.object.rotateOnAxis(scope.panAxis, mapLinear(spherical.radius, scope.minDistance, scope.maxDistance, scope.pan, 0));
+            scope.object.rotateOnAxis(scope.panAxis, utils.map(spherical.radius, scope.minDistance, scope.maxDistance, scope.pan, 0));
             camera = scope.object.clone();
-            camera.rotateOnAxis(scope.tiltAxis, mapLinear(spherical.radius, scope.minDistance, scope.maxDistance, Math.PI / 4, 0));
+            camera.rotateOnAxis(scope.tiltAxis, utils.map(spherical.radius, scope.minDistance, scope.maxDistance, Math.PI / 4, 0));
 
             // update condition is:
             // min(camera displacement, camera rotation in radians)^2 > EPS
@@ -223,32 +217,32 @@ PLANET.OrbitControls = function (object, domElement) {
     // internals
     //
 
-    var scope = this;
+    let scope = this;
 
-    var changeEvent = {type: 'change'};
-    var startEvent = {type: 'start'};
-    var endEvent = {type: 'end'};
+    let changeEvent = {type: 'change'};
+    let startEvent = {type: 'start'};
+    let endEvent = {type: 'end'};
 
-    var STATE = {NONE: -1, ROTATE: 0, DOLLY: 1, RESET: 2, TOUCH_ROTATE: 3, TOUCH_DOLLY: 4};
+    let STATE = {NONE: -1, ROTATE: 0, DOLLY: 1, RESET: 2, TOUCH_ROTATE: 3, TOUCH_DOLLY: 4};
 
-    var state = STATE.NONE;
+    let state = STATE.NONE;
 
-    var EPS = 0.000001;
+    let EPS = 0.000001;
 
     // current position in spherical coordinates
-    var spherical = new THREE.Spherical();
-    var sphericalDelta = new THREE.Spherical();
+    let spherical = new THREE.Spherical();
+    let sphericalDelta = new THREE.Spherical();
 
-    var scale = 1;
-    var zoomChanged = false;
+    let scale = 1;
+    let zoomChanged = false;
 
-    var rotateStart = new THREE.Vector2();
-    var rotateEnd = new THREE.Vector2();
-    var rotateDelta = new THREE.Vector2();
+    let rotateStart = new THREE.Vector2();
+    let rotateEnd = new THREE.Vector2();
+    let rotateDelta = new THREE.Vector2();
 
-    var dollyStart = new THREE.Vector2();
-    var dollyEnd = new THREE.Vector2();
-    var dollyDelta = new THREE.Vector2();
+    let dollyStart = new THREE.Vector2();
+    let dollyEnd = new THREE.Vector2();
+    let dollyDelta = new THREE.Vector2();
 
     function getAutoRotationAngle() {
 
@@ -332,7 +326,7 @@ PLANET.OrbitControls = function (object, domElement) {
 
         rotateDelta.subVectors(rotateEnd, rotateStart).multiplyScalar(params.RotateSpeed);
 
-        var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
+        let element = scope.domElement === document ? scope.domElement.body : scope.domElement;
 
         // rotating across whole screen goes 360 degrees around
         rotateLeft(2 * Math.PI * rotateDelta.x / element.clientWidth);
@@ -449,10 +443,10 @@ PLANET.OrbitControls = function (object, domElement) {
 
         //console.log( 'handleTouchStartDolly' );
 
-        var dx = event.touches[0].pageX - event.touches[1].pageX;
-        var dy = event.touches[0].pageY - event.touches[1].pageY;
+        let dx = event.touches[0].pageX - event.touches[1].pageX;
+        let dy = event.touches[0].pageY - event.touches[1].pageY;
 
-        var distance = Math.sqrt(dx * dx + dy * dy);
+        let distance = Math.sqrt(dx * dx + dy * dy);
 
         dollyStart.set(0, distance);
 
@@ -466,7 +460,7 @@ PLANET.OrbitControls = function (object, domElement) {
 
         rotateDelta.subVectors(rotateEnd, rotateStart).multiplyScalar(params.RotateSpeed);
 
-        var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
+        let element = scope.domElement === document ? scope.domElement.body : scope.domElement;
 
         // rotating across whole screen goes 360 degrees around
         rotateLeft(2 * Math.PI * rotateDelta.x / element.clientWidth);
@@ -484,10 +478,10 @@ PLANET.OrbitControls = function (object, domElement) {
 
         //console.log( 'handleTouchMoveDolly' );
 
-        var dx = event.touches[0].pageX - event.touches[1].pageX;
-        var dy = event.touches[0].pageY - event.touches[1].pageY;
+        let dx = event.touches[0].pageX - event.touches[1].pageX;
+        let dy = event.touches[0].pageY - event.touches[1].pageY;
 
-        var distance = Math.sqrt(dx * dx + dy * dy);
+        let distance = Math.sqrt(dx * dx + dy * dy);
 
         dollyEnd.set(0, distance);
 
@@ -743,8 +737,8 @@ PLANET.OrbitControls = function (object, domElement) {
 
     function onResize(event) {
 
-        var width = window.innerWidth;
-        var height = window.innerHeight;
+        let width = window.innerWidth;
+        let height = window.innerHeight;
         renderer.setSize(width, height);
         scope.object.aspect = width / height;
         scope.object.updateProjectionMatrix();

@@ -6,6 +6,7 @@ PLANET.planet.Planet = function () {
     simplex = new SimplexNoise();
     this.name = 'Planet';
     let baseGeometry = new THREE.IcosahedronGeometry(params.PlanetRadius, params.PlanetDetail);
+    this.climate = PLANET.climate.Climate();
     this.terrain = PLANET.terrain.Terrain(baseGeometry);
     this.add(this.terrain);
     this.terrain.generate();
@@ -13,6 +14,7 @@ PLANET.planet.Planet = function () {
     this.add(this.ocean);
     this.animate = function () {
         this.ocean.animate();
+        // this.climate.animate();
     };
     this.update = function () {
         this.terrain.update();
@@ -21,8 +23,3 @@ PLANET.planet.Planet = function () {
 };
 
 PLANET.planet.Planet.prototype = Object.create(THREE.Object3D.prototype);
-
-PLANET.planet.update = function () {
-    PLANET.terrain.update();
-    PLANET.ocean.update();
-};

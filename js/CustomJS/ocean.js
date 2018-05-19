@@ -3,14 +3,11 @@ PLANET.ocean = PLANET.ocean || {};
 
 PLANET.ocean.Ocean = function (base) {
     let geometry = base.clone();
-    params.WaterLevel = geometry.vertices[0].length();
     let material = new THREE.MeshStandardMaterial({
-        //TODO make all these linked to param
-        wireframe: params.PlanetWireframe,
         flatShading: true,
         color: new THREE.Color(colors.WaterColor),
         transparent: true,
-        opacity: params.WaterOpacity
+        opacity: params.WaterOpacity / 100
     });
     let ocean = new THREE.Mesh(geometry, material);
     ocean.castShadow = true;
@@ -18,30 +15,34 @@ PLANET.ocean.Ocean = function (base) {
     ocean.name = "Ocean";
     ocean.frozen = false;
     ocean.animate = function () {
-        if (params.Temperature > CONSTANTS.FREEZE_POINT) {
-            this.frozen = false;
-            let length;
-            let step = timer * params.WaveSpeed;
-            for (let vertex of geometry.vertices) {
-                length = simplex.noise3d(
-                    (vertex.x + step) / params.WaveLength,
-                    (vertex.y + step) / params.WaveLength,
-                    (vertex.z + step) / params.WaveLength
-                );
-                vertex.setLength(params.WaterLevel + length * params.WaveHeight);
+        if (params.SeaLevel > 0) {
+            if (params.Temperature > CONSTANTS.FREEZE_POINT) {
+                let seaLevel = utils.getSeaLevel();
+                this.frozen = false;
+                let length;
+                let step = timer * params.WaveSpeed;
+                for (let vertex of geometry.vertices) {
+                    length = simplex.noise3d(
+                        (vertex.x + step) / params.WaveLength,
+                        (vertex.y + step) / params.WaveLength,
+                        (vertex.z + step) / params.WaveLength
+                    );
+                    vertex.setLength(seaLevel + length * params.WaveHeight);
+                }
+                geometry.verticesNeedUpdate = true;
+            } else if (!this.frozen) {
+                let seaLevel = utils.getSeaLevel();
+                for (let vertex of geometry.vertices) {
+                    vertex.setLength(seaLevel);
+                }
+                geometry.verticesNeedUpdate = true;
+                this.frozen = true;
             }
-            geometry.verticesNeedUpdate = true;
-        } else if (!this.frozen) {
-            for (let vertex of geometry.vertices) {
-                vertex.setLength(params.WaterLevel);
-            }
-            geometry.verticesNeedUpdate = true;
-            this.frozen = true;
         }
     };
     ocean.update = function () {
         material.color.setHex(colors.WaterColor);
-        material.opacity = params.WaterOpacity;
+        material.opacity = params.WaterOpacity / 100;
         material.needsUpdate = true;
     };
     return ocean;
