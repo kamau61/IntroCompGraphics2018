@@ -124,8 +124,8 @@ PLANET.terrain.Terrain = function (base) {
         geometry.colorsNeedUpdate = true;
 
         for (let tree of this.trees.children) {
-            for (let stage of tree.children) {
-                for (let material of stage.material) {
+            for (let status of tree.children) {
+                for (let material of status.material) {
                     if (material.name === "Trunk") {
                         material.color.setHex(colors.TrunkColor);
                     } else {

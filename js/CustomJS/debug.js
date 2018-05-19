@@ -4,16 +4,17 @@ PLANET.debug = PLANET.debug || {};
 PLANET.debug.Debug = function () {
     let options = {
         reset: function () {
-            this.smoothTerrain();
-            this.roughOcean();
-            this.defaultColors();
-            this.defaultLevels();
+            params.color = 0;
+            updateColor();
+            this.SmoothTerrain();
+            this.RoughOcean();
+            this.DefaultLevels();
         },
         generate: function () {
             simplex = new SimplexNoise();
             update();
         },
-        smoothTerrain: function () {
+        SmoothTerrain: function () {
             params.PlanetRadius = 100;
             params.PlanetDetail = 7;
             params.TerrainDisplacement = 0.1;
@@ -21,7 +22,7 @@ PLANET.debug.Debug = function () {
             params.TerrainDetail = 9;
             update();
         },
-        sharpTerrain: function () {
+        SharpTerrain: function () {
             params.TerrainDensity = 0.03;
             params.TerrainDetail = 9;
             params.PlanetRadius = 100;
@@ -29,49 +30,42 @@ PLANET.debug.Debug = function () {
             params.TerrainDisplacement = 0.25;
             update();
         },
-        defaultLevels: function () {
-            PLANET.climate.set(25.5);
-        },
-        defaultColors: function () {
-            colors.TrunkColor = 0x393226;
-            colors.LeafColor = 0x5d7650;
-            colors.ForestColor = 0x7e874e;
-            colors.GrassColor = 0x8d9c61;
-            colors.SoilColor = 0xabb6a0;
-            colors.SandColor = 0xf2eadf;
-            colors.SnowColor = 0xb6f5ff;
-            colors.WaterColor = 0x49e8ff;
-            colors.SeabedColor = 0x15454c;
-            params.WaterOpacity = 90;
-            update();
-        },
-        greyScale: function () {
-            colors.TrunkColor = 0xb3b3b3;
-            colors.LeafColor = 0xa6a6a6;
-            colors.ForestColor = 0xb3b3b3;
-            colors.GrassColor = 0xbfbfbf;
-            colors.SoilColor = 0xd9d9d9;
-            colors.SandColor = 0xe6e6e6;
-            colors.SnowColor = 0xffffff;
-            colors.WaterColor = 0xf2f2f2;
-            colors.SeabedColor = 0x808080;
-            update();
-        },
-        smoothOcean: function () {
+        SmoothOcean: function () {
             params.WaveSpeed = 0.25;
             params.WaveLength = 5;
             params.WaveHeight = 0.025;
         },
-        roughOcean: function () {
+        RoughOcean: function () {
             params.WaveSpeed = 0.25;
             params.WaveLength = 1;
             params.WaveHeight = 0.05;
+        },
+        DefaultLevels: function () {
+            planet.climate.set(25.5);
+        },
+        RandomColor: function(){
+            params.Color = Math.floor(Math.random()*colorSchemes.length);
+            updateColor();
         }
     };
 
     let update = function () {
         planet.update();
         // updateCamera(params.PlanetRadius);
+    };
+
+    let updateColor = function () {
+        //colors = colorSchemes[params.Color];//somehow this does not trigger listen of the color panels
+        colors.LeafColor = colorSchemes[params.Color].LeafColor;
+        colors.ForestColor = colorSchemes[params.Color].ForestColor;
+        colors.GrassColor = colorSchemes[params.Color].GrassColor;
+        colors.TrunkColor = colorSchemes[params.Color].TrunkColor;
+        colors.SoilColor = colorSchemes[params.Color].SoilColor;
+        colors.SandColor = colorSchemes[params.Color].SandColor;
+        colors.SnowColor = colorSchemes[params.Color].SnowColor;
+        colors.SeaColor = colorSchemes[params.Color].SeaColor;
+        colors.SeabedColor = colorSchemes[params.Color].SeabedColor;
+        planet.update();
     };
 
     // let updateCamera = function() {
@@ -87,7 +81,7 @@ PLANET.debug.Debug = function () {
     planetControls.add(params, 'Temperature')
         .min(CONSTANTS.FREEZE_POINT)
         .max(CONSTANTS.BOIL_POINT)
-        .onChange(function(){
+        .onChange(function () {
             planet.climate.set(params.Temperature);
         })
         .step(0.1).listen();
@@ -98,15 +92,15 @@ PLANET.debug.Debug = function () {
     terrainControls.add(params, 'TerrainDisplacement', 0, 50).onChange(update).listen();
     terrainControls.add(params, 'TerrainDetail', 1, 10).step(1).onChange(update).listen();
     terrainControls.add(options, 'generate');
-    terrainControls.add(options, 'smoothTerrain');
-    terrainControls.add(options, 'sharpTerrain');
+    terrainControls.add(options, 'SmoothTerrain');
+    terrainControls.add(options, 'SharpTerrain');
     let oceanControls = planetControls.addFolder('Ocean');
     oceanControls.add(params, 'WaterOpacity', 0, 100).onChange(update).listen();
     oceanControls.add(params, 'WaveSpeed', 0, 1).listen();
     oceanControls.add(params, 'WaveLength', 1, 5).listen();
     oceanControls.add(params, 'WaveHeight', 0, 0.3).listen();
-    oceanControls.add(options, 'smoothOcean');
-    oceanControls.add(options, 'roughOcean');
+    oceanControls.add(options, 'SmoothOcean');
+    oceanControls.add(options, 'RoughOcean');
     let forestControls = planetControls.addFolder('Forest');
     //TODO onChange -> generate forest
     forestControls.add(params, 'TreeSpread', -1, 1).onChange().listen();
@@ -116,20 +110,32 @@ PLANET.debug.Debug = function () {
     levelControls.add(params, 'SnowLevel', 0, 100).onChange(update).listen();
     levelControls.add(params, 'SandLevel', 0, 100).onChange(update).listen();
     levelControls.add(params, 'SeaLevel', 0, 100).onChange(update).listen();
-    levelControls.add(options, 'defaultLevels');
-    levelControls.open();
+    levelControls.add(options, 'DefaultLevels');
     let colorControls = planetControls.addFolder('Colors');
-    colorControls.addColor(colors, 'TrunkColor').onChange(update).listen();
     colorControls.addColor(colors, 'LeafColor').onChange(update).listen();
     colorControls.addColor(colors, 'ForestColor').onChange(update).listen();
     colorControls.addColor(colors, 'GrassColor').onChange(update).listen();
+    colorControls.addColor(colors, 'TrunkColor').onChange(update).listen();
     colorControls.addColor(colors, 'SoilColor').onChange(update).listen();
     colorControls.addColor(colors, 'SandColor').onChange(update).listen();
     colorControls.addColor(colors, 'SnowColor').onChange(update).listen();
-    colorControls.addColor(colors, 'WaterColor').onChange(update).listen();
+    colorControls.addColor(colors, 'SeaColor').onChange(update).listen();
     colorControls.addColor(colors, 'SeabedColor').onChange(update).listen();
-    colorControls.add(options, 'defaultColors');
-    colorControls.add(options, 'greyScale');
+    colorControls.add(params, 'Color', {
+        EarthyTones: colorSchemes.indexOf(EarthyTones),
+        QuickSilver: colorSchemes.indexOf(QuickSilver),
+        RosyRed: colorSchemes.indexOf(RosyRed),
+        LimyGreen: colorSchemes.indexOf(LimyGreen),
+        MintyBlue: colorSchemes.indexOf(MintyBlue),
+        BerryPurple: colorSchemes.indexOf(BerryPurple),
+        FruityCandy: colorSchemes.indexOf(FruityCandy),
+        DreamyUnicorn: colorSchemes.indexOf(DreamyUnicorn),
+        PrettyMermaid: colorSchemes.indexOf(PrettyMermaid),
+        FancyFairy: colorSchemes.indexOf(FancyFairy),
+        FlamyDragon: colorSchemes.indexOf(FlamyDragon),
+        LazyPanda: colorSchemes.indexOf(LazyPanda)
+    }).onChange(updateColor).listen();
+    colorControls.add(options, 'RandomColor');
     colorControls.open();
 
 

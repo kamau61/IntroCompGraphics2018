@@ -2,7 +2,7 @@ window.PLANET = window.PLANET || {};
 PLANET.main = PLANET.main || {};
 
 //variables that need global access
-let scene, camera, renderer, light, canvas, gui, simplex, timer, utils;
+let scene, camera, renderer, light, color, canvas, gui, simplex, timer, utils;
 const CONSTANTS = {
     OPT_TEMP: 25.5,
     OPT_RANGE: 4.5,
@@ -16,16 +16,17 @@ let params = {
     //params regarding temperature
     Temperature: 25.5,
     // ReactionRate: 0.2,
+    Color: 0,
 
     //params regarding terrain generation
-    TerrainDisplacement: 10,//0.1,//10% of radius
-    TerrainDensity: 0.1,
-    TerrainDetail: 9,
+    TerrainDisplacement: 10,//10% of radius
+    TerrainDensity: 0.1,//frequency of noise generator
+    TerrainDetail: 9,//number of layers of noise
 
     //params regarding terrain type
-    SnowLevel: 50, //0.5,//50% of height above water from top
-    SandLevel: 10, //0.1,//10% of height above water
-    SeaLevel: 50, //100,//50% of terrain displacement
+    SnowLevel: 50,//50% of height above water from top
+    SandLevel: 10,//10% of height above water
+    SeaLevel: 50,//50% of terrain displacement
 
     //params regarding forest
     TreeScale: 0.01, //TODO bind this with planet detail
@@ -44,17 +45,7 @@ let params = {
     RotateSpeed: 2,
     PanSpeed: 10
 };
-let colors = {
-    TrunkColor: 0x393226, //0x907350,
-    LeafColor: 0x5d7650, //0x233e23,
-    ForestColor: 0x7e874e, //0x136d15,
-    GrassColor: 0x8d9c61, //0x558822,
-    SoilColor: 0xabb6a0, //0x778811,
-    SandColor: 0xf2eadf, //0x998800,
-    SnowColor: 0xb6f5ff, //0xFFFAFA,
-    WaterColor: 0x49e8ff,//0x1b8594,
-    SeabedColor: 0x15454c
-};
+let colors = colorSchemes[0];
 let res = {
     Trees: [],
     DeadTrees: [],
@@ -65,6 +56,8 @@ let planet;
 PLANET.main.main = function () {
     timer = 0;
     utils = new PLANET.utils();
+    params.Color = Math.floor(Math.random()*colorSchemes.length);
+    colors = colorSchemes[params.Color];
     //init scene
     scene = new THREE.Scene();
     renderer = new THREE.WebGLRenderer();

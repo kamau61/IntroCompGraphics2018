@@ -5,7 +5,7 @@ PLANET.ocean.Ocean = function (base) {
     let geometry = base.clone();
     let material = new THREE.MeshStandardMaterial({
         flatShading: true,
-        color: new THREE.Color(colors.WaterColor),
+        color: new THREE.Color(colors.SeaColor),
         transparent: true,
         opacity: params.WaterOpacity / 100
     });
@@ -41,7 +41,7 @@ PLANET.ocean.Ocean = function (base) {
         }
     };
     ocean.update = function () {
-        material.color.setHex(colors.WaterColor);
+        material.color.setHex(colors.SeaColor);
         material.opacity = params.WaterOpacity / 100;
         material.needsUpdate = true;
     };
