@@ -9,6 +9,9 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
     this.min = 20000;
     this.max = 0;
 
+    this.trees = [];
+    PLANET.terrain.loadTrees(geometry);
+
     var material = new THREE.MeshPhongMaterial({
         wireframe: params.PlanetWireframe,
         flatShading: params.PlanetFlatShading,
@@ -19,8 +22,6 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
     this.terrain.castShadow = true;
     this.terrain.receiveShadow = true;
     this.terrain.name = "Terrain";
-
-    PLANET.terrain.loadTrees(geometry);
 
     console.log(this.min);
     console.log(this.max);
@@ -52,6 +53,8 @@ PLANET.terrain.displaceTerrain = function (geometry) {
 };
 
 PLANET.terrain.computeFaceDetails = function (face, geometry) {
+
+
     var getAveragePos = function (face) {
         var midPoint = new THREE.Vector3();
         midPoint.x = (
@@ -94,12 +97,23 @@ PLANET.terrain.colorTerrain = function (face) {
 
     if (face.offset > params.SnowLevel) {
         face.color.setHex(params.SnowColor);
+    } else if (face.offset > params.MountainLevel) {
+        face.color.setHex(params.MountainColor);
     } else if (face.offset > params.BeachLevel) {
-        face.color.setHex(params.TerrainColor);
+        if (Math.random() > 0.05) {
+            face.color.setHex(params.TerrainColor);
+        } else {
+            face.color.setHex(params.ForrestColor);
+        }
     } else if (face.offset > 0) {
         face.color.setHex(params.BeachColor)
     } else {
         face.color.setHex(params.WaterColor);
+    }
+
+    if (face.hasTree) {
+        this.trees[face.treeID].visible = face.offset > params.BeachLevel && face.offset < params.SnowLevel;
+        PLANET.terrain.updateTrees(face);
     }
 };
 
@@ -107,21 +121,45 @@ PLANET.terrain.loadTrees = function (geometry) {
     for (var i = 0; i < geometry.faces.length; i++) {
         var face = geometry.faces[i];
         if (Math.random() > 0.99) {
+            face.hasTree = true;
             geometry.elementsNeedUpdate = true;
 
             var tree = baseTrees[1].clone();
 
-            var axis = new THREE.Vector3(0, 0, 1);
-            tree.quaternion.setFromUnitVectors(axis, face.position.clone().normalize());
+            tree.visible = false;
 
-            tree.position.x = face.position.x;
-            tree.position.y = face.position.y;
-            tree.position.z = face.position.z;
+            this.trees.push(tree);
+            face.treeID = this.trees.length - 1;
 
             scene.add(tree);
             geometry.elementsNeedUpdate = true;
         }
     }
+};
+
+PLANET.terrain.updateTrees = function (face) {
+    var tree = this.trees[face.treeID];
+    var axis = new THREE.Vector3(0, 0, 1);
+    tree.quaternion.setFromUnitVectors(axis, face.position.clone().normalize());
+
+    tree.position.x = face.position.x;
+    tree.position.y = face.position.y;
+    tree.position.z = face.position.z;
+};
+
+PLANET.terrain.addTree = function (face) {
+    var tree = baseTrees[1].clone();
+
+    var axis = new THREE.Vector3(0, 0, 1);
+    tree.quaternion.setFromUnitVectors(axis, face.position.clone().normalize());
+
+    tree.position.x = face.position.x;
+    tree.position.y = face.position.y;
+    tree.position.z = face.position.z;
+
+    tree.name = "tree";
+
+    scene.add(tree);
 };
 
 PLANET.terrain.update = function () {

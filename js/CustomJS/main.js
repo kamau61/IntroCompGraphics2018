@@ -12,10 +12,13 @@ var params = {
     TerrainDisplacement: 0.1,
     TerrainDensity: 0.1,
     TerrainDetail: 9,
-    TerrainColor: 0x6B8E23, //olivedrab
-    SnowLevel: 6,
+    SnowLevel: 12,
+    MountainLevel: 7,
     BeachLevel: 1,
-    SnowColor: 0xFFFAFA, //snow
+    SnowColor: 0xEEEEEE, //snow
+    MountainColor: 0x594C3A,
+    TerrainColor: 0x6B8E23, //olivedrab
+    ForrestColor: 0x456800,
     BeachColor: 0xF4A460, //sandybrown
     CoralColor: 0x4682B4, //steelblue
     WaterColor: 0x4682B4, //steelblue
