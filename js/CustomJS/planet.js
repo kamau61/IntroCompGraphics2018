@@ -1,14 +1,11 @@
 window.PLANET = window.PLANET || {};
 PLANET.planet = PLANET.planet || {};
 
-PLANET.planet.Planet = function() {
+PLANET.planet.Planet = function(bufferGeometry) {
     THREE.Object3D.call(this);
     simplex = new SimplexNoise();
-    this.baseGeometry = new THREE.IcosahedronGeometry(params.PlanetRadius, params.PlanetDetail);
-    this.baseGeometry.needsUpdate = true;
-    this.baseGeometry.verticesNeedUpdate = true;
-    this.add(PLANET.terrain.Terrain(this.baseGeometry));
-    this.add(PLANET.ocean.Ocean(this.baseGeometry));
+    this.add(PLANET.ocean.Ocean(bufferGeometry));
+    this.add(PLANET.terrain.Terrain(bufferGeometry));
 };
 
 PLANET.planet.Planet.prototype = Object.create(THREE.Object3D.prototype);
