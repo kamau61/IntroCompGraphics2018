@@ -132,8 +132,8 @@ PLANET.main.render = function () {
         planet.rotation.y += params.PlanetRotationY;
         PLANET.planet.animate();
     }
-    if(light) {
-      PLANET.lighting.animate();
+    if (light) {
+        PLANET.lighting.animate();
     }
 
     renderer.render(scene, camera);

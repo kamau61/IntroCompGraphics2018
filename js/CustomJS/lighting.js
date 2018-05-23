@@ -1,16 +1,18 @@
 window.PLANET = window.PLANET || {};
 PLANET.lighting = PLANET.lighting || {};
 
-var effectController  = {
-  turbidity: 10,
-  rayleigh: 2,
-  mieCoefficient: 0.005,
-  mieDirectionalG: 0.8,
-  luminance: 1,
-  inclination: 0.49, // elevation / inclination
-  azimuth: 0.25, // Facing front,
-  sun:  true
+var effectController = {
+    turbidity: 10,
+    rayleigh: 2,
+    mieCoefficient: 0.005,
+    mieDirectionalG: 0.8,
+    luminance: 1,
+    inclination: 0.49, // elevation / inclination
+    azimuth: 0.25, // Facing front,
+    sun: true
 };
+
+var sunSphere;
 
 PLANET.lighting.Lighting = function () {
     THREE.Object3D.call(this);
@@ -63,34 +65,38 @@ PLANET.lighting.Lighting = function () {
     this.add(this.starSphere);*/
 
     function initSky() {
-				// Add Sky
-				sky = new THREE.Sky();
-				sky.scale.setScalar( 450000 ); //Set sky box size
-				scene.add( sky );
-				// Add Sun Helper
-				sunSphere = new THREE.Mesh(
-					new THREE.IcosahedronBufferGeometry( 500, 1 ),
-					new THREE.MeshBasicMaterial( { color: 0xffff7f } )
-				);
-				sunSphere.position.y = - 10000;
-				sunSphere.visible = true;
-				scene.add( sunSphere );
-				/// GUI
+        // Add Sky
+        sky = new THREE.Sky();
+        sky.scale.setScalar(450000); //Set sky box size
+        scene.add(sky);
+        // Add Sun Helper
+        sunSphere = new THREE.Mesh(
+            new THREE.IcosahedronBufferGeometry(500, 1),
+            new THREE.MeshBasicMaterial({color: 0xffff7f})
+        );
+        var sunlight = new THREE.PointLight(0xffffff, 0.8);
+        sunlight.castShadow = true;
+        sunSphere.add(sunlight);
+
+        sunSphere.position.y = -10000;
+        sunSphere.visible = true;
+        scene.add(sunSphere);
+        /// GUI
 
 
-				var gui = new dat.GUI();
-				gui.add( effectController, "turbidity", 1.0, 20.0, 0.1 ).onChange( guiChanged );
-				gui.add( effectController, "rayleigh", 0.0, 4, 0.001 ).onChange( guiChanged );
-				gui.add( effectController, "mieCoefficient", 0.0, 0.1, 0.001 ).onChange( guiChanged );
-				gui.add( effectController, "mieDirectionalG", 0.0, 1, 0.001 ).onChange( guiChanged );
-				gui.add( effectController, "luminance", 0.0, 2 ).onChange( guiChanged );
-				gui.add( effectController, "inclination", -1, 1, 0.0001 ).onChange( guiChanged );
-				gui.add( effectController, "azimuth", 0, 1, 0.0001 ).onChange( guiChanged );
-				gui.add( effectController, "sun" ).onChange( guiChanged );
-				guiChanged();
-			}
+        var gui = new dat.GUI();
+        gui.add(effectController, "turbidity", 1.0, 20.0, 0.1).onChange(guiChanged);
+        gui.add(effectController, "rayleigh", 0.0, 4, 0.001).onChange(guiChanged);
+        gui.add(effectController, "mieCoefficient", 0.0, 0.1, 0.001).onChange(guiChanged);
+        gui.add(effectController, "mieDirectionalG", 0.0, 1, 0.001).onChange(guiChanged);
+        gui.add(effectController, "luminance", 0.0, 2).onChange(guiChanged);
+        gui.add(effectController, "inclination", -1, 1, 0.0001).onChange(guiChanged);
+        gui.add(effectController, "azimuth", 0, 1, 0.0001).onChange(guiChanged);
+        gui.add(effectController, "sun").onChange(guiChanged);
+        guiChanged();
+    }
 
-      initSky();
+    initSky();
 
     return this;
 };
@@ -99,22 +105,22 @@ PLANET.lighting.Lighting.prototype = Object.create(THREE.Object3D.prototype);
 
 
 function guiChanged() {
-  var distance = 10000;
+    var distance = 100000;
 
-  var uniforms = sky.material.uniforms;
-  uniforms.turbidity.value = effectController.turbidity;
-  uniforms.rayleigh.value = effectController.rayleigh;
-  uniforms.luminance.value = effectController.luminance;
-  uniforms.mieCoefficient.value = effectController.mieCoefficient;
-  uniforms.mieDirectionalG.value = effectController.mieDirectionalG;
-  var theta = Math.PI * ( effectController.inclination - 0.5 );
-  var phi = 2 * Math.PI * ( effectController.azimuth - 0.5 );
-  sunSphere.position.x = distance * Math.cos( phi );
-  sunSphere.position.y = distance * Math.sin( phi ) * Math.sin( theta );
-  sunSphere.position.z = distance * Math.sin( phi ) * Math.cos( theta );
-  sunSphere.visible = effectController.sun;
-  uniforms.sunPosition.value.copy( sunSphere.position );
-  renderer.render( scene, camera );
+    var uniforms = sky.material.uniforms;
+    uniforms.turbidity.value = effectController.turbidity;
+    uniforms.rayleigh.value = effectController.rayleigh;
+    uniforms.luminance.value = effectController.luminance;
+    uniforms.mieCoefficient.value = effectController.mieCoefficient;
+    uniforms.mieDirectionalG.value = effectController.mieDirectionalG;
+    var theta = Math.PI * (effectController.inclination - 0.5);
+    var phi = 2 * Math.PI * (effectController.azimuth - 0.5);
+    sunSphere.position.x = distance * Math.cos(phi);
+    sunSphere.position.y = distance * Math.sin(phi) * Math.sin(theta);
+    sunSphere.position.z = distance * Math.sin(phi) * Math.cos(theta);
+    sunSphere.visible = effectController.sun;
+    uniforms.sunPosition.value.copy(sunSphere.position);
+    renderer.render(scene, camera);
 }
 
 
@@ -123,15 +129,16 @@ function guiChanged() {
 /////////////////////////////////////////////////////
 
 PLANET.lighting.animate = function () {
-  effectController.inclination += 0.01;
-  if (effectController.inclination > 1) {
-    effectController.inclination = -1;
-  }
-  guiChanged();
-  //this.sunLight.position.x = sunRadius * Math.cos(timer);
-  //this.sunLight.position.z = sunRadius * Math.sin(timer);
-  //this.moonLight.position.x = moonRadius * -Math.cos(timer);
-  //this.moonLight.position.z = moonRadius * -Math.sin(timer);
+    effectController.inclination += 0.01;
+    if (effectController.inclination > 1) {
+        effectController.inclination = -1;
+    }
 
-  //theta = ((Math.atan2(camera.position.x - this.sunLight.position.x, camera.position.z - this.sunLight.position.z) * 180 / Math.PI) + 180)%360;
+    guiChanged();
+    //this.sunLight.position.x = sunRadius * Math.cos(timer);
+    //this.sunLight.position.z = sunRadius * Math.sin(timer);
+    //this.moonLight.position.x = moonRadius * -Math.cos(timer);
+    //this.moonLight.position.z = moonRadius * -Math.sin(timer);
+
+    //theta = ((Math.atan2(camera.position.x - this.sunLight.position.x, camera.position.z - this.sunLight.position.z) * 180 / Math.PI) + 180)%360;
 };

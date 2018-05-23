@@ -5,7 +5,7 @@ PLANET.controls.Controls = function() {
 
     //init camera
     var aspect = window.innerWidth / window.innerHeight;
-    camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 5000);
+    camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 10000);
     camera.position.set(0, 0, params.PlanetRadius * params.CameraMax);
     // cameraPos = camera.clone();
     // startRotation = camera.rotation.clone();
