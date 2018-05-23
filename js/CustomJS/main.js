@@ -28,6 +28,13 @@ var params = {
     WaveLength: 1,
     WaveHeight: 0.05,
     CameraMax: 2,
+    CameraDefault: 1.8,
+    MoonDistance: 200,
+    MoonSize: 30,
+    SunDistance: 500,
+    SunSize: 200,
+    AutoRotate: false,
+    AutoRotateSpeed: 2, // 30 seconds per round when fps is 60
     ZoomSpeed: 1,
     RotateSpeed: 2,
     PanSpeed: 10
@@ -56,15 +63,18 @@ PLANET.main.main = function () {
         renderer.render(scene, camera);
     });
     //init light
-    var distance = params.PlanetRadius * params.CameraMax;
-    light = new THREE.DirectionalLight(0xffffff, 0.8);
-    light.position.set(-distance, distance, distance);
-    light.castShadow = true;
+    // var distance = params.PlanetRadius * params.CameraMax;
+    // light = new THREE.DirectionalLight(0xffffff, 0.8);
+    // light.position.set(-distance, distance, distance);
+    // light.castShadow = true;
+
+    light = new PLANET.lighting.Lighting();
     scene.add(light);
-    var ambLight = new THREE.AmbientLight(0xffffff, 1);
-    scene.add(ambLight);
+
+
     PLANET.controls.Controls();
     PLANET.debug.Debug();
+    console.log(scene);
     PLANET.main.render();
 };
 
@@ -122,7 +132,10 @@ PLANET.main.render = function () {
         planet.rotation.y += params.PlanetRotationY;
         PLANET.planet.animate();
     }
-    // PLANET.controls.update();
+    if(light) {
+      PLANET.lighting.animate();
+    }
+
     renderer.render(scene, camera);
 };
 
