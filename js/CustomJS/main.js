@@ -53,12 +53,13 @@ PLANET.main.main = function () {
         renderer.render(scene, camera);
     });
     //init light
-    var distance = params.PlanetRadius * params.CameraMax;
-    light = new THREE.DirectionalLight(0xffffff, 0.8);
-    light.position.set(-distance, distance, distance);
-    light.castShadow = true;
-    scene.add(light);
+    // var distance = params.PlanetRadius * params.CameraMax;
+    // light = new THREE.DirectionalLight(0xffffff, 0.8);
+    // light.position.set(-distance, distance, distance);
+    // light.castShadow = true;
+
     light = new PLANET.lighting.Lighting();
+    scene.add(light);
 
     PLANET.main.addObjects();
     PLANET.controls.Controls();
@@ -80,10 +81,13 @@ PLANET.main.render = function () {
         planet.rotation.y += params.PlanetRotationY;
         PLANET.planet.animate();
     }
+    if(light) {
+      PLANET.lighting.animate();
+    }
     if (params.AutoRotate) {
         controls.update();
     }
-    PLANET.lighting.animate();
+
 
     renderer.render(scene, camera);
 };

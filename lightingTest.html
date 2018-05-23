@@ -98,14 +98,12 @@
     moonLight = new THREE.PointLight(0xeeeeff, 0.01);
     scene.add(sunLight);
     scene.add(moonLight);
-    sunObj = new THREE.SphereGeometry(100, 8, 8);
-    moonObj = new THREE.SphereGeometry(100, 8, 8);
+    sunObj = new THREE.SphereGeometry(5, 8, 8);
+    moonObj = new THREE.SphereGeometry(5, 8, 8);
     materialLightSun = new THREE.MeshBasicMaterial({color: 0xffaa00});
-    materialLightMoon = new THREE.MeshBasicMaterial({color: 0xeeeeee});
+    materialLightMoon = new THREE.MeshBasicMaterial({color: 0x909090});
     sun = new THREE.Mesh(sunObj, materialLightSun);
     moon = new THREE.Mesh(moonObj, materialLightMoon);
-    sun.scale.set(0.01, 0.01, 0.01);
-    moon.scale.set(0.001, 0.001, 0.001);
     sunLight.add(sun);
     moonLight.add(moon);
 
@@ -157,13 +155,6 @@
         }
 
         var LightsOff = function () {
-            // dayLight.visible = false;
-            // sunset1Light.visible = false;
-            // sunset2Light.visible = false;
-            // sunset3Light.visible = false;
-            // duskLight.visible = false;
-            // nightLight.visible = false;
-            // nullLight.visible = false;
             for (var i = 0; i < phase.count; i++) {
                 phase[i].visible = false;
             }
@@ -269,14 +260,24 @@
     var Animate = function () {
         // Rotation of sun and moon
         var r = clock.getElapsedTime() * 0.5;
+
         sunLight.position.x = sunRadius * Math.cos(r);
         sunLight.position.z = sunRadius * Math.sin(r);
+        sun.position.x = sunRadius * Math.cos(r);
+        sun.position.z = sunRadius * Math.sin(r);
+
         moonLight.position.x = moonRadius * -Math.cos(r);
         moonLight.position.z = moonRadius * -Math.sin(r);
+        moon.position.x = moonRadius * -Math.cos(r);
+        moon.position.z = moonRadius * -Math.sin(r);
 
-         theta = ((Math.atan2(camera.position.x - sunLight.position.x, camera.position.z - sunLight.position.z) * 180 / Math.PI) + 180)%360;
+         theta = ((Math.atan2(camera.position.x - sun.position.x, camera.position.z - sun.position.z) * 180 / Math.PI) + 180)%360;
         //theta = ((Math.atan2(camera.position.z, camera.position.x) - Math.atan2(sunLight.position.z, sunLight.position.x)) + 2 * Math.PI % (2 * Math.PI))/Math.PI * 180;
-        console.log(theta);
+        camera.position.x = sun.position.x;
+        camera.position.z = sun.position.z;
+        camera.lookAt(sphere.position);
+
+        console.log(Math.round(theta));
 
         CreateSky.update();
         CreateStarfield.update();

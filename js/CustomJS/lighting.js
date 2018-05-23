@@ -2,198 +2,117 @@ window.PLANET = window.PLANET || {};
 PLANET.lighting = PLANET.lighting || {};
 
 PLANET.lighting.Lighting = function () {
-    //Used in StarSphere and SkySphere
-    var currentPhase = 0;
-    var nextPhase = 1;
-    var boundary = 80;
+    THREE.Object3D.call(this);
 
-    const phase = {
-        0: {r: 130, g: 229, b: 255, pos: 360, light: new THREE.AmbientLight(0x82e5ff, 0.5)},
-        1: {r: 191, g: 74, b: 177, pos: 270, light: new THREE.AmbientLight(0xbf4ab1, 0.5)},
-        2: {r: 0, g: 0, b: 0, pos: 180, light: new THREE.AmbientLight(0x181d38, 0.5)},
-        3: {r: 191, g: 74, b: 177, pos: 90, light: new THREE.AmbientLight(0xbf4ab1, 0.5)},
-        4: {r: 130, g: 229, b: 255, pos: 0, light: new THREE.AmbientLight(0x82e5ff, 0.5)}
-    };
+    this.starLight = new THREE.AmbientLight(0x7f7f7f);
+    scene.add(this.starLight);
 
-    /////////////////////////////////////////////////////
-    // LIGHTING AND MESHES                             //
-    /////////////////////////////////////////////////////
-
-    //EARTH
-    var geometrySphere = new THREE.SphereGeometry(8, 100);
-    var materialSphere = new THREE.MeshLambertMaterial({color: 0x7fb0ff});
-    var sphere = new THREE.Mesh(geometrySphere, materialSphere);
-    scene.add(sphere);
-
-    //STARLIGHT
-    //this.starLight = new THREE.AmbientLight(0x25105c);
-    //scene.add(this.starLight);
-    for (var i = 0; i < phase.count; i++) {
-        scene.add(phase[i].light);
-        phase[i].visible = false;
-    }
-
-    this.sunLight = new THREE.PointLight(0xffffff, 0.5, 1000);
+    /*this.sunLight = new THREE.PointLight(0xffffff, 0.5, 1000);
     this.moonLight = new THREE.PointLight(0xeeeeff, 0.01);
-    scene.add(this.sunLight);
-    scene.add(this.moonLight);
+    this.add(this.sunLight);
+    this.add(this.moonLight);
+    var sunTexture = new THREE.TextureLoader().load('resources/img/solar.jpg')
+    var moonTexture = new THREE.TextureLoader().load('resources/img/lunar.jpg')
+    var materialLightSun = new THREE.MeshBasicMaterial({
+        map: sunTexture,
+        color: 0xffaa00,
+    });
+    var materialLightMoon = new THREE.MeshBasicMaterial({
+        map: moonTexture,
+        color: 0xeeeeee,
+    });
 
-    var sunObj = new THREE.SphereGeometry(100, 8, 8);
-    var moonObj = new THREE.SphereGeometry(100, 8, 8);
-    var materialLightSun = new THREE.MeshBasicMaterial({color: 0xffaa00});
-    var materialLightMoon = new THREE.MeshBasicMaterial({color: 0xeeeeee});
+    var sunObj = new THREE.SphereGeometry(5, 8, 8);
+    var moonObj = new THREE.SphereGeometry(5, 8, 8);
     this.sun = new THREE.Mesh(sunObj, materialLightSun);
     this.moon = new THREE.Mesh(moonObj, materialLightMoon);
-    this.sun.scale.set(0.1, 0.1, 0.1);
-    this.moon.scale.set(0.01, 0.01, 0.01);
     this.sunLight.add(this.sun);
     this.moonLight.add(this.moon);
+    this.sunLight.position.x = 125;
+    this.sunLight.position.z = 125;
+    this.moonLight.position.x = -100;
+    this.moonLight.position.z = -100;
 
-    /////////////////////////////////////////////////////
-    // SKYSPHERE					                             //
-    /////////////////////////////////////////////////////
+    var sunRadius = 125;
+    var moonRadius = 100;
 
-    CreateSky = function () {
-        var geometry = new THREE.SphereGeometry(300, 32, 15);
-
-        // GLSL CODE FOR SHADERS
-        var shader = {
-            //Uniforms: Parameters that can be passed into the program
-            uniforms: {
-                skyColor: {type: "c", value: new THREE.Color()},
-            },
-            //Can add vertexShader here if added later
-            fragmentShader: [
-                'uniform vec3 skyColor;',
-                'void main() {',
-                //gl_fragColor = vec4( Red, Green, Blue, Alpha)
-                '	gl_FragColor = vec4(skyColor, 1.0 );',
-                '}',
-            ].join('\n'),
-        };
-
-        var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
-        var material = new THREE.ShaderMaterial({
-            //Colour the skybox
-            fragmentShader: shader.fragmentShader,
-            //Parameters that are passed into the shader program
-            uniforms: uniforms,
-            //Render the colour of the inside of the sky sphere
-            side: THREE.BackSide
-        });
-
-        var skySphere = new THREE.Mesh(geometry, material);
-        this.object3d = skySphere;
-        scene.add(skySphere);
-
-        var startValue;
-        var endValue;
-        var stepNum;
-        var lastStep;
-
-        function interpolate(startValue, endValue, stepNum, lastStep) {
-            return (endValue - startValue) * stepNum / lastStep + startValue;
-        }
-
-        var LightsOff = function () {
-            for (var i = 0; i < phase.count; i++) {
-                phase[i].visible = false;
-            }
-        };
-
-        CreateSky.update = function () {
-            if (theta < phase[nextPhase].pos) {
-                currentPhase = nextPhase;
-                switch (currentPhase)
-                {
-                    case 0:
-                        nextPhase = 1;
-                        LightsOff();
-                        phase[currentPhase].light.visible = true;
-                        break;
-                    case 1:
-                        nextPhase = 2;
-                        LightsOff();
-                        phase[currentPhase].light.visible = true;
-                        break;
-                    case 2:
-                        nextPhase = 3;
-                        LightsOff();
-                        phase[currentPhase].light.visible = true;
-                        break;
-                    case 3:
-                        nextPhase = 4;
-                        LightsOff();
-                        phase[currentPhase].light.visible = true;
-                        break;
-                    case 4:
-                        currentPhase = 0;
-                        LightsOff();
-                        phase[currentPhase].light.visible = true;
-                        break;
-                }
-            }
-
-            var r = Math.round(interpolate(phase[currentPhase].r, phase[nextPhase].r, theta, boundary));
-            var g = Math.round(interpolate(phase[currentPhase].g, phase[nextPhase].g, theta, boundary));
-            var b = Math.round(interpolate(phase[currentPhase].b, phase[nextPhase].b, theta, boundary));
-            if (r < 0) {
-                r = 0;
-            }
-            ;
-            if (g < 0) {
-                g = 0;
-            }
-            ;
-            if (b < 0) {
-                b = 0;
-            }
-            ;
-
-            uniforms.skyColor.value.set("rgb(" + r + "," + g + "," + b + ")");
-
-        };
-    };
-
-    var sky = new CreateSky();
-    scene.add(sky.object3d);
+    var texture = new THREE.TextureLoader().load('resources/img/stars.png')
+    var material = new THREE.MeshBasicMaterial({
+        map: texture,
+        side: THREE.BackSide,
+        color: 0x808080,
+    });
 
     /////////////////////////////////////////////////////
     // STARFIELD				    	                         //
     /////////////////////////////////////////////////////
 
-    CreateStarfield = function () {
-        var texture = new THREE.TextureLoader().load('resources/img/stars.png')
-        var material = new THREE.MeshBasicMaterial({
-            map: texture,
-            side: THREE.BackSide,
-            color: 0x808080,
-        });
+    var geometry = new THREE.SphereGeometry(290, 32, 32);
+    this.starSphere = new THREE.Mesh(geometry, material);
+    this.add(this.starSphere);*/
 
-        var geometry = new THREE.SphereGeometry(290, 32, 32);
-        var starSphere = new THREE.Mesh(geometry, material);
-        this.object3d = starSphere;
-        scene.add(starSphere);
+    function initSky() {
+				// Add Sky
+				sky = new THREE.Sky();
+				sky.scale.setScalar( 450000 ); //Set sky box size
+				scene.add( sky );
+				// Add Sun Helper
+				sunSphere = new THREE.Mesh(
+					new THREE.IcosahedronBufferGeometry( 500, 1 ),
+					new THREE.MeshBasicMaterial( { color: 0xffff7f } )
+				);
+				sunSphere.position.y = - 10000;
+				sunSphere.visible = true;
+				scene.add( sunSphere );
+				/// GUI
+				var effectController  = {
+					turbidity: 10,
+					rayleigh: 2,
+					mieCoefficient: 0.005,
+					mieDirectionalG: 0.8,
+					luminance: 1,
+					inclination: 0.49, // elevation / inclination
+					azimuth: 0.25, // Facing front,
+					sun:  true
+				};
+				var distance = 10000;
+				function guiChanged() {
+					var uniforms = sky.material.uniforms;
+					uniforms.turbidity.value = effectController.turbidity;
+					uniforms.rayleigh.value = effectController.rayleigh;
+					uniforms.luminance.value = effectController.luminance;
+					uniforms.mieCoefficient.value = effectController.mieCoefficient;
+					uniforms.mieDirectionalG.value = effectController.mieDirectionalG;
+					var theta = Math.PI * ( effectController.inclination - 0.5 );
+					var phi = 2 * Math.PI * ( effectController.azimuth - 0.5 );
+					sunSphere.position.x = distance * Math.cos( phi );
+					sunSphere.position.y = distance * Math.sin( phi ) * Math.sin( theta );
+					sunSphere.position.z = distance * Math.sin( phi ) * Math.cos( theta );
+					sunSphere.visible = effectController.sun;
+					uniforms.sunPosition.value.copy( sunSphere.position );
+					renderer.render( scene, camera );
+				}
+				var gui = new dat.GUI();
+				gui.add( effectController, "turbidity", 1.0, 20.0, 0.1 ).onChange( guiChanged );
+				gui.add( effectController, "rayleigh", 0.0, 4, 0.001 ).onChange( guiChanged );
+				gui.add( effectController, "mieCoefficient", 0.0, 0.1, 0.001 ).onChange( guiChanged );
+				gui.add( effectController, "mieDirectionalG", 0.0, 1, 0.001 ).onChange( guiChanged );
+				gui.add( effectController, "luminance", 0.0, 2 ).onChange( guiChanged );
+				gui.add( effectController, "inclination", 0, 1, 0.0001 ).onChange( guiChanged );
+				gui.add( effectController, "azimuth", 0, 1, 0.0001 ).onChange( guiChanged );
+				gui.add( effectController, "sun" ).onChange( guiChanged );
+				guiChanged();
+			}
 
-        CreateStarfield.update = function () {
-            if (currentPhase != 0) {
-                starSphere.visible = false;
-            } else {
-                starSphere.visible = true;
-            }
-            ;
+      initSky();
 
-        };
-    };
-
-    var stars = new CreateStarfield();
-    scene.add(stars.object3d);
-
-    var clock = new THREE.Clock();
-    var sunRadius = 75;
-    var moonRadius = 60;
-    var theta = 0;
+    return this;
 };
+
+PLANET.lighting.Lighting.prototype = Object.create(THREE.Object3D.prototype);
+
+
+
 
 
 /////////////////////////////////////////////////////
@@ -201,17 +120,10 @@ PLANET.lighting.Lighting = function () {
 /////////////////////////////////////////////////////
 
 PLANET.lighting.animate = function () {
-  // Rotation of sun and moon
-  var r = clock.getElapsedTime() * 0.5;
-  sunLight.position.x = sunRadius * Math.cos(r);
-  sunLight.position.z = sunRadius * Math.sin(r);
-  moonLight.position.x = moonRadius * -Math.cos(r);
-  moonLight.position.z = moonRadius * -Math.sin(r);
+  //this.sunLight.position.x = sunRadius * Math.cos(timer);
+  //this.sunLight.position.z = sunRadius * Math.sin(timer);
+  //this.moonLight.position.x = moonRadius * -Math.cos(timer);
+  //this.moonLight.position.z = moonRadius * -Math.sin(timer);
 
-   theta = ((Math.atan2(camera.position.x - sunLight.position.x, camera.position.z - sunLight.position.z) * 180 / Math.PI) + 180)%360;
-  //theta = ((Math.atan2(camera.position.z, camera.position.x) - Math.atan2(sunLight.position.z, sunLight.position.x)) + 2 * Math.PI % (2 * Math.PI))/Math.PI * 180;
-  //console.log(theta);
-
-  CreateSky.update();
-  CreateStarfield.update();
+  //theta = ((Math.atan2(camera.position.x - this.sunLight.position.x, camera.position.z - this.sunLight.position.z) * 180 / Math.PI) + 180)%360;
 };
