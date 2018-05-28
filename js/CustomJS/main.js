@@ -2,7 +2,7 @@ window.PLANET = window.PLANET || {};
 PLANET.main = PLANET.main || {};
 
 //variables that need global access
-var scene, camera, renderer, light, canvas, gui, simplex, timer, manager,color,  utils, raycaster;
+let scene, camera, renderer, light, canvas, gui, simplex, timer, manager, color, utils, raycaster;
 
 const CONSTANTS = {
     OPT_TEMP: 25.5,
@@ -10,18 +10,12 @@ const CONSTANTS = {
     FREEZE_POINT: -10,
     BOIL_POINT: 100
 };
-var params = {
+let params = {
     PlanetRadius: 100,
     PlanetDetail: 6,
     PlanetWireframe: false,
     PlanetFlatShading: true,
     PlanetRotationY: 0,
-    TerrainDisplacement: 0.1,
-    TerrainDensity: 0.1,
-    TerrainDetail: 9,
-    SnowLevel: 12,
-    MountainLevel: 7,
-    BeachLevel: 1,
     SnowColor: 0xEEEEEE, //snow
     MountainColor: 0x594C3A,
     TerrainColor: 0x6B8E23, //olivedrab
@@ -30,8 +24,6 @@ var params = {
     CoralColor: 0x4682B4, //steelblue
     WaterColor: 0x4682B4, //steelblue
     WaterLevel: 100,
-    WaterOpacity: 0.9,
-    PlanetDetail: 7,
 
     //params regarding temperature
     Temperature: 25.5,
@@ -72,14 +64,12 @@ let res = {
     Loading: 0
 };
 let planet;
-var planet;
-var axis = new THREE.Vector3(1, 0, 0);
-var baseTrees = [];
+let axis = new THREE.Vector3(1, 0, 0);
 
 PLANET.main.main = function () {
     timer = 0;
     utils = new PLANET.utils();
-    params.Color = Math.floor(Math.random()*colorSchemes.length);
+    params.Color = Math.floor(Math.random() * colorSchemes.length);
     colors = colorSchemes[params.Color];
     //init scene
     scene = new THREE.Scene();
@@ -90,11 +80,6 @@ PLANET.main.main = function () {
     canvas.appendChild(renderer.domElement);
     document.body.appendChild(canvas);
     PLANET.controls.Controls();
-    //init light
-    // var distance = params.PlanetRadius * params.CameraMax;
-    // light = new THREE.DirectionalLight(0xffffff, 0.8);
-    // light.position.set(-distance, distance, distance);
-    // light.castShadow = true;
 
     light = new PLANET.lighting.Lighting();
     raycaster = new THREE.Raycaster();
@@ -124,7 +109,7 @@ PLANET.main.loadModels = function () {
         console.log('Loading complete!');
         planet = new PLANET.planet.Planet(planetGeometry);
         scene.add(planet);
-        var loadingScreen = document.getElementById('loading-screen');
+        let loadingScreen = document.getElementById('loading-screen');
         loadingScreen.classList.add('fade-out');
         loadingScreen.addEventListener('transitionend', onTransitionEnd);
         console.log(scene);
@@ -134,25 +119,35 @@ PLANET.main.loadModels = function () {
         console.log('Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
     };
 
-    var plyLoader = new THREE.PLYLoader(manager);
-    var planetGeometry;
-    var fbxLoader = new THREE.FBXLoader(manager);
+    let plyLoader = new THREE.PLYLoader(manager);
+    let planetGeometry;
+    let fbxLoader = new THREE.FBXLoader(manager);
 
     plyLoader.load('Resources/models/sphere-' + params.PlanetDetail + ".ply", function (bufferGeometry) {
         planetGeometry = bufferGeometry;
-        // planet = new PLANET.planet.Planet(bufferGeometry);
-        // scene.add(planet);
     });
 
 
-    fbxLoader.load('trees.fbx', function (object) {
+    fbxLoader.load('Resources/models/trees.fbx', function (object) {
         object.traverse(function (child) {
             if (child.isMesh) {
                 child.castShadow = true;
                 child.receiveShadow = true;
-                child.scale.set(0.02, 0.02, 0.02);
+                // child.scale.set(params.TreeScale, params.TreeScale, params.TreeScale);
                 child.position.set(0, 0, 0);
-                baseTrees.push(child);
+                for (let material of child.material) {
+                    material.flatShading = true;
+                    if (material.name === "Trunk") {
+                        material.color.setHex(colors.TrunkColor);
+                    } else {
+                        material.color.setHex(colors.LeafColor);
+                    }
+                }
+                if (child.name.includes("009")) {
+                    res.DeadTrees.push(child);
+                } else {
+                    res.Trees.push(child);
+                }
             }
         });
     });

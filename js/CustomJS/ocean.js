@@ -1,8 +1,9 @@
 window.PLANET = window.PLANET || {};
 PLANET.ocean = PLANET.ocean || {};
 
-PLANET.ocean.Ocean = function (base) {
-    let geometry = base.clone();
+PLANET.ocean.Ocean = function (bufferGeometry) {
+    let geometry = new THREE.Geometry();
+    geometry.fromBufferGeometry(bufferGeometry);
     let material = new THREE.MeshStandardMaterial({
         flatShading: true,
         color: new THREE.Color(colors.SeaColor),
