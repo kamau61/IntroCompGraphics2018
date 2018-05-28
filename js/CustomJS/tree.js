@@ -1,13 +1,12 @@
 window.PLANET = window.PLANET || {};
 PLANET.tree = PLANET.tree || {};
 
-PLANET.tree.Tree = function (face) {
+PLANET.tree.Tree = function () {
     //get random tree
     let style = Math.floor(Math.random() * res.Trees.length);
     let tree = new THREE.Object3D();
     let scale = params.TreeScale * (1 - Math.random());
     tree.alive = res.Trees[style].clone();
-    utils.alignOnFace(tree.alive, face, scale);
     tree.add(tree.alive);
 
     //get corresponding dead tree
@@ -35,8 +34,12 @@ PLANET.tree.Tree = function (face) {
             break;
     }
     tree.dead.visible = false;
-    utils.alignOnFace(tree.dead, face, scale);
     tree.add(tree.dead);
+
+    tree.update = function(face) {
+        utils.alignOnFace(tree.alive, face, scale);
+        utils.alignOnFace(tree.dead, face, scale);
+    };
 
     tree.die = function () {
         tree.dead.visible = true;

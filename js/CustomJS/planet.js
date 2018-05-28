@@ -5,12 +5,12 @@ PLANET.planet.Planet = function(bufferGeometry) {
     THREE.Object3D.call(this);
     this.name = "Planet";
     simplex = new SimplexNoise();
-    this.climate = PLANET.climate.Climate();
     this.ocean = PLANET.ocean.Ocean(bufferGeometry);
     this.add(this.ocean);
     this.terrain = PLANET.terrain.Terrain(bufferGeometry);
-    this.terrain.generate();
     this.add(this.terrain);
+
+    this.climate = PLANET.climate.Climate();
     this.animate = function () {
         this.ocean.animate();
         // this.climate.animate();

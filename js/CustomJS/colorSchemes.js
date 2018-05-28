@@ -5,7 +5,7 @@ let colorSchemes = [
         GrassColor: 0x8d9c61,//0x558822,
         TrunkColor: 0x393226,//0x907350,
         SoilColor: 0xabb6a0,//0x778811,
-        SandColor: 0xf2eadf,//0x998800,
+        SandColor: 0xfae1bf,//0x998800,
         SnowColor: 0xb6f5ff,//0xFFFAFA,
         SeaColor: 0x49e8ff,//0x1b8594,
         SeabedColor: 0x15454c

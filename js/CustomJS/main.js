@@ -12,14 +12,14 @@ const CONSTANTS = {
 };
 let params = {
     PlanetRadius: 100,
-    PlanetDetail: 6,
+    PlanetDetail: 7,
     PlanetWireframe: false,
     PlanetFlatShading: true,
     PlanetRotationY: 0,
     SnowColor: 0xEEEEEE, //snow
     MountainColor: 0x594C3A,
     TerrainColor: 0x6B8E23, //olivedrab
-    ForrestColor: 0x456800,
+    ForestColor: 0x456800,
     BeachColor: 0xF4A460, //sandybrown
     CoralColor: 0x4682B4, //steelblue
     WaterColor: 0x4682B4, //steelblue
@@ -69,7 +69,7 @@ let axis = new THREE.Vector3(1, 0, 0);
 PLANET.main.main = function () {
     timer = 0;
     utils = new PLANET.utils();
-    params.Color = Math.floor(Math.random() * colorSchemes.length);
+    // params.Color = Math.floor(Math.random() * colorSchemes.length);
     colors = colorSchemes[params.Color];
     //init scene
     scene = new THREE.Scene();

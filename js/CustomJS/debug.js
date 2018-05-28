@@ -2,7 +2,7 @@ window.PLANET = window.PLANET || {};
 PLANET.debug = PLANET.debug || {};
 
 PLANET.debug.Debug = function () {
-    var options = {
+    let options = {
         reset: function () {
             params.color = 0;
             updateColor();
@@ -48,12 +48,12 @@ PLANET.debug.Debug = function () {
         }
     };
 
-    var update = function () {
+    let update = function () {
         planet.update();
         // updateCamera(params.PlanetRadius);
     };
 
-    var updateColor = function () {
+    let updateColor = function () {
         //colors = colorSchemes[params.Color];//somehow this does not trigger listen of the color panels
         colors.LeafColor = colorSchemes[params.Color].LeafColor;
         colors.ForestColor = colorSchemes[params.Color].ForestColor;
@@ -76,7 +76,7 @@ PLANET.debug.Debug = function () {
     // };
 
     gui = new dat.GUI();
-    var planetControls = gui.addFolder('Planet');
+    let planetControls = gui.addFolder('Planet');
     planetControls.add(params, 'Temperature')
         .min(CONSTANTS.FREEZE_POINT)
         .max(CONSTANTS.BOIL_POINT)
@@ -85,7 +85,7 @@ PLANET.debug.Debug = function () {
         })
         .step(0.1).listen();
     planetControls.open();
-    var terrainControls = planetControls.addFolder('Terrain');
+    let terrainControls = planetControls.addFolder('Terrain');
     //TODO onChange -> generate terrain
     terrainControls.add(params, 'TerrainDensity', 0, 1).onChange(update).listen();
     terrainControls.add(params, 'TerrainDisplacement', 0, 50).onChange(update).listen();
@@ -93,24 +93,24 @@ PLANET.debug.Debug = function () {
     terrainControls.add(options, 'generate');
     terrainControls.add(options, 'SmoothTerrain');
     terrainControls.add(options, 'SharpTerrain');
-    var oceanControls = planetControls.addFolder('Ocean');
+    let oceanControls = planetControls.addFolder('Ocean');
     oceanControls.add(params, 'WaterOpacity', 0, 100).onChange(update).listen();
     oceanControls.add(params, 'WaveSpeed', 0, 1).listen();
     oceanControls.add(params, 'WaveLength', 1, 5).listen();
     oceanControls.add(params, 'WaveHeight', 0, 0.3).listen();
     oceanControls.add(options, 'SmoothOcean');
     oceanControls.add(options, 'RoughOcean');
-    var forestControls = planetControls.addFolder('Forest');
+    let forestControls = planetControls.addFolder('Forest');
     //TODO onChange -> generate forest
     forestControls.add(params, 'TreeSpread', -1, 1).onChange().listen();
     forestControls.add(params, 'GrassSpread', -1, 1).onChange().listen();
     forestControls.add(params, 'ForestDensity', -1, 1).onChange().listen();
-    var levelControls = planetControls.addFolder('Levels');
+    let levelControls = planetControls.addFolder('Levels');
     levelControls.add(params, 'SnowLevel', 0, 100).onChange(update).listen();
     levelControls.add(params, 'SandLevel', 0, 100).onChange(update).listen();
     levelControls.add(params, 'SeaLevel', 0, 100).onChange(update).listen();
     levelControls.add(options, 'DefaultLevels');
-    var colorControls = planetControls.addFolder('Colors');
+    let colorControls = planetControls.addFolder('Colors');
     colorControls.addColor(colors, 'LeafColor').onChange(update).listen();
     colorControls.addColor(colors, 'ForestColor').onChange(update).listen();
     colorControls.addColor(colors, 'GrassColor').onChange(update).listen();
@@ -138,7 +138,7 @@ PLANET.debug.Debug = function () {
     colorControls.open();
 
 
-    var cameraControls = gui.addFolder('Camera');
+    let cameraControls = gui.addFolder('Camera');
     // cameraControls.add(camera.position, 'x').listen();
     // cameraControls.add(camera.position, 'y').listen();
     // cameraControls.add(camera.position, 'z').listen();
