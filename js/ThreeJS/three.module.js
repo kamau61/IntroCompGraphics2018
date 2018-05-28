@@ -44221,12 +44221,12 @@ Object.defineProperties(Object3D.prototype, {
     useQuaternion: {
         get: function () {
 
-            console.warn('THREE.Object3D: .useQuaternion has been removed. The library now uses quaternions by default.');
+            console.warn('THREE.Object3D: .useQuaternion has been removed. The library now uses quaternions by DefaultScheme.');
 
         },
         set: function () {
 
-            console.warn('THREE.Object3D: .useQuaternion has been removed. The library now uses quaternions by default.');
+            console.warn('THREE.Object3D: .useQuaternion has been removed. The library now uses quaternions by DefaultScheme.');
 
         }
     }

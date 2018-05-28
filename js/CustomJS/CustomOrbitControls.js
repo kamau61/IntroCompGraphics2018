@@ -3,6 +3,7 @@
 //    Orbit - left mouse / touch: one finger move
 //    Zoom - middle mouse, or mousewheel / touch: two finger spread or squish
 //    Pan - A (left) and S (right) when on the surface of planet
+window.PLANET = window.PLANET || {};
 
 PLANET.OrbitControls = function (object, domElement) {
 
@@ -20,7 +21,7 @@ PLANET.OrbitControls = function (object, domElement) {
     this.target = new THREE.Vector3();
 
     // How far you can dolly in and out ( PerspectiveCamera only )
-    this.minDistance = params.PlanetRadius * (1 + params.TerrainDisplacement);
+    this.minDistance = utils.getPeakLevel();
     this.maxDistance = params.PlanetRadius * params.CameraMax;
 
     // How far you can orbit horizontally, upper and lower limits.
@@ -101,29 +102,23 @@ PLANET.OrbitControls = function (object, domElement) {
 
     };
 
-    var mapLinear = function (x, a1, a2, b1, b2) {
-
-        return b1 + (x - a1) * (b2 - b1) / (a2 - a1);
-
-    };
-
     // this method is exposed, but perhaps it would be better if we can make it private...
     this.update = function () {
 
-        var offset = new THREE.Vector3();
+        let offset = new THREE.Vector3();
 
         // so camera.up is the orbit axis
-        var quat = new THREE.Quaternion().setFromUnitVectors(object.up, new THREE.Vector3(0, 1, 0));
-        var quatInverse = quat.clone().inverse();
+        let quat = new THREE.Quaternion().setFromUnitVectors(object.up, new THREE.Vector3(0, 1, 0));
+        let quatInverse = quat.clone().inverse();
 
-        var lastPosition = new THREE.Vector3();
-        var lastQuaternion = new THREE.Quaternion();
+        let lastPosition = new THREE.Vector3();
+        let lastQuaternion = new THREE.Quaternion();
 
         return function update() {
 
             //TODO fix orbit direction after panning
 
-            var position = scope.object.position;
+            let position = scope.object.position;
 
             offset.copy(position).sub(scope.target);
 
@@ -171,9 +166,9 @@ PLANET.OrbitControls = function (object, domElement) {
 
             scale = 1;
 
-            scope.object.rotateOnAxis(scope.panAxis, mapLinear(spherical.radius, scope.minDistance, scope.maxDistance, scope.pan, 0));
+            scope.object.rotateOnAxis(scope.panAxis, utils.map(spherical.radius, scope.minDistance, scope.maxDistance, scope.pan, 0));
             camera = scope.object.clone();
-            camera.rotateOnAxis(scope.tiltAxis, mapLinear(spherical.radius, scope.minDistance, scope.maxDistance, Math.PI / 2, 0));
+            camera.rotateOnAxis(scope.tiltAxis, utils.map(spherical.radius, scope.minDistance, scope.maxDistance, Math.PI / 4, 0));
 
             // update condition is:
             // min(camera displacement, camera rotation in radians)^2 > EPS
@@ -742,8 +737,8 @@ PLANET.OrbitControls = function (object, domElement) {
 
     function onResize(event) {
 
-        var width = window.innerWidth;
-        var height = window.innerHeight;
+        let width = window.innerWidth;
+        let height = window.innerHeight;
         renderer.setSize(width, height);
         scope.object.aspect = width / height;
         scope.object.updateProjectionMatrix();

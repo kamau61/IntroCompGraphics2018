@@ -6,21 +6,20 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
     var geometry = new THREE.Geometry();
     geometry.fromBufferGeometry(bufferGeometry);
 
-    this.min = 20000;
-    this.max = 0;
-
-    this.trees = [];
-    this.terrain = new THREE.Mesh();
-    PLANET.terrain.loadTrees(geometry);
-
     var material = new THREE.MeshPhongMaterial({
         wireframe: params.PlanetWireframe,
         flatShading: params.PlanetFlatShading,
         vertexColors: THREE.FaceColors
     });
+
+    this.min = 20000;
+    this.max = 0;
+
+    this.trees = [];
+    this.terrain = new THREE.Mesh(geometry, material);
+    PLANET.terrain.loadTrees(geometry);
+
     PLANET.terrain.displaceTerrain(geometry);
-    this.terrain.geometry = geometry;
-    this.terrain.material = material;
     this.terrain.castShadow = true;
     this.terrain.receiveShadow = true;
     this.terrain.name = "Terrain";
@@ -30,9 +29,7 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
 
     return this.terrain;
 };
-
-PLANET.terrain.Terrain.prototype = Object.create(THREE.Object3D.prototype);
-
+        
 PLANET.terrain.displaceTerrain = function (geometry) {
     // 3d simplex noise leveled
     var vertex, length, offset = params.TerrainDensity;
@@ -148,21 +145,6 @@ PLANET.terrain.updateTrees = function (face) {
     tree.position.y = face.position.y;
     tree.position.z = face.position.z;
 };
-
-/*PLANET.terrain.addTree = function (face) {
-    var tree = baseTrees[1].clone();
-
-    var axis = new THREE.Vector3(0, 0, 1);
-    tree.quaternion.setFromUnitVectors(axis, face.position.clone().normalize());
-
-    tree.position.x = face.position.x;
-    tree.position.y = face.position.y;
-    tree.position.z = face.position.z;
-
-    tree.name = "tree";
-
-    this.terrain.add(tree);
-};*/
 
 PLANET.terrain.update = function () {
     PLANET.terrain.displaceTerrain(this.terrain.geometry);
