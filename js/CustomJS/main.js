@@ -2,10 +2,10 @@ window.PLANET = window.PLANET || {};
 PLANET.main = PLANET.main || {};
 
 //variables that need global access
-var scene, camera, renderer, light, canvas, gui, simplex, timer, manager;
+var scene, camera, renderer, light, canvas, gui, simplex, timer, manager, raycaster;
 var params = {
     PlanetRadius: 100,
-    PlanetDetail: 7,
+    PlanetDetail: 6,
     PlanetWireframe: false,
     PlanetFlatShading: true,
     PlanetRotationY: 0,
@@ -54,6 +54,19 @@ PLANET.main.main = function () {
     canvas = document.createElement('div');
     canvas.appendChild(renderer.domElement);
     document.body.appendChild(canvas);
+    PLANET.controls.Controls();
+    //init light
+    // var distance = params.PlanetRadius * params.CameraMax;
+    // light = new THREE.DirectionalLight(0xffffff, 0.8);
+    // light.position.set(-distance, distance, distance);
+    // light.castShadow = true;
+
+    light = new PLANET.lighting.Lighting();
+    raycaster = new THREE.Raycaster();
+    scene.add(light);
+    PLANET.debug.Debug();
+    PLANET.main.render();
+
     window.addEventListener('resize', function () {
         var width = window.innerWidth;
         var height = window.innerHeight;
@@ -62,20 +75,6 @@ PLANET.main.main = function () {
         camera.updateProjectionMatrix();
         renderer.render(scene, camera);
     });
-    //init light
-    // var distance = params.PlanetRadius * params.CameraMax;
-    // light = new THREE.DirectionalLight(0xffffff, 0.8);
-    // light.position.set(-distance, distance, distance);
-    // light.castShadow = true;
-
-    light = new PLANET.lighting.Lighting();
-    scene.add(light);
-
-
-    PLANET.controls.Controls();
-    PLANET.debug.Debug();
-    console.log(scene);
-    PLANET.main.render();
 };
 
 PLANET.main.loadModels = function () {

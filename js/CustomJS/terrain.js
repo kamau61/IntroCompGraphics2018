@@ -10,6 +10,7 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
     this.max = 0;
 
     this.trees = [];
+    this.terrain = new THREE.Mesh();
     PLANET.terrain.loadTrees(geometry);
 
     var material = new THREE.MeshPhongMaterial({
@@ -18,7 +19,8 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
         vertexColors: THREE.FaceColors
     });
     PLANET.terrain.displaceTerrain(geometry);
-    this.terrain = new THREE.Mesh(geometry, material);
+    this.terrain.geometry = geometry;
+    this.terrain.material = material;
     this.terrain.castShadow = true;
     this.terrain.receiveShadow = true;
     this.terrain.name = "Terrain";
@@ -131,7 +133,7 @@ PLANET.terrain.loadTrees = function (geometry) {
             this.trees.push(tree);
             face.treeID = this.trees.length - 1;
 
-            scene.add(tree);
+            this.terrain.add(tree);
             geometry.elementsNeedUpdate = true;
         }
     }
@@ -147,7 +149,7 @@ PLANET.terrain.updateTrees = function (face) {
     tree.position.z = face.position.z;
 };
 
-PLANET.terrain.addTree = function (face) {
+/*PLANET.terrain.addTree = function (face) {
     var tree = baseTrees[1].clone();
 
     var axis = new THREE.Vector3(0, 0, 1);
@@ -159,11 +161,31 @@ PLANET.terrain.addTree = function (face) {
 
     tree.name = "tree";
 
-    scene.add(tree);
-};
+    this.terrain.add(tree);
+};*/
 
 PLANET.terrain.update = function () {
     PLANET.terrain.displaceTerrain(this.terrain.geometry);
     this.terrain.geometry.elementsNeedUpdate = true;
     this.terrain.geometry.computeVertexNormals();
+};
+
+PLANET.terrain.modifyTerrain = function (event) {
+    var mouse = new THREE.Vector2;
+    mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
+    mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+
+    var intersects = raycaster.intersectObjects(scene.children, true);
+
+    if (intersects.length > 0) {
+        for (var i = 0; i < intersects.length; i++) {
+            if (intersects[i].object.name === "Terrain") {
+                var terrainGeometry = intersects[i].object.geometry;
+                console.log(intersects[i]);
+                terrainGeometry.faces[intersects[i].faceIndex].color = new THREE.Color(1, 0, 0);
+            }
+        }
+    }
 };

@@ -3,6 +3,7 @@ PLANET.planet = PLANET.planet || {};
 
 PLANET.planet.Planet = function(bufferGeometry) {
     THREE.Object3D.call(this);
+    this.name = "Planet";
     simplex = new SimplexNoise();
     this.add(PLANET.ocean.Ocean(bufferGeometry));
     this.add(PLANET.terrain.Terrain(bufferGeometry));
