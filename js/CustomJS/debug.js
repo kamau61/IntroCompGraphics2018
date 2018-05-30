@@ -84,7 +84,7 @@ PLANET.debug.Debug = function () {
             planet.climate.set(params.Temperature);
         })
         .step(0.1).listen();
-    planetControls.open();
+    planetControls.close();
     let terrainControls = planetControls.addFolder('Terrain');
     //TODO onChange -> generate terrain
     terrainControls.add(params, 'TerrainDensity', 0, 1).onChange(update).listen();
@@ -135,7 +135,7 @@ PLANET.debug.Debug = function () {
         LazyPanda: colorSchemes.indexOf(LazyPanda)
     }).onChange(updateColor).listen();
     colorControls.add(options, 'RandomColor');
-    colorControls.open();
+    colorControls.close();
 
 
     let cameraControls = gui.addFolder('Camera');
@@ -147,5 +147,11 @@ PLANET.debug.Debug = function () {
     // cameraControls.add(PLANET.controls, 'minDistance', 0, 200).name('Minimum Distance').listen();
     // cameraControls.add(PLANET.controls, 'maxDistance', 200, 1000).name('Maximum Distance').listen();
     cameraControls.open();
+
+    let lightingControls = gui.addFolder('Lighting');
+      //lightingControls.add(params, 'placeholder', 0, 100).onChange(PLANET.lighting.update);
+    lightingControls.open();
+
+
     gui.add(options, 'reset');
 };

@@ -41,7 +41,7 @@ let params = {
     SeaLevel: 50,//50% of terrain displacement
 
     //params regarding forest
-    TreeScale: 0.01, //TODO bind this with planet detail
+    TreeScale: 0.05, //TODO bind this with planet detail
     TreeSpread: 0.5,//0.6, //less the number, wider each forest, -1/+1
     GrassSpread: -0.5,//0, //less the number, wider each grassland, -1/+1
     ForestDensity: 0.2, //more the number, more forests, 0.1/0.3
@@ -57,7 +57,7 @@ let params = {
     RotateSpeed: 2,
     PanSpeed: 10
 };
-<<<<<<< HEAD
+
 let colors = colorSchemes[0];
 let res = {
     Trees: [],
@@ -66,12 +66,6 @@ let res = {
 };
 let planet;
 let axis = new THREE.Vector3(1, 0, 0);
-var shadowMapViewer;
-=======
-var planet;
-var axis = new THREE.Vector3(1, 0, 0);
-var baseTrees = [];
->>>>>>> parent of 64abd21... Attempt to add shadows
 
 PLANET.main.main = function () {
     timer = 0;
@@ -116,13 +110,9 @@ PLANET.main.loadModels = function () {
         console.log('Loading complete!');
         planet = new PLANET.planet.Planet(planetGeometry);
         scene.add(planet);
-<<<<<<< HEAD
-        let loadingScreen = document.getElementById('loading-screen');
         planet.castShadow = true;
         planet.receiveShadow = true;
-=======
         var loadingScreen = document.getElementById('loading-screen');
->>>>>>> parent of 64abd21... Attempt to add shadows
         loadingScreen.classList.add('fade-out');
         loadingScreen.addEventListener('transitionend', onTransitionEnd);
         console.log(scene);
@@ -138,11 +128,8 @@ PLANET.main.loadModels = function () {
 
     plyLoader.load('Resources/models/sphere-' + params.PlanetDetail + ".ply", function (bufferGeometry) {
         planetGeometry = bufferGeometry;
-<<<<<<< HEAD
-=======
         // planet = new PLANET.planet.Planet(bufferGeometry);
         // scene.add(planet);
->>>>>>> parent of 64abd21... Attempt to add shadows
     });
 
 
