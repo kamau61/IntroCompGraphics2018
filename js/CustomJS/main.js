@@ -57,6 +57,7 @@ let params = {
     RotateSpeed: 2,
     PanSpeed: 10
 };
+<<<<<<< HEAD
 let colors = colorSchemes[0];
 let res = {
     Trees: [],
@@ -66,6 +67,11 @@ let res = {
 let planet;
 let axis = new THREE.Vector3(1, 0, 0);
 var shadowMapViewer;
+=======
+var planet;
+var axis = new THREE.Vector3(1, 0, 0);
+var baseTrees = [];
+>>>>>>> parent of 64abd21... Attempt to add shadows
 
 PLANET.main.main = function () {
     timer = 0;
@@ -77,8 +83,6 @@ PLANET.main.main = function () {
     PLANET.main.loadModels();
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     canvas = document.createElement('div');
     canvas.appendChild(renderer.domElement);
     document.body.appendChild(canvas);
@@ -112,9 +116,13 @@ PLANET.main.loadModels = function () {
         console.log('Loading complete!');
         planet = new PLANET.planet.Planet(planetGeometry);
         scene.add(planet);
+<<<<<<< HEAD
         let loadingScreen = document.getElementById('loading-screen');
         planet.castShadow = true;
         planet.receiveShadow = true;
+=======
+        var loadingScreen = document.getElementById('loading-screen');
+>>>>>>> parent of 64abd21... Attempt to add shadows
         loadingScreen.classList.add('fade-out');
         loadingScreen.addEventListener('transitionend', onTransitionEnd);
         console.log(scene);
@@ -130,6 +138,11 @@ PLANET.main.loadModels = function () {
 
     plyLoader.load('Resources/models/sphere-' + params.PlanetDetail + ".ply", function (bufferGeometry) {
         planetGeometry = bufferGeometry;
+<<<<<<< HEAD
+=======
+        // planet = new PLANET.planet.Planet(bufferGeometry);
+        // scene.add(planet);
+>>>>>>> parent of 64abd21... Attempt to add shadows
     });
 
 
@@ -170,8 +183,6 @@ PLANET.main.render = function () {
     }
 
     renderer.render(scene, camera);
-    shadowMapViewer.render(renderer);
-
 };
 
 function onTransitionEnd(event) {
