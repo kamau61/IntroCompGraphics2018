@@ -4,19 +4,31 @@
     <meta charset="UTF-8">
     <title>Little_Planet</title>
 
-    <script src="./js/ThreeJS/three.js"></script>
-    <!--<script src="js/ThreeJS/OrbitControls.js"></script>-->
+    <script src="js/ThreeJS/three.js"></script>
+    <script src="js/ThreeJS/three.min.js"></script>
     <script src="js/ThreeJS/dat.gui.min.js"></script>
     <script src="js/ThreeJS/SimplexNoise.js"></script>
+    <script src="js/ThreeJS/Sky.js"></script>
+    <script src="js/ThreeJS/inflate.min.js"></script>
+    <script src="js/ThreeJS/FBXLoader.js"></script>
+    <script src="js/ThreeJS/PLYLoader.js"></script>
 
-    <script src="js/CustomJS/debug.js"></script>
+    <script src="js/CustomJS/climate.js"></script>
     <script src="js/CustomJS/flyControls.js"></script>
     <script src="js/CustomJS/controls.js"></script>
+    <script src="js/CustomJS/lighting.js"></script>
+    <!--<script src="js/TestJS/TrackballControls.js"></script>-->
     <script src="js/CustomJS/CustomOrbitControls.js"></script>
+    <!--<script src="js/CustomJS/CustomTrackballControls.js"></script>-->
+    <script src="js/CustomJS/tree.js"></script>
     <script src="js/CustomJS/terrain.js"></script>
     <script src="js/CustomJS/ocean.js"></script>
     <script src="js/CustomJS/planet.js"></script>
+    <script src="js/CustomJS/utils.js"></script>
+    <script src="js/CustomJS/colorSchemes.js"></script>
+    <script src="js/CustomJS/debug.js"></script>
     <script src="js/CustomJS/main.js"></script>
+
 
     <style>
         html, body {
@@ -24,15 +36,106 @@
             padding: 0;
             overflow: hidden;
         }
+
         canvas {
-             width: 100%;
-             height: 100%
-         }
+            width: 100%;
+            height: 100%;
+        }
+
+        #loading-screen {
+            position: absolute;
+            z-index: 2;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000000;
+            opacity: 1;
+            transition: 1s opacity;
+        }
+
+        #loading-screen.fade-out {
+            opacity: 0;
+        }
+
+        #loader {
+            display: block;
+            position: relative;
+            left: 50%;
+            top: 50%;
+            width: 150px;
+            height: 150px;
+            margin: -75px 0 0 -75px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: #db890e;
+            -webkit-animation: spin 2s linear infinite;
+            animation: spin 2s linear infinite;
+        }
+
+        #loader:before {
+            content: "";
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: #d3521b;
+            -webkit-animation: spin 3s linear infinite;
+            animation: spin 3s linear infinite;
+        }
+
+        #loader:after {
+            content: "";
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            bottom: 15px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: #ff0c00;
+            -webkit-animation: spin 1.5s linear infinite;
+            animation: spin 1.5s linear infinite;
+        }
+
+        @-webkit-keyframes spin {
+            0% {
+                -webkit-transform: rotate(0deg);
+                -ms-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+            100% {
+                -webkit-transform: rotate(360deg);
+                -ms-transform: rotate(360deg);
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes spin {
+            0% {
+                -webkit-transform: rotate(0deg);
+                -ms-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+            100% {
+                -webkit-transform: rotate(360deg);
+                -ms-transform: rotate(360deg);
+                transform: rotate(360deg);
+            }
+        }
+
     </style>
 </head>
 <body>
-    <script type="text/javascript">
-        PLANET.main.main();
-    </script>
+<section id="loading-screen">
+    <div id="loader"></div>
+</section>
+
+<script type="text/javascript">
+    PLANET.main.main();
+</script>
 </body>
 </html>

@@ -1,49 +1,50 @@
 window.PLANET = window.PLANET || {};
 PLANET.ocean = PLANET.ocean || {};
 
-PLANET.ocean.Ocean = function(base) {
-    THREE.Object3D.call(this);
-    var geometry = base.clone();
-    params.WaterLevel = geometry.vertices[0].length();
-    var material = new THREE.MeshStandardMaterial({
-        //TODO make all these linked to param
-        wireframe: params.PlanetWireframe,
-        flatShading: params.PlanetFlatShading,
-        color: new THREE.Color(params.WaterColor),
+PLANET.ocean.Ocean = function (bufferGeometry) {
+    let geometry = new THREE.Geometry();
+    geometry.fromBufferGeometry(bufferGeometry);
+    let material = new THREE.MeshStandardMaterial({
+        flatShading: true,
+        color: new THREE.Color(colors.SeaColor),
         transparent: true,
-        opacity: params.WaterOpacity
+        opacity: params.WaterOpacity / 100
     });
-    this.ocean = new THREE.Mesh(geometry, material);
-    this.ocean.castShadow = true;
-    this.ocean.receiveShadow = true;
-    this.ocean.name = "Ocean";
-    return this.ocean;
-};
-
-PLANET.ocean.Ocean.prototype = Object.create(THREE.Object3D.prototype);
-
-PLANET.ocean.update = function() {
-    // this.ocean.geometry = planet.baseGeometry.clone();
-    // this.ocean.geometry.scale(params.WaterLevel, params.WaterLevel, params.WaterLevel);
-    this.ocean.material.color.setHex(params.WaterColor);
-    this.ocean.material.opacity = params.WaterOpacity;
-    // this.ocean.material = new THREE.MeshStandardMaterial({
-    //     wireframe: params.PlanetWireframe,
-    //     flatShading: params.PlanetFlatShading,
-    //     caseShadow: true,
-    //     receiveShadow: true,
-    //     color: new THREE.Color(0x44B8ED),
-    //     transparent: true,
-    //     opacity: 0.8
-    // });
-};
-
-PLANET.ocean.animate = function() {
-    var v, len, spd = timer * params.WaveSpeed;
-    for(var i = 0; i < this.ocean.geometry.vertices.length; i++) {
-        v = this.ocean.geometry.vertices[i];
-        len = simplex.noise3d((v.x + spd) / params.WaveLength, (v.y + spd) / params.WaveLength, (v.z + spd) / params.WaveLength);
-        v.setLength(params.WaterLevel + len * params.WaveHeight);
-    }
-    this.ocean.geometry.verticesNeedUpdate = true;
+    let ocean = new THREE.Mesh(geometry, material);
+    ocean.castShadow = true;
+    ocean.receiveShadow = true;
+    ocean.name = "Ocean";
+    ocean.frozen = false;
+    ocean.animate = function () {
+        if (params.SeaLevel > 0) {
+            if (params.Temperature > CONSTANTS.FREEZE_POINT) {
+                let seaLevel = utils.getSeaLevel();
+                this.frozen = false;
+                let length;
+                let step = timer * params.WaveSpeed;
+                for (let vertex of geometry.vertices) {
+                    length = simplex.noise3d(
+                        (vertex.x + step) / params.WaveLength,
+                        (vertex.y + step) / params.WaveLength,
+                        (vertex.z + step) / params.WaveLength
+                    );
+                    vertex.setLength(seaLevel + length * params.WaveHeight);
+                }
+                geometry.verticesNeedUpdate = true;
+            } else if (!this.frozen) {
+                let seaLevel = utils.getSeaLevel();
+                for (let vertex of geometry.vertices) {
+                    vertex.setLength(seaLevel);
+                }
+                geometry.verticesNeedUpdate = true;
+                this.frozen = true;
+            }
+        }
+    };
+    ocean.update = function () {
+        material.color.setHex(colors.SeaColor);
+        material.opacity = params.WaterOpacity / 100;
+        material.needsUpdate = true;
+    };
+    return ocean;
 };
