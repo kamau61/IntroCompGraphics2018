@@ -1,4 +1,7 @@
-var flyControls = function (camara) {
+window.PLANET = window.PLANET || {};
+PLANET.flyControls = PLANET.flyControls || {};
+
+PLANET.flyControls.FlyControls = function (camara) {
     camera.rotation.set(0, Math.PI, 0);
     camera.position.set(0, 0, 0);
 
@@ -390,4 +393,5 @@ var flyControls = function (camara) {
 
         prevTime = time;
     };
+    return holder;
 };

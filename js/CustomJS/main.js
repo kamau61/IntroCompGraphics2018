@@ -59,9 +59,10 @@ let params = {
 };
 let colors = colorSchemes[0];
 let res = {
-    Trees: [],
-    DeadTrees: [],
-    Loading: 0
+    TreesGeometry: [],
+    TreesMaterials: [],
+    DeadTreesGeometry: [],
+    DeadTreesMaterials: []
 };
 let planet;
 let axis = new THREE.Vector3(1, 0, 0);
@@ -129,14 +130,11 @@ PLANET.main.loadModels = function () {
 
 
     fbxLoader.load('Resources/models/trees.fbx', function (object) {
+        console.log(object);
         object.traverse(function (child) {
             if (child.isMesh) {
-                child.castShadow = true;
-                child.receiveShadow = true;
-                // child.scale.set(params.TreeScale, params.TreeScale, params.TreeScale);
-                child.position.set(0, 0, 0);
                 for (let material of child.material) {
-                    material.flatShading = true;
+                    // material.flatShading = true;
                     if (material.name === "Trunk") {
                         material.color.setHex(colors.TrunkColor);
                     } else {
@@ -144,9 +142,11 @@ PLANET.main.loadModels = function () {
                     }
                 }
                 if (child.name.includes("009")) {
-                    res.DeadTrees.push(child);
+                    res.DeadTreesGeometry.push(child.geometry);
+                    res.DeadTreesMaterials.push(child.material);
                 } else {
-                    res.Trees.push(child);
+                    res.TreesGeometry.push(child.geometry);
+                    res.TreesMaterials.push(child.material);
                 }
             }
         });
