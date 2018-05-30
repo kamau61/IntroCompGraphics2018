@@ -43,6 +43,7 @@ var params = {
 var planet;
 var axis = new THREE.Vector3(1, 0, 0);
 var baseTrees = [];
+var shadowMapViewer;
 
 PLANET.main.main = function () {
     timer = 0;
@@ -51,6 +52,8 @@ PLANET.main.main = function () {
     PLANET.main.loadModels();
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     canvas = document.createElement('div');
     canvas.appendChild(renderer.domElement);
     document.body.appendChild(canvas);
@@ -90,6 +93,8 @@ PLANET.main.loadModels = function () {
         console.log('Loading complete!');
         planet = new PLANET.planet.Planet(planetGeometry);
         scene.add(planet);
+        planet.castShadow = true;
+        planet.receiveShadow = true;
         var loadingScreen = document.getElementById('loading-screen');
         loadingScreen.classList.add('fade-out');
         loadingScreen.addEventListener('transitionend', onTransitionEnd);
@@ -106,8 +111,8 @@ PLANET.main.loadModels = function () {
 
     plyLoader.load('Resources/models/sphere-' + params.PlanetDetail + ".ply", function (bufferGeometry) {
         planetGeometry = bufferGeometry;
-        // planet = new PLANET.planet.Planet(bufferGeometry);
-        // scene.add(planet);
+        //planet = new PLANET.planet.Planet(bufferGeometry);
+        //scene.add(planet);
     });
 
 
@@ -137,6 +142,8 @@ PLANET.main.render = function () {
     }
 
     renderer.render(scene, camera);
+    shadowMapViewer.render(renderer);
+
 };
 
 function onTransitionEnd(event) {

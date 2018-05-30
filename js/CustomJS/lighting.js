@@ -1,6 +1,20 @@
 window.PLANET = window.PLANET || {};
 PLANET.lighting = PLANET.lighting || {};
 
+var sunLight = new THREE.DirectionalLight(0xffffff, 1);
+var moonLight = new THREE.PointLight(0xeeeeff, 0.01);
+
+shadowMapViewer = new THREE.ShadowMapViewer(sunLight);
+shadowMapViewer.position.x = 100;
+shadowMapViewer.position.z = 100;
+shadowMapViewer.size.width = 512;
+shadowMapViewer.size.height = 512;
+
+sunLight.shadow = new THREE.LightShadow(new THREE.PerspectiveCamera(100, 1));
+sunLight.shadow.mapSize.width = 512;
+sunLight.shadow.mapSize.height = 512;
+sunLight.castShadow = true;
+
 var effectController  = {
   turbidity: 10,
   rayleigh: 2,
@@ -12,40 +26,34 @@ var effectController  = {
   sun:  true
 };
 
+function guiChanged() {
+  var distance = 10000;
+  var uniforms = sky.material.uniforms;
+  uniforms.turbidity.value = effectController.turbidity;
+  uniforms.rayleigh.value = effectController.rayleigh;
+  uniforms.luminance.value = effectController.luminance;
+  uniforms.mieCoefficient.value = effectController.mieCoefficient;
+  uniforms.mieDirectionalG.value = effectController.mieDirectionalG;
+  var theta = Math.PI * ( effectController.inclination - 0.5 );
+  var phi = 2 * Math.PI * ( effectController.azimuth - 0.5 );
+  sunSphere.position.x = distance * Math.cos( phi );
+  sunSphere.position.y = distance * Math.sin( phi ) * Math.sin( theta );
+  sunSphere.position.z = distance * Math.sin( phi ) * Math.cos( theta );
+  sunSphere.visible = effectController.sun;
+  uniforms.sunPosition.value.copy( sunSphere.position );
+}
+
 PLANET.lighting.Lighting = function () {
     THREE.Object3D.call(this);
 
-    this.starLight = new THREE.AmbientLight(0x7f7f7f);
+    this.starLight = new THREE.AmbientLight(0x7f7f7f, 0.2);
     scene.add(this.starLight);
 
-    /*this.sunLight = new THREE.PointLight(0xffffff, 0.5, 1000);
-    this.moonLight = new THREE.PointLight(0xeeeeff, 0.01);
-    this.add(this.sunLight);
-    this.add(this.moonLight);
-    var sunTexture = new THREE.TextureLoader().load('resources/img/solar.jpg')
-    var moonTexture = new THREE.TextureLoader().load('resources/img/lunar.jpg')
+    /*var sunTexture = new THREE.TextureLoader().load('resources/img/solar.jpg')
     var materialLightSun = new THREE.MeshBasicMaterial({
         map: sunTexture,
         color: 0xffaa00,
     });
-    var materialLightMoon = new THREE.MeshBasicMaterial({
-        map: moonTexture,
-        color: 0xeeeeee,
-    });
-
-    var sunObj = new THREE.SphereGeometry(5, 8, 8);
-    var moonObj = new THREE.SphereGeometry(5, 8, 8);
-    this.sun = new THREE.Mesh(sunObj, materialLightSun);
-    this.moon = new THREE.Mesh(moonObj, materialLightMoon);
-    this.sunLight.add(this.sun);
-    this.moonLight.add(this.moon);
-    this.sunLight.position.x = 125;
-    this.sunLight.position.z = 125;
-    this.moonLight.position.x = -100;
-    this.moonLight.position.z = -100;
-
-    var sunRadius = 125;
-    var moonRadius = 100;
 
     var texture = new THREE.TextureLoader().load('resources/img/stars.png')
     var material = new THREE.MeshBasicMaterial({
@@ -63,20 +71,29 @@ PLANET.lighting.Lighting = function () {
     this.add(this.starSphere);*/
 
     function initSky() {
-				// Add Sky
+
 				sky = new THREE.Sky();
 				sky.scale.setScalar( 450000 ); //Set sky box size
 				scene.add( sky );
-				// Add Sun Helper
+
 				sunSphere = new THREE.Mesh(
 					new THREE.IcosahedronBufferGeometry( 500, 1 ),
 					new THREE.MeshBasicMaterial( { color: 0xffff7f } )
 				);
+
+        var moonTexture = new THREE.TextureLoader().load('resources/img/lunar.jpg');
+        moonSphere = new THREE.Mesh(
+					new THREE.IcosahedronBufferGeometry( 150, 1 ),
+					new THREE.MeshBasicMaterial( { map: moonTexture, color: 0xeeeeee } )
+				);
+
+        sunSphere.add(sunLight);
+        moonSphere.add(moonLight);
 				sunSphere.position.y = - 10000;
+        moonSphere.position.y = 10000;
 				sunSphere.visible = true;
 				scene.add( sunSphere );
-				/// GUI
-
+        scene.add( moonSphere );
 
 				var gui = new dat.GUI();
 				gui.add( effectController, "turbidity", 1.0, 20.0, 0.1 ).onChange( guiChanged );
@@ -88,50 +105,20 @@ PLANET.lighting.Lighting = function () {
 				gui.add( effectController, "azimuth", 0, 1, 0.0001 ).onChange( guiChanged );
 				gui.add( effectController, "sun" ).onChange( guiChanged );
 				guiChanged();
-			}
-
-      initSky();
-
+		}
+    initSky();
     return this;
 };
 
 PLANET.lighting.Lighting.prototype = Object.create(THREE.Object3D.prototype);
 
 
-function guiChanged() {
-  var distance = 10000;
-
-  var uniforms = sky.material.uniforms;
-  uniforms.turbidity.value = effectController.turbidity;
-  uniforms.rayleigh.value = effectController.rayleigh;
-  uniforms.luminance.value = effectController.luminance;
-  uniforms.mieCoefficient.value = effectController.mieCoefficient;
-  uniforms.mieDirectionalG.value = effectController.mieDirectionalG;
-  var theta = Math.PI * ( effectController.inclination - 0.5 );
-  var phi = 2 * Math.PI * ( effectController.azimuth - 0.5 );
-  sunSphere.position.x = distance * Math.cos( phi );
-  sunSphere.position.y = distance * Math.sin( phi ) * Math.sin( theta );
-  sunSphere.position.z = distance * Math.sin( phi ) * Math.cos( theta );
-  sunSphere.visible = effectController.sun;
-  uniforms.sunPosition.value.copy( sunSphere.position );
-  renderer.render( scene, camera );
-}
-
-
-/////////////////////////////////////////////////////
-// RENDER LOOP                                     //
-/////////////////////////////////////////////////////
 
 PLANET.lighting.animate = function () {
   effectController.inclination += 0.01;
   if (effectController.inclination > 1) {
     effectController.inclination = -1;
   }
+  shadowMapViewer.update();
   guiChanged();
-  //this.sunLight.position.x = sunRadius * Math.cos(timer);
-  //this.sunLight.position.z = sunRadius * Math.sin(timer);
-  //this.moonLight.position.x = moonRadius * -Math.cos(timer);
-  //this.moonLight.position.z = moonRadius * -Math.sin(timer);
-
-  //theta = ((Math.atan2(camera.position.x - this.sunLight.position.x, camera.position.z - this.sunLight.position.z) * 180 / Math.PI) + 180)%360;
 };
