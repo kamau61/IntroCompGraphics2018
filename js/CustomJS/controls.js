@@ -13,9 +13,11 @@ PLANET.controls.Controls = function() {
     // PLANET.controls.addResizeListener();
 
     //mouse controls
-    controls = new PLANET.OrbitControls(camera, renderer.domElement);
-    PLANET.controls.addTerrainDeformListener();
-    scene.add(camera);
+    // controls = new PLANET.OrbitControls(camera, renderer.domElement);
+    // PLANET.controls.addTerrainDeformListener();
+    // scene.add(camera);
+    controls = new PLANET.flyControls.FlyControls(camera);
+    scene.add(controls.object);
     // PLANET.controls = new flyControls(camera);
 //    PLANET.controls.object.set(0, 0, params.PlanetRadius * params.CameraMax);
 //     scene.add(PLANET.controls.object);

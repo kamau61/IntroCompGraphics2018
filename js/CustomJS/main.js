@@ -2,7 +2,7 @@ window.PLANET = window.PLANET || {};
 PLANET.main = PLANET.main || {};
 
 //variables that need global access
-let scene, camera, renderer, light, canvas, gui, simplex, timer, manager, color, utils, raycaster;
+let scene, camera, renderer, light, canvas, gui, simplex, timer, manager, color, utils, raycaster,controls;
 
 const CONSTANTS = {
     OPT_TEMP: 25.5,
@@ -12,7 +12,7 @@ const CONSTANTS = {
 };
 let params = {
     PlanetRadius: 100,
-    PlanetDetail: 6,
+    PlanetDetail: 5,
     PlanetWireframe: false,
     PlanetFlatShading: true,
     PlanetRotationY: 0,
@@ -163,6 +163,8 @@ PLANET.main.render = function () {
     if (light) {
         PLANET.lighting.animate();
     }
+
+    controls.update();
 
     renderer.render(scene, camera);
 };

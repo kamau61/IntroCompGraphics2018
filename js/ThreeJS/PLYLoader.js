@@ -351,7 +351,7 @@ THREE.PLYLoader.prototype = {
 
             }
 
-            geometry.computeBoundingSphere();
+            //geometry.computeBoundingSphere();
 
             return geometry;
 
