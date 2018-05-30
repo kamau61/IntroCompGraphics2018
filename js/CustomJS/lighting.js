@@ -71,8 +71,7 @@ function guiChanged() {
     sunSphere.position.x = distance * Math.sin(theta);
     sunSphere.position.y = 0;
     sunSphere.position.z = distance * Math.cos(theta);
-    uniforms.sunPosition.value.copy(sunSphere.position);
-    renderer.render(scene, camera);
+    uniforms.sunPosition.value = sunSphere.position;
 }
 
 
