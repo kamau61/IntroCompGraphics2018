@@ -38,8 +38,8 @@ var flyControls = function ( camara ){
   var flySpeed = 10;
   var velocityNew = new THREE.Vector3();
   var tempVector = new THREE.Vector3();
+  var tempVector2 = new THREE.Vector3();
   var tempObj = new THREE.Object3D();
-  //var tempVector = new THREE.Vector3();
 
   var position0 = new THREE.Vector3();
   var rotation0 = new THREE.Vector3();
@@ -49,13 +49,15 @@ var flyControls = function ( camara ){
   var zRotated = 0;
   var tiltedAngle = 0;
   var dirLeft = new THREE.Vector3(1, 0, 0);
+  var dirUp = new THREE.Vector3(0, 1, 0);
+  var needAdjust = false;
 
   this.object = holder;
   this.movSpeed = 40;
   this.rotSpeed = 1;
   this.tiltToAngle = DEG1*30;
-  this.minDistance = 110;
-  this.maxDistance = 400;
+  this.minDistance = params.PlanetRadius*1.1;
+  this.maxDistance = params.PlanetRadius*4;
   this.viewChangingDist = 30;
 
   holder.position.set(0, 0, params.PlanetRadius * params.CameraMax);
@@ -87,10 +89,45 @@ var flyControls = function ( camara ){
   function tiltCameraTo(ang){
     tiltCamera(ang - tiltedAngle);
   }
+  function resetCamera(){
+    camera.rotation.set(0, 0, 0);
+  }
+
+  function rotateHolderXTo(x){
+    holder.getWorldDirection(tempVector);
+    var ang = holder.position.angleTo(tempVector);
+    var myLeft = dirLeft.clone();
+    directionToWorld(holder, myLeft);
+    var worldLeft = myLeft.clone();
+    if (holder.position.angleTo(tempVector) != 0){
+      worldLeft.crossVectors(holder.position, tempVector).normalize();
+    }
+    //rotateObject(holder, myLeft, worldLeft, false);
+    console.log("before");
+    console.log(myLeft.angleTo(worldLeft)/DEG1);
+    holder.rotateOnWorldAxis(myLeft, x-ang);
+
+    holder.getWorldDirection(tempVector);
+    if (holder.position.angleTo(tempVector) != 0){
+      worldLeft.crossVectors(holder.position, tempVector).normalize();
+
+      myLeft.copy(dirLeft);
+      directionToWorld(holder, myLeft);
+      console.log("after");
+      console.log(myLeft.angleTo(worldLeft)/DEG1);
+    }
+    xRotated = x;
+  }
+
+  function adjustY(){
+
+  }
+
   function rotateHolderX(x){
     holder.rotateX(x);
     xRotated += x;
   }
+
   function rotateHolderY(y){
     holder.rotateY(y);
     yRotated += y;
@@ -191,10 +228,7 @@ var flyControls = function ( camara ){
 
   function orbitTo(dir){
     if (dir != 0){
-      // var orgPoint = new THREE.Vector3(0, 1, 0).applyAxisAngle(dirLeft, PI_2-xRotated).multiplyScalar(height);
-      // var dist = holder.position.distanceTo(orgPoint);
-      // var d = height - dist*dist*0.5/height;
-      tempVector.set(0, 1, 0).applyAxisAngle(dirLeft,-xRotated);
+      tempVector.copy(dirUp).applyAxisAngle(dirLeft,-xRotated);
       directionToWorld(holder, tempVector);
       holder.rotateOnWorldAxis(tempVector, DEG1*dir);
       holder.position.applyAxisAngle(tempVector,DEG1*dir);
@@ -229,9 +263,9 @@ var flyControls = function ( camara ){
 
       if (dest.length() < this.maxDistance){
         holder.position.copy(dest);
+        currentHeight = holder.position.length();
         if (nearGround){
           holder.rotateY(DEG1*this.rotSpeed*(Number(turnLeft) - Number(turnRight)));
-          currentHeight = holder.position.length();
           if (moveForward){
             holder.rotateX(-Math.tanh(movement.length()/currentHeight)*(Number(moveForward) - Number(moveBackward)));
             holder.position.setLength(height);
@@ -243,12 +277,14 @@ var flyControls = function ( camara ){
             turnRight = false;
           }
         }else{
-          orbitTo(Number(moveLeft)-Number(moveRight));
+          orbitTo(Number(moveRight)-Number(moveLeft));
 
-          if (height <= this.minDistance + this.viewChangingDist && height > this.minDistance) {
-            var distPercent = (this.minDistance + this.viewChangingDist - height)/this.viewChangingDist;
-            var ag = distPercent*PI_2 - xRotated;
-            rotateHolderX(ag);
+          if (currentHeight <= this.minDistance + this.viewChangingDist && currentHeight > this.minDistance) {
+            var distPercent = (this.minDistance + this.viewChangingDist - currentHeight)/this.viewChangingDist;
+            //var ag = distPercent*PI_2 - xRotated;
+            //rotateHolderX(ag);
+            var ag = distPercent*PI_2;
+            rotateHolderXTo(ag);
             var ttAngle = distPercent*this.tiltToAngle;
             tiltCameraTo(-ttAngle);
             if (facingTo.angleTo(holder.position) <= PI_2){
@@ -257,7 +293,33 @@ var flyControls = function ( camara ){
               moveLeft = false;
               turnRight = moveRight;
               moveRight = false;
+
+              //holder.position.setLength(this.minDistance);
+              // var up = holder.up.clone();
+              //
+              // up.copy(holder.localToWorld(up));
+              // console.log("up");
+              // console.log(up);
+              // console.log("Before");
+              // console.log(up.angleTo(holder.position));
+              // rotateObject(holder, up, holder.position, false);
+              // up.copy(holder.localToWorld(up));
+              // console.log("After");
+              // console.log(up.angleTo(holder.position));
+              // xRotated = PI_2;
+              needAdjust = false;
             }
+
+            needAdjust = true;
+          }else{//} if (needAdjust){
+            holder.getWorldDirection(facingTo);
+            rotateObject(holder, holder.position, facingTo, false);
+            holder.getWorldDirection(facingTo);
+            console.log("AngleTo");
+            console.log(holder.position.angleTo(facingTo));
+            tiltCameraTo(0);
+            xRotated = 0;
+            needAdjust = false;
           }
         }
       }
@@ -265,6 +327,23 @@ var flyControls = function ( camara ){
       prevTime = time;
     }
   };
+
+  function rotateObject(obj, from, to, isLocal){
+    var ang = from.angleTo(to);
+    if (ang != 0){
+      var axis = new THREE.Vector3().crossVectors(from, to).normalize();
+      if (isLocal) obj.rotateOnAxis(axis, -ang);
+      else obj.rotateOnWorldAxis(axis, -ang);
+    }
+  }
+
+  function rotateToDirection(obj, startDir, targetDir){
+    var ang = targetDir.angleTo(startDir);
+    if (ang != 0){
+      var axis = new THREE.Vector3().crossVectors(startDir, targetDir).normalize();
+      obj.rotateOnWorldAxis(axis, -ang);
+    }
+  }
 
   // var randomForce = function( dir, strength, force ){
   //   //var dir = forward?-1:1;
