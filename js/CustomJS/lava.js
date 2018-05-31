@@ -129,8 +129,10 @@ PLANET.lava.Lava = function () {
     lava.receiveShadow = true;
     lava.name = "Lava";
     lava.animate = function () {
-        material.uniforms['level'].value = utils.getLavaLevel();
-        material.uniforms['time'].value = timer * .1;
+        if (params.LavaLevel > 0) {
+            material.uniforms['level'].value = utils.getLavaLevel();
+            material.uniforms['time'].value = timer * .1;
+        }
     };
     lava.update = function () {
 
