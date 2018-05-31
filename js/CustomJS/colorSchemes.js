@@ -120,15 +120,15 @@ let colorSchemes = [
         SeaColor: 0x691717,
         SeabedColor: 0x51170c
     },
-    LazyPanda = {
-        LeafColor: 0x70b16d,
-        ForestColor: 0x999999,
-        GrassColor: 0x999999,
-        TrunkColor: 0x2e8b57,
-        SoilColor: 0x000000,
-        SandColor: 0x000000,
-        SnowColor: 0xffffff,
-        SeaColor: 0xffffff,
-        SeabedColor: 0xffffff
+    WillyWonka = {
+        LeafColor: 0xece3e3,
+        ForestColor: 0xc82020,
+        GrassColor: 0xc034b4,
+        TrunkColor: 0x6f1e08,
+        SoilColor: 0x268b07,
+        SandColor: 0x117c13,
+        SnowColor: 0xccad93,
+        SeaColor: 0x9c5435,
+        SeabedColor: 0x5c2c1d
     }
 ];

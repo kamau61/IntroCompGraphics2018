@@ -43,7 +43,7 @@ let params = {
     LavaLevel: 0,//0% of terrain displacement
 
     //params regarding forest
-    TreeScale: 0.01, //TODO bind this with planet detail
+    TreeScale: 0.01,
     TreeSpread: 0.5,//0.6, //less the number, wider each forest, -1/+1
     GrassSpread: -0.5,//0, //less the number, wider each grassland, -1/+1
     ForestDensity: 0.2, //more the number, more forests, 0.1/0.3

@@ -70,22 +70,22 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
     };
 
     terrain.addTree = function (face) {
-        /*face.hasTree = true;
+        face.hasTree = true;
         geometry.elementsNeedUpdate = true;
         let tree = new PLANET.tree.Tree(face);
         tree.remove();
         terrain.trees.add(tree);
-        face.treeIndex = terrain.trees.children.length - 1;*/
+        face.treeIndex = terrain.trees.children.length - 1;
     };
 
-    terrain.updateTree = function (face, snowLevel, sandLevel) {
+    terrain.updateTree = function (face, snowLevel, sandLevel, seabedLevel) {
         let tree = terrain.trees.children[face.treeIndex];
         tree.update(face);
         if (face.length > snowLevel) {
             tree.die();
         } else if (face.length > sandLevel) {
             tree.live();
-        } else if (face.length > params.WaterLevel) {
+        } else if (face.length > seabedLevel) {
             tree.die();
         } else {
             tree.remove();

@@ -108,7 +108,7 @@ PLANET.debug.Debug = function () {
         PrettyMermaid: colorSchemes.indexOf(PrettyMermaid),
         FancyFairy: colorSchemes.indexOf(FancyFairy),
         FlamyDragon: colorSchemes.indexOf(FlamyDragon),
-        LazyPanda: colorSchemes.indexOf(LazyPanda)
+        WillyWonka: colorSchemes.indexOf(WillyWonka)
     }).onChange(updateColor).listen();
     colorControls.add(options, 'randomColor');
     colorControls.open();
