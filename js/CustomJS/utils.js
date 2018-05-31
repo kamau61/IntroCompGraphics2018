@@ -39,6 +39,10 @@ PLANET.utils = function () {
         return this.getLevel(this.getPeakLevel(), this.getBottomLevel(), this.GET_FROM.BOTTOM, params.SeaLevel / 100);
     };
 
+    this.getLavaLevel = function () {
+        return this.getLevel(this.getPeakLevel(), this.getBottomLevel(), this.GET_FROM.BOTTOM, params.LavaLevel / 100);
+    };
+
     this.getSnowLevel = function () {
         return this.getLevel(this.getPeakLevel(), this.getSeaLevel(), this.GET_FROM.TOP, params.SnowLevel / 100);
     };

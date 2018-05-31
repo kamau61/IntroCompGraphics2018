@@ -79,7 +79,7 @@ PLANET.debug.Debug = function () {
     let planetControls = gui.addFolder('Planet');
     planetControls.add(params, 'Temperature')
         .min(CONSTANTS.FREEZE_POINT)
-        .max(CONSTANTS.BOIL_POINT)
+        .max(CONSTANTS.LAVA_POINT)
         .onChange(function () {
             planet.climate.set(params.Temperature);
         })
@@ -109,6 +109,7 @@ PLANET.debug.Debug = function () {
     levelControls.add(params, 'SnowLevel', 0, 100).onChange(update).listen();
     levelControls.add(params, 'SandLevel', 0, 100).onChange(update).listen();
     levelControls.add(params, 'SeaLevel', 0, 100).onChange(update).listen();
+    levelControls.add(params, 'LavaLevel', 0, 100).onChange(update).listen();
     levelControls.add(options, 'DefaultLevels');
     let colorControls = planetControls.addFolder('Colors');
     colorControls.addColor(colors, 'LeafColor').onChange(update).listen();

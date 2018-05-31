@@ -8,7 +8,8 @@ const CONSTANTS = {
     OPT_TEMP: 25.5,
     OPT_RANGE: 4.5,
     FREEZE_POINT: -10,
-    BOIL_POINT: 100
+    BOIL_POINT: 100,
+    LAVA_POINT: 200
 };
 let params = {
     PlanetRadius: 100,
@@ -39,6 +40,7 @@ let params = {
     SnowLevel: 50,//50% of height above water from top
     SandLevel: 10,//10% of height above water
     SeaLevel: 50,//50% of terrain displacement
+    LavaLevel: 0,//0% of terrain displacement
 
     //params regarding forest
     TreeScale: 0.01, //TODO bind this with planet detail
