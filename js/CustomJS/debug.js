@@ -6,43 +6,29 @@ PLANET.debug.Debug = function () {
         reset: function () {
             params.color = 0;
             updateColor();
-            this.SmoothTerrain();
-            this.RoughOcean();
-            this.DefaultLevels();
+            this.defaultTerrain();
+            this.defaultOcean();
+            this.defaultLevels();
         },
         generate: function () {
             simplex = new SimplexNoise();
             update();
         },
-        SmoothTerrain: function () {
-            params.PlanetRadius = 100;
-            params.PlanetDetail = 7;
-            params.TerrainDisplacement = 0.1;
+        defaultTerrain: function () {
+            params.TerrainDisplacement = 10;
             params.TerrainDensity = 0.1;
             params.TerrainDetail = 9;
             update();
         },
-        SharpTerrain: function () {
-            params.TerrainDensity = 0.03;
-            params.TerrainDetail = 9;
-            params.PlanetRadius = 100;
-            params.TerrainDisplacement = 0.25;
-            update();
-        },
-        SmoothOcean: function () {
-            params.WaveSpeed = 0.25;
-            params.WaveLength = 5;
-            params.WaveHeight = 0.025;
-        },
-        RoughOcean: function () {
+        defaultOcean: function () {
             params.WaveSpeed = 0.25;
             params.WaveLength = 1;
             params.WaveHeight = 0.05;
         },
-        DefaultLevels: function () {
+        defaultLevels: function () {
             planet.climate.set(25.5);
         },
-        RandomColor: function(){
+        randomColor: function(){
             params.Color = Math.floor(Math.random()*colorSchemes.length);
             updateColor();
         }
@@ -50,7 +36,6 @@ PLANET.debug.Debug = function () {
 
     let update = function () {
         planet.update();
-        // updateCamera(params.PlanetRadius);
     };
 
     let updateColor = function () {
@@ -67,14 +52,6 @@ PLANET.debug.Debug = function () {
         planet.update();
     };
 
-    // let updateCamera = function() {
-    //     PLANET.controls.minDistance = params.PlanetRadius * (1 + params.TerrainDisplacement);
-    //     PLANET.controls.maxDistance = params.PlanetRadius * params.CameraMax;
-    //     camera.position.set(0, 0, params.PlanetRadius * params.CameraMax);
-    //     PLANET.controls.update();
-    //     PLANET.controls.saveState();
-    // };
-
     gui = new dat.GUI();
     let planetControls = gui.addFolder('Planet');
     planetControls.add(params, 'Temperature')
@@ -86,31 +63,29 @@ PLANET.debug.Debug = function () {
         .step(0.1).listen();
     planetControls.open();
     let terrainControls = planetControls.addFolder('Terrain');
-    //TODO onChange -> generate terrain
     terrainControls.add(params, 'TerrainDensity', 0, 1).onChange(update).listen();
     terrainControls.add(params, 'TerrainDisplacement', 0, 50).onChange(update).listen();
     terrainControls.add(params, 'TerrainDetail', 1, 10).step(1).onChange(update).listen();
     terrainControls.add(options, 'generate');
-    terrainControls.add(options, 'SmoothTerrain');
-    terrainControls.add(options, 'SharpTerrain');
+    terrainControls.add(options, 'defaultTerrain');
     let oceanControls = planetControls.addFolder('Ocean');
     oceanControls.add(params, 'WaterOpacity', 0, 100).onChange(update).listen();
     oceanControls.add(params, 'WaveSpeed', 0, 1).listen();
     oceanControls.add(params, 'WaveLength', 1, 5).listen();
     oceanControls.add(params, 'WaveHeight', 0, 0.3).listen();
-    oceanControls.add(options, 'SmoothOcean');
-    oceanControls.add(options, 'RoughOcean');
+    oceanControls.add(options, 'defaultOcean');
     let forestControls = planetControls.addFolder('Forest');
     //TODO onChange -> generate forest
     forestControls.add(params, 'TreeSpread', -1, 1).onChange().listen();
     forestControls.add(params, 'GrassSpread', -1, 1).onChange().listen();
     forestControls.add(params, 'ForestDensity', -1, 1).onChange().listen();
+    //not needed cause everything is tided with temperature
     let levelControls = planetControls.addFolder('Levels');
     levelControls.add(params, 'SnowLevel', 0, 100).onChange(update).listen();
     levelControls.add(params, 'SandLevel', 0, 100).onChange(update).listen();
     levelControls.add(params, 'SeaLevel', 0, 100).onChange(update).listen();
     levelControls.add(params, 'LavaLevel', 0, 100).onChange(update).listen();
-    levelControls.add(options, 'DefaultLevels');
+    levelControls.add(options, 'defaultLevels');
     let colorControls = planetControls.addFolder('Colors');
     colorControls.addColor(colors, 'LeafColor').onChange(update).listen();
     colorControls.addColor(colors, 'ForestColor').onChange(update).listen();
@@ -135,7 +110,7 @@ PLANET.debug.Debug = function () {
         FlamyDragon: colorSchemes.indexOf(FlamyDragon),
         LazyPanda: colorSchemes.indexOf(LazyPanda)
     }).onChange(updateColor).listen();
-    colorControls.add(options, 'RandomColor');
+    colorControls.add(options, 'randomColor');
     colorControls.open();
 
 
