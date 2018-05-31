@@ -57,8 +57,9 @@ PLANET.flyControls.FlyControls = function (camara) {
     var needAdjust = false;
 
     this.object = holder;
-    this.movSpeed = 40;
-    this.rotSpeed = 2;
+    this.position = holder.position;
+    this.movingSpeed = 40;
+    this.rotatingSpeed = 1;
     this.tiltToAngle = DEG1*30;
     this.minDistance = params.PlanetRadius*(1.1 + params.TerrainDisplacement/100);
     this.maxDistance = params.PlanetRadius*4;
@@ -227,12 +228,12 @@ PLANET.flyControls.FlyControls = function (camara) {
 
     this.getObject = function () { return holder; };
 
-    function orbitTo(dir){
+    function orbitTo(dir, speed){
       if (dir != 0){
         tempVector.copy(dirUp).applyAxisAngle(dirLeft,-xRotated);
         directionToWorld(holder, tempVector);
-        holder.rotateOnWorldAxis(tempVector, DEG1*dir);
-        holder.position.applyAxisAngle(tempVector,DEG1*dir);
+        holder.rotateOnWorldAxis(tempVector, speed*DEG1*dir);
+        holder.position.applyAxisAngle(tempVector,speed*DEG1*dir);
       }
     }
 
@@ -254,20 +255,20 @@ PLANET.flyControls.FlyControls = function (camara) {
 
         velocity.multiplyScalar(0.6);
         velocity.copy(facingTo).multiplyScalar(Number(moveForward) - Number(moveBackward));
-        rotateHolderY(DEG1*this.rotSpeed*(Number(turnLeft) - Number(turnRight)));
-        rotateHolderZ(DEG1*this.rotSpeed*(Number(rollLeft) - Number(rollRight)));
-        rotateHolderX(DEG1*this.rotSpeed*(Number(headDown) - Number(headUp)));
+        rotateHolderY(DEG1*this.rotatingSpeed*(Number(turnLeft) - Number(turnRight)));
+        rotateHolderZ(DEG1*this.rotatingSpeed*(Number(rollLeft) - Number(rollRight)));
+        rotateHolderX(DEG1*this.rotatingSpeed*(Number(headDown) - Number(headUp)));
 
         height = holder.position.length();
         var dest = new THREE.Vector3().copy(holder.position);
-        var movement = velocity.clone().multiplyScalar(this.movSpeed*delta);
+        var movement = velocity.clone().multiplyScalar(this.movingSpeed*delta);
         dest.add(movement);
 
         if (dest.length() < this.maxDistance){
           holder.position.copy(dest);
           currentHeight = holder.position.length();
           if (nearGround){
-            holder.rotateY(DEG1*this.rotSpeed*(Number(turnLeft) - Number(turnRight)));
+            holder.rotateY(DEG1*this.rotatingSpeed*(Number(turnLeft) - Number(turnRight)));
             if (moveForward){
               holder.rotateX(-Math.tanh(movement.length()/currentHeight)*(Number(moveForward) - Number(moveBackward)));
               holder.position.setLength(height);
@@ -279,7 +280,7 @@ PLANET.flyControls.FlyControls = function (camara) {
               turnRight = false;
             }
           }else{
-            orbitTo(Number(moveRight)-Number(moveLeft));
+            orbitTo(Number(moveRight)-Number(moveLeft), this.rotatingSpeed);
 
             if (currentHeight <= this.minDistance + this.viewChangingDist && currentHeight > this.minDistance) {
               var distPercent = (this.minDistance + this.viewChangingDist - currentHeight)/this.viewChangingDist;
