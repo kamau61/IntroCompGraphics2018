@@ -1,7 +1,7 @@
 window.PLANET = window.PLANET || {};
 PLANET.planet = PLANET.planet || {};
 
-PLANET.planet.Planet = function(bufferGeometry) {
+PLANET.planet.Planet = function (bufferGeometry) {
     THREE.Object3D.call(this);
     this.name = "Planet";
     simplex = new SimplexNoise();
@@ -18,6 +18,14 @@ PLANET.planet.Planet = function(bufferGeometry) {
         this.lava.animate();
     };
     this.update = function () {
+        for (let material of res.TreesMaterials) {
+            for (let subMaterial of material )
+            if (subMaterial.name === 'Trunk') {
+                subMaterial.color.setHex(colors.TrunkColor);
+            } else {
+                subMaterial.color.setHex(colors.LeafColor);
+            }
+        }
         this.terrain.update();
         this.ocean.update();
     };

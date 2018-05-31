@@ -136,18 +136,6 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
             }
         }
         geometry.colorsNeedUpdate = true;
-
-        for (let tree of this.trees.children) {
-            for (let status of tree.children) {
-                for (let material of status.material) {
-                    if (material.name === "Trunk") {
-                        material.color.setHex(colors.TrunkColor);
-                    } else {
-                        material.color.setHex(colors.LeafColor);
-                    }
-                }
-            }
-        }
     };
     terrain.generate();
     return terrain;

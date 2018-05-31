@@ -134,7 +134,6 @@ PLANET.main.loadModels = function () {
         object.traverse(function (child) {
             if (child.isMesh) {
                 for (let material of child.material) {
-                    // material.flatShading = true;
                     if (material.name === "Trunk") {
                         material.color.setHex(colors.TrunkColor);
                     } else {
