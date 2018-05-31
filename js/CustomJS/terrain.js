@@ -70,12 +70,12 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
     };
 
     terrain.addTree = function (face) {
-        face.hasTree = true;
+        /*face.hasTree = true;
         geometry.elementsNeedUpdate = true;
         let tree = new PLANET.tree.Tree(face);
         tree.remove();
         terrain.trees.add(tree);
-        face.treeIndex = terrain.trees.children.length - 1;
+        face.treeIndex = terrain.trees.children.length - 1;*/
     };
 
     terrain.updateTree = function (face, snowLevel, sandLevel) {

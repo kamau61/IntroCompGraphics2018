@@ -3,57 +3,66 @@ PLANET.tree = PLANET.tree || {};
 
 PLANET.tree.Tree = function () {
     //get random tree
-    let style = Math.floor(Math.random() * res.Trees.length);
-    let tree = new THREE.Object3D();
+    let style = Math.floor(Math.random() * res.TreesGeometry.length);
     let scale = params.TreeScale * (1 - Math.random());
-    tree.alive = res.Trees[style].clone();
-    tree.add(tree.alive);
-
-    //get corresponding dead tree
-    switch (style) {
-        case 2:
-        case 3:
-        case 5:
-        case 12:
-            tree.dead = res.DeadTrees[0].clone();
-            break;
-        case 4:
-        case 9:
-        case 11:
-        case 14:
-            tree.dead = res.DeadTrees[1].clone();
-            break;
-        case 0:
-        case 8:
-        case 10:
-        case 13:
-            tree.dead = res.DeadTrees[2].clone();
-            break;
-        default:
-            tree.dead = res.DeadTrees[3].clone();
-            break;
-    }
-    tree.dead.visible = false;
-    tree.add(tree.dead);
+    let geometry = res.TreesGeometry[style];
+    let material = res.TreesMaterials[style];
+    let tree = new THREE.Mesh(geometry, material);
+    tree.castShadow = true;
+    tree.receiveShadow = true;
+    tree.isAlive = true;
 
     tree.update = function(face) {
-        utils.alignOnFace(tree.alive, face, scale);
-        utils.alignOnFace(tree.dead, face, scale);
+        utils.alignOnFace(tree, face, scale);
     };
 
     tree.die = function () {
-        tree.dead.visible = true;
-        tree.alive.visible = false;
+        tree.isAlive = false;
+        tree.visible = true;
+
+        switch (style) {
+            case 2:
+            case 3:
+            case 5:
+            case 12:
+                tree.geometry = res.DeadTreesGeometry[0];
+                tree.material = res.DeadTreesMaterials[0];
+                break;
+            case 4:
+            case 9:
+            case 11:
+            case 14:
+                tree.geometry = res.DeadTreesGeometry[1];
+                tree.material = res.DeadTreesMaterials[1];
+                break;
+            case 0:
+            case 8:
+            case 10:
+            case 13:
+                tree.geometry = res.DeadTreesGeometry[2];
+                tree.material = res.DeadTreesMaterials[2];
+                break;
+            default:
+                tree.geometry = res.DeadTreesGeometry[3];
+                tree.material = res.DeadTreesMaterials[3];
+                break;
+        }
+
+        geometry.verticesNeedUpdate = true;
     };
 
     tree.live = function () {
-        tree.alive.visible = true;
-        tree.dead.visible = false;
+        tree.isAlive = true;
+        tree.visible = true;
+
+        tree.geometry = res.TreesGeometry[style];
+        tree.material = res.TreesMaterials[style];
+
+        geometry.verticesNeedUpdate = true;
     };
 
     tree.remove = function () {
-        tree.alive.visible = false;
-        tree.dead.visible = false;
+        tree.visible = false;
     };
     return tree;
 };
