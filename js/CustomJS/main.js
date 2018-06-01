@@ -42,9 +42,11 @@ let params = {
 
     //params regarding forest
     TreeScale: 0.01, //TODO bind this with planet detail
-    TreeSpread: 0.5,//0.6, //less the number, wider each forest, -1/+1
+    TreeSpread: -0.5,//0.6, //less the number, wider each forest, -1/+1
     GrassSpread: -0.5,//0, //less the number, wider each grassland, -1/+1
-    ForestDensity: 0.2, //more the number, more forests, 0.1/0.3
+    ForestDensity: 0.3, //more the number, more forests, 0.1/0.3
+
+    TreeCount: 1000000,
 
     //params regarding ocean
     WaterOpacity: 90,
@@ -75,6 +77,7 @@ PLANET.main.main = function () {
     scene = new THREE.Scene();
     PLANET.main.loadModels();
     renderer = new THREE.WebGLRenderer();
+    renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize(window.innerWidth, window.innerHeight);
     canvas = document.createElement('div');
     canvas.appendChild(renderer.domElement);
@@ -128,6 +131,7 @@ PLANET.main.loadModels = function () {
     });
 
     fbxLoader.load('res/models/trees.fbx', function (object) {
+        console.log(object);
         object.traverse(function (child) {
             if (child.isMesh) {
                 for (let material of child.material) {

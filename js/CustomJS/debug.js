@@ -66,7 +66,7 @@ PLANET.debug.Debug = function () {
         colors.SnowColor = colorSchemes[params.Color].SnowColor;
         colors.SeaColor = colorSchemes[params.Color].SeaColor;
         colors.SeabedColor = colorSchemes[params.Color].SeabedColor;
-        planet.update();
+        update();
     };
 
     // let updateCamera = function() {

@@ -144,7 +144,7 @@
 
     function render() {
         renderer.render(scene, camera);
-        material.uniforms['time'].value += 0.01
+        material.uniforms['time'].value += 0.01;
         requestAnimationFrame(render);
     }
 

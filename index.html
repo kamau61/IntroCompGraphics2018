@@ -135,6 +135,59 @@
     <div id="loader"></div>
 </section>
 
+<script id="vertInstanced" type="x-shader/x-vertex">
+		#define SHADER_NAME vertInstanced
+		precision highp float;
+		uniform mat4 modelViewMatrix;
+        uniform mat4 projectionMatrix;
+
+		attribute vec3 position;
+		attribute vec3 mcol0;
+		attribute vec3 mcol1;
+		attribute vec3 mcol2;
+		attribute vec3 mcol3;
+        attribute vec3 color;
+
+	    varying vec3 vPosition;
+		varying vec3 vColor;
+
+		void main()	{
+			mat4 matrix = mat4(
+				vec4( mcol0, 0 ),
+				vec4( mcol1, 0 ),
+				vec4( mcol2, 0 ),
+				vec4( mcol3, 1 )
+			);
+			vec3 positionEye = ( modelViewMatrix * matrix * vec4( position, 1.0 ) ).xyz;
+			vColor = color;
+			vPosition = positionEye;
+        	gl_Position = projectionMatrix * vec4( positionEye, 1.0 );
+		}
+	</script>
+
+<script id="fragInstanced" type="x-shader/x-fragment">
+        #define SHADER_NAME fragInstanced
+		#extension GL_OES_standard_derivatives : enable
+		precision highp float;
+		varying vec3 vColor;
+		varying vec3 vPosition;
+
+		float rand(vec2 co){
+            return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+        }
+
+		void main()	{
+				vec3 fdx = dFdx( vPosition );
+				vec3 fdy = dFdy( vPosition );
+				vec3 normal = normalize( cross( fdx, fdy ) );
+				vec3 light = vec3(1.0, 1.0, 1.0);
+				light = normalize( light );
+                float gray = dot(light,normal);
+				gl_FragColor = vec4( gray * vColor, 1.0 );
+		}
+	</script>
+
+
 <script type="text/javascript">
     PLANET.main.main();
 </script>

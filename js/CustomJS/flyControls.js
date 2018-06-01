@@ -298,7 +298,7 @@ PLANET.flyControls.FlyControls = function (camara) {
 
     var randomPos = function( position, min ) {
       position.set(Math.random()*2-1,Math.random()*2-1,Math.random()*2-1).normalize().multiplyScalar(min*1.1);
-    }
+    };
 
     this.fly = function(){
       // velocity.multiplyScalar(0.9);

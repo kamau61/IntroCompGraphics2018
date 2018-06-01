@@ -12,6 +12,7 @@ PLANET.planet.Planet = function(bufferGeometry) {
 
     this.climate = PLANET.climate.Climate();
     this.animate = function () {
+        this.terrain.animate();
         this.ocean.animate();
     };
     this.update = function () {

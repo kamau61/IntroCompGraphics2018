@@ -17,6 +17,14 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
     terrain.trees.castShadow = true;
     terrain.trees.receiveShadow = true;
 
+    var treeGeo = new THREE.InstancedBufferGeometry().copy(res.TreesGeometry[1]);
+    var mcol0 = new THREE.InstancedBufferAttribute(new Float32Array(params.TreeCount), 3, 1);
+    var mcol1 = new THREE.InstancedBufferAttribute(new Float32Array(params.TreeCount), 3, 1);
+    var mcol2 = new THREE.InstancedBufferAttribute(new Float32Array(params.TreeCount), 3, 1);
+    var mcol3 = new THREE.InstancedBufferAttribute(new Float32Array(params.TreeCount), 3, 1);
+
+    var treeCount = 0;
+
     terrain.generateTerrain = function () {
         //shapes terrain
         let length, offset;
@@ -70,13 +78,59 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
     };
 
     terrain.addTree = function (face) {
-        /*face.hasTree = true;
-        geometry.elementsNeedUpdate = true;
-        let tree = new PLANET.tree.Tree(face);
-        tree.remove();
-        terrain.trees.add(tree);
-        face.treeIndex = terrain.trees.children.length - 1;*/
+        // face.hasTree = true;
+        // geometry.elementsNeedUpdate = true;
+        // let tree = new PLANET.tree.Tree(face);
+        // tree.remove();
+        // terrain.trees.add(tree);
+        // face.treeIndex = terrain.trees.children.length - 1;
+
+        let matrix = terrain.calculateMatrix(face.position);
+        let me = matrix.elements;
+        mcol0.setXYZ(treeCount, me[0], me[1], me[2]);
+        mcol1.setXYZ(treeCount, me[4], me[5], me[6]);
+        mcol2.setXYZ(treeCount, me[8], me[9], me[10]);
+        mcol3.setXYZ(treeCount, me[12], me[13], me[14]);
+
+        treeCount++;
     };
+
+    terrain.calculateMatrix = function (facePos) {
+        var position = new THREE.Vector3();
+        var quaternion = new THREE.Quaternion();
+        var scale = new THREE.Vector3();
+        var matrix = new THREE.Matrix4();
+        position.x = facePos.x;
+        position.y = facePos.y;
+        position.z = facePos.z;
+        quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), facePos.clone().normalize());
+
+        scale.x = scale.y = scale.z = params.TreeScale * (1 - Math.random());
+        matrix.compose(position, quaternion, scale);
+        return matrix;
+    };
+
+    var mat = new THREE.RawShaderMaterial({
+        uniforms: {},
+        vertexShader: document.getElementById('vertInstanced').textContent,
+        fragmentShader: document.getElementById('fragInstanced').textContent,
+        transparent: false
+    });
+    treeGeo.addAttribute('mcol0', mcol0);
+    treeGeo.addAttribute('mcol1', mcol1);
+    treeGeo.addAttribute('mcol2', mcol2);
+    treeGeo.addAttribute('mcol3', mcol3);
+
+    var treeColors = new THREE.InstancedBufferAttribute(new Float32Array(params.TreeCount * 3), 3, 1);
+    for (var i = 0, ul = treeColors.count; i < ul; i++) {
+        let color = new THREE.Color();
+        color.setHex(colorSchemes[params.Color].LeafColor);
+        treeColors.setXYZ(i, color.r, color.g, color.b);
+    }
+    treeGeo.addAttribute('color', treeColors);
+
+    var mesh = new THREE.Mesh(treeGeo, mat);
+    terrain.add(mesh);
 
     terrain.updateTree = function (face, snowLevel, sandLevel) {
         let tree = terrain.trees.children[face.treeIndex];
@@ -105,20 +159,32 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
                 face.position.x * params.ForestDensity,
                 face.position.y * params.ForestDensity,
                 face.position.z * params.ForestDensity);
-            if (forest > params.TreeSpread) {
-                terrain.addTree(face);
-            }
+            // if (forest > params.TreeSpread) {
+            //     terrain.addTree(face);
+            // }
             terrain.calculateFaceColors(face, snowLevel, sandLevel, seabedLevel, forest);
-            if (face.hasTree) {
-                terrain.updateTree(face, snowLevel, sandLevel, seabedLevel);
-            }
         }
+
+        for (let i = 0; i < params.TreeCount; i++) {
+            terrain.addTree(geometry.faces[Math.floor(Math.random() * geometry.faces.length)]);
+        }
+
         geometry.colorsNeedUpdate = true;
-        this.add(terrain.trees);
+        // this.add(terrain.trees);
 
     };
 
     terrain.update = function () {
+        // for (let i = 0; i < res.TreesMaterials.length; i++) {
+        //     for (let j = 0; j < 2; j++) {
+        //         let treeMaterial = res.TreesMaterials[i][j];
+        //         if (treeMaterial.name === "Trunk") {
+        //             treeMaterial.color.setHex(colors.TrunkColor);
+        //         } else {
+        //             treeMaterial.color.setHex(colors.LeafColor);
+        //         }
+        //     }
+        // }
         terrain.generateTerrain();
         //support update of levels and colors
         let snowLevel = utils.getSnowLevel();
@@ -131,24 +197,19 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
                 face.position.y * params.ForestDensity,
                 face.position.z * params.ForestDensity);
             terrain.calculateFaceColors(face, snowLevel, sandLevel, seabedLevel, forest);
-            if (face.hasTree) {
-                terrain.updateTree(face, snowLevel, sandLevel, seabedLevel);
-            }
+            // if (face.hasTree) {
+            //     terrain.updateTree(face, snowLevel, sandLevel, seabedLevel);
+            // }
         }
         geometry.colorsNeedUpdate = true;
 
-        for (let tree of this.trees.children) {
-            for (let status of tree.children) {
-                for (let material of status.material) {
-                    if (material.name === "Trunk") {
-                        material.color.setHex(colors.TrunkColor);
-                    } else {
-                        material.color.setHex(colors.LeafColor);
-                    }
-                }
-            }
-        }
     };
+
+    terrain.animate = function () {
+        // treeGeo.attributes.light.value = light.children[2].position;
+    };
+
+
     terrain.generate();
     return terrain;
 };

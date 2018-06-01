@@ -16,7 +16,7 @@ PLANET.ocean.Ocean = function (bufferGeometry) {
     ocean.name = "Ocean";
     ocean.frozen = false;
     ocean.animate = function () {
-        if (params.SeaLevel > 0) {
+        // if (timer % 1000) {
             if (params.Temperature > CONSTANTS.FREEZE_POINT) {
                 let seaLevel = utils.getSeaLevel();
                 this.frozen = false;
@@ -39,12 +39,14 @@ PLANET.ocean.Ocean = function (bufferGeometry) {
                 geometry.verticesNeedUpdate = true;
                 this.frozen = true;
             }
-        }
+        // }
     };
     ocean.update = function () {
         material.color.setHex(colors.SeaColor);
         material.opacity = params.WaterOpacity / 100;
         material.needsUpdate = true;
+
+
     };
     return ocean;
 };
