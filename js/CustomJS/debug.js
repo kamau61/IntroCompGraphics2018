@@ -139,11 +139,8 @@ PLANET.debug.Debug = function () {
 
 
     let cameraControls = gui.addFolder('Camera');
-    cameraControls.add(controls.position, 'x').listen();
-    cameraControls.add(controls.position, 'y').listen();
-    cameraControls.add(controls.position, 'z').listen();
-    cameraControls.add(controls, 'movingSpeed', 0, 100).name('Moving Speed').listen();
-    cameraControls.add(controls, 'rotatingSpeed', 0, 10).name('Rotating Speed').listen();
+    cameraControls.add(controls, 'movingSpeed', 0, 5).name('Moving Speed').listen();
+    cameraControls.add(controls, 'rotatingSpeed', 0, 5).name('Rotating Speed').listen();
     cameraControls.add(controls, 'minDistance', 0, 200).name('Minimum Distance').listen();
     cameraControls.add(controls, 'maxDistance', 200, 1000).name('Maximum Distance').listen();
     cameraControls.add(controls, 'viewChangingDist', 20, 100).name('View Changing Distance').listen();

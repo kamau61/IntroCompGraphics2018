@@ -9,12 +9,18 @@ PLANET.flyControls.FlyControls = function (camara) {
   	var holder = new THREE.Object3D();
   	holder.add( camera );
 
+    //Some preset values;
   	var PI_2 = Math.PI / 2;
     var DEG1 = Math.PI/180;
-    var nearGround = false;
-    var flyMode = false;
-    var freeControl = false;
+    var dirLeft = new THREE.Vector3(1, 0, 0);
+    var dirUp = new THREE.Vector3(0, 1, 0);
+    var dirFront = new THREE.Vector3(0, 0, -1);
 
+    var nearGround = false;   //If it's on minimum distance, which is
+    var flyMode = false;      //If it's on self control mode.
+    var freeControl = false;  //If it's on free control mode.
+
+    //All different direction controls
     var moveForward = false;
     var moveBackward = false;
     var moveLeft = false;
@@ -30,64 +36,65 @@ PLANET.flyControls.FlyControls = function (camara) {
     var cancelMode = false;
     var testMode = false;
 
-    var prevTime = performance.now();
+    // var prevTime = performance.now();
     var facingTo = new THREE.Vector3();
     var velocity = new THREE.Vector3();
-    var currentHeight = 100;
-    var height = this.minDistance;
 
+    //Some variables for flymode.
     var facingPoint = new THREE.Vector3();
     var facingTarget = new THREE.Vector3();
     var movingTarget = new THREE.Vector3();
     var flySpeed = 10;
     var velocityNew = new THREE.Vector3();
+    var currentHeight = 100;
+    var height = this.minDistance;
+
+    //Some temporary variables to be reuse.
     var tempVector = new THREE.Vector3();
     var tempVector2 = new THREE.Vector3();
     var tempObj = new THREE.Object3D();
 
+    //For save and load position and rotation.
     var position0 = new THREE.Vector3();
     var rotation0 = new THREE.Vector3();
 
-    var xRotated = 0;
-    var yRotated = 0;
-    var zRotated = 0;
     var tiltedAngle = 0;
-    var dirLeft = new THREE.Vector3(1, 0, 0);
-    var dirUp = new THREE.Vector3(0, 1, 0);
-    var needAdjust = false;
 
-    this.object = holder;
-    this.position = holder.position;
-    this.movingSpeed = 40;
-    this.rotatingSpeed = 1;
-    this.tiltToAngle = DEG1*30;
-    this.minDistance = params.PlanetRadius*(1.1 + params.TerrainDisplacement/100);
-    this.maxDistance = params.PlanetRadius*4;
-    this.viewChangingDist = params.PlanetRadius*0.3;
+    this.object = holder;             //The object that hold the camera.
+    this.position = holder.position;  //Holder's position.
+    this.movingSpeed = 1;            //Camera Moving speed.
+    this.rotatingSpeed = 1;           //Camera rotating speed.
+    this.tiltToAngle = DEG1*30;       //The angle that camera need to tilt when it's on ground.
+    this.minDistance = params.PlanetRadius*(1.1 + params.TerrainDisplacement/100);  //The minimum distance of Camera to central of the planet.
+    this.maxDistance = params.PlanetRadius*4;     //The maximum distance of camera to central of the planet.
+    this.viewChangingDist = params.PlanetRadius*0.3;  //The distance that camera starts to change the angle when close to planet.
 
     holder.position.set(0, 0, params.PlanetRadius * params.CameraMax);
     facingPoint.set(0, this.minDistance, 0);
     facingTarget.copy(facingPoint);
     movingTarget.copy(holder.position);
 
+    //Save the position and rotation.
     var saveState = function (){
       position0.copy(holder.position);
       rotation0.copy(holder.rotation);
       //rotation0.set(xRotated, yRotated, zRotated);
     };
 
+    //Load the position and rotation.
     var loadState = function (){
       holder.position.copy(position0);
       holder.rotation.copy(rotation0);
       //rotateHolder(rotation0.x-xRotated, rotation0.y-yRotated, rotation0.z-zRotated);
     };
 
+    //Get the direction in world coordinate.
     function directionToWorld(obj, dir){
       obj.localToWorld(dir);
-
       dir.sub(obj.getWorldPosition(dir.clone()));
     }
 
+    //Tilt the camera.
     function tiltCamera(ang){
       camera.rotateX(ang);
       tiltedAngle += ang;
@@ -95,58 +102,21 @@ PLANET.flyControls.FlyControls = function (camara) {
     function tiltCameraTo(ang){
       tiltCamera(ang - tiltedAngle);
     }
-    function resetCamera(){
-      camera.rotation.set(0, 0, 0);
-    }
+
+    // function resetCamera(){
+    //   camera.rotation.set(0, 0, 0);
+    // }
 
     function rotateHolderXTo(x){
       holder.getWorldDirection(tempVector);
       var ang = holder.position.angleTo(tempVector);
       var myLeft = dirLeft.clone();
       directionToWorld(holder, myLeft);
-      var worldLeft = myLeft.clone();
-      if (holder.position.angleTo(tempVector) != 0){
-        worldLeft.crossVectors(holder.position, tempVector).normalize();
-      }
-      //rotateObject(holder, myLeft, worldLeft, false);
-      // console.log("before");
-      // console.log(myLeft.angleTo(worldLeft)/DEG1);
-      holder.rotateOnWorldAxis(myLeft, x-ang);
-      //
-      // holder.getWorldDirection(tempVector);
-      // if (holder.position.angleTo(tempVector) != 0){
+      // var worldLeft = myLeft.clone();
+      // if (ang != 0){
       //   worldLeft.crossVectors(holder.position, tempVector).normalize();
-      //
-      //   myLeft.copy(dirLeft);
-      //   directionToWorld(holder, myLeft);
-      //   console.log("after");
-      //   console.log(myLeft.angleTo(worldLeft)/DEG1);
       // }
-      xRotated = x;
-    }
-
-    function rotateHolderX(x){
-      holder.rotateX(x);
-      xRotated += x;
-    }
-
-    function rotateHolderY(y){
-      holder.rotateY(y);
-      yRotated += y;
-    }
-    function rotateHolderZ(z){
-      holder.rotateZ(z);
-      zRotated += z;
-    }
-    function rotateHolder(x, y, z){
-      rotateHolderX(x);
-      rotateHolderY(y);
-      rotateHolderZ(z);
-    }
-    function resetRotation(){
-      rotateHolderX(-xRotated);
-      rotateHolderY(-yRotated);
-      rotateHolderZ(-zRotated);
+      holder.rotateOnWorldAxis(myLeft, x-ang);
     }
 
     var onKeyDown = function ( event ) {
@@ -199,9 +169,6 @@ PLANET.flyControls.FlyControls = function (camara) {
           case 84:  if (testMode){ testMode = false; loadState();}
                     else{ testMode = true; saveState();}
                     break;
-          // case 13:  if (!floatMode){
-          //   flyMode = true;   saveState();
-          // }    break;
         }
       }
       else {
@@ -215,7 +182,6 @@ PLANET.flyControls.FlyControls = function (camara) {
                     else            moveRight = false;
                     break;  // right
           case 27:  cancelMode = true;   break;
-          //case 84:  init();             break;  //T
           case 13:  if (!flyMode){
             flyMode = true;   saveState();
           }    break;
@@ -228,19 +194,31 @@ PLANET.flyControls.FlyControls = function (camara) {
 
     this.getObject = function () { return holder; };
 
-    function orbitTo(dir, speed){
-      if (dir != 0){
-        tempVector.copy(dirUp).applyAxisAngle(dirLeft,-xRotated);
-        directionToWorld(holder, tempVector);
-        holder.rotateOnWorldAxis(tempVector, speed*DEG1*dir);
-        holder.position.applyAxisAngle(tempVector,speed*DEG1*dir);
+    //dirX for left or right, dirY for forward or backward.
+    function orbitTo(dirX, dirY, speed){
+      if (dirX == 0 && dirY == 0) return;
+
+      var obLeft = dirLeft.clone();
+      directionToWorld(holder, obLeft);
+      var obUp = holder.position.clone().normalize();
+      var obFront = new THREE.Vector3().crossVectors(obLeft, obUp).normalize();
+
+      if (dirX != 0){
+        tempVector.copy(obFront);
+        holder.rotateOnWorldAxis(tempVector, speed*DEG1*dirX);
+        holder.position.applyAxisAngle(tempVector,speed*DEG1*dirX);
+      }
+
+      if (dirY != 0){
+        tempVector.copy(obLeft);
+        holder.rotateOnWorldAxis(tempVector, -speed*DEG1*dirY);
+        holder.position.applyAxisAngle(tempVector,-speed*DEG1*dirY);
       }
     }
 
     this.update = function() {
       holder.getWorldDirection(facingTo);
       facingTo.negate();
-      //console.log(holder.position);
 
       if (flyMode){
         this.fly();
@@ -250,106 +228,54 @@ PLANET.flyControls.FlyControls = function (camara) {
           loadState();
         }
       }else{
-        var time = performance.now();
-        var delta = ( time - prevTime ) / 1000;
+        holder.rotateY(DEG1*this.rotatingSpeed*(Number(turnLeft) - Number(turnRight)));
+        holder.rotateZ(DEG1*this.rotatingSpeed*(Number(rollLeft) - Number(rollRight)));
+        holder.rotateX(DEG1*this.rotatingSpeed*(Number(headDown) - Number(headUp)));
 
-        velocity.multiplyScalar(0.6);
-        velocity.copy(facingTo).multiplyScalar(Number(moveForward) - Number(moveBackward));
-        rotateHolderY(DEG1*this.rotatingSpeed*(Number(turnLeft) - Number(turnRight)));
-        rotateHolderZ(DEG1*this.rotatingSpeed*(Number(rollLeft) - Number(rollRight)));
-        rotateHolderX(DEG1*this.rotatingSpeed*(Number(headDown) - Number(headUp)));
+        if (nearGround){
+          holder.rotateY(DEG1*this.rotatingSpeed*(Number(turnLeft) - Number(turnRight)));
+          if (moveBackward){
+            nearGround = false;
+            moveLeft = turnLeft;  turnLeft = false;
+            moveRight = turnRight;turnRight = false;
+          }else {
+            orbitTo(0, Number(moveForward)-Number(moveBackward), this.rotatingSpeed);
+          }
+        }else{
+          orbitTo(Number(moveLeft)-Number(moveRight), 0, this.rotatingSpeed);
 
-        height = holder.position.length();
-        var dest = new THREE.Vector3().copy(holder.position);
-        var movement = velocity.clone().multiplyScalar(this.movingSpeed*delta);
-        dest.add(movement);
-
-        if (dest.length() < this.maxDistance){
-          holder.position.copy(dest);
           currentHeight = holder.position.length();
-          if (nearGround){
-            holder.rotateY(DEG1*this.rotatingSpeed*(Number(turnLeft) - Number(turnRight)));
-            if (moveForward){
-              holder.rotateX(-Math.tanh(movement.length()/currentHeight)*(Number(moveForward) - Number(moveBackward)));
-              holder.position.setLength(height);
-            }else if (moveBackward){
-              nearGround = false;
-              moveLeft = turnLeft;
-              turnLeft = false;
-              moveRight = turnRight;
-              turnRight = false;
+          if (currentHeight <= this.minDistance + this.viewChangingDist && currentHeight > this.minDistance){
+            var movement = facingTo.clone().setLength(this.movingSpeed);
+            holder.position.add(movement.multiplyScalar(Number(moveForward) - Number(moveBackward)));
+
+            var distPercent = (this.minDistance + this.viewChangingDist - currentHeight)/this.viewChangingDist;
+            var ag = distPercent*PI_2;
+            rotateHolderXTo(ag);
+            var ttAngle = distPercent*this.tiltToAngle;
+            tiltCameraTo(-ttAngle);
+            if (facingTo.angleTo(holder.position) <= PI_2){
+              nearGround = true;
+              turnLeft = moveLeft;  moveLeft = false;
+              turnRight = moveRight;moveRight = false;
             }
           }else{
-            orbitTo(Number(moveRight)-Number(moveLeft), this.rotatingSpeed);
-
-            if (currentHeight <= this.minDistance + this.viewChangingDist && currentHeight > this.minDistance) {
-              var distPercent = (this.minDistance + this.viewChangingDist - currentHeight)/this.viewChangingDist;
-              //var ag = distPercent*PI_2 - xRotated;
-              //rotateHolderX(ag);
-              var ag = distPercent*PI_2;
-              rotateHolderXTo(ag);
-              var ttAngle = distPercent*this.tiltToAngle;
-              tiltCameraTo(-ttAngle);
-              if (facingTo.angleTo(holder.position) <= PI_2){
-                nearGround = true;
-                turnLeft = moveLeft;
-                moveLeft = false;
-                turnRight = moveRight;
-                moveRight = false;
-
-                //holder.position.setLength(this.minDistance);
-                // var up = holder.up.clone();
-                //
-                // up.copy(holder.localToWorld(up));
-                // console.log("up");
-                // console.log(up);
-                // console.log("Before");
-                // console.log(up.angleTo(holder.position));
-                // rotateObject(holder, up, holder.position, false);
-                // up.copy(holder.localToWorld(up));
-                // console.log("After");
-                // console.log(up.angleTo(holder.position));
-                // xRotated = PI_2;
-                needAdjust = false;
-              }
-
-              needAdjust = true;
-            }else if (needAdjust){
-              holder.getWorldDirection(facingTo);
-              rotateObject(holder, holder.position, facingTo, false);
-              holder.getWorldDirection(facingTo);
-              // console.log("AngleTo");
-              // console.log(holder.position.angleTo(facingTo));
-              tiltCameraTo(0);
-              xRotated = 0;
-              needAdjust = false;
-            }
+            let length = holder.position.length() - (Number(moveForward) - Number(moveBackward))*this.movingSpeed;
+            length = length < this.maxDistance ? length : this.maxDistance;
+            holder.position.setLength(length);
           }
         }
-
-        prevTime = time;
       }
-      //console.log(this.minDistance);
-      //camera.updateMatrixWorld();
-      //camera.updateProjectionMatrix();
     };
 
-    function rotateObject(obj, from, to, isLocal){
-      var ang = from.angleTo(to);
-      if (ang != 0){
-        var axis = new THREE.Vector3().crossVectors(from, to).normalize();
-        if (isLocal) obj.rotateOnAxis(axis, -ang);
-        else obj.rotateOnWorldAxis(axis, -ang);
-      }
-    }
-
-    function rotateToDirection(obj, startDir, targetDir){
-      var ang = targetDir.angleTo(startDir);
-      if (ang != 0){
-        var axis = new THREE.Vector3().crossVectors(startDir, targetDir).normalize();
-        obj.rotateOnWorldAxis(axis, -ang);
-      }
-    }
+    // function rotateToDirection(obj, from, to, isLocal){
+    //   var ang = from.angleTo(to);
+    //   if (ang != 0){
+    //     var axis = new THREE.Vector3().crossVectors(from, to).normalize();
+    //     if (isLocal) obj.rotateOnAxis(axis, -ang);
+    //     else obj.rotateOnWorldAxis(axis, -ang);
+    //   }
+    // }
 
     // var randomForce = function( dir, strength, force ){
     //   //var dir = forward?-1:1;
@@ -375,9 +301,6 @@ PLANET.flyControls.FlyControls = function (camara) {
     }
 
     this.fly = function(){
-      var time = performance.now();
-      var delta = ( time - prevTime ) / 1000;
-
       // velocity.multiplyScalar(0.9);
       // velocityNew.copy(movingTarget.clone().sub(holder.position)).normalize().multiplyScalar(3);
       // var move = velocity.clone().multiplyScalar(flySpeed*delta).add(velocityNew.clone().multiplyScalar(flySpeed*delta));
@@ -401,7 +324,6 @@ PLANET.flyControls.FlyControls = function (camara) {
       //   facingPoint.add(facingTarget.clone().sub(facingPoint).normalize());
       // }
 
-      prevTime = time;
     };
     //return holder;
   };
