@@ -12,7 +12,7 @@ const CONSTANTS = {
 };
 let params = {
     PlanetRadius: 100,
-    PlanetDetail: 6,
+    PlanetDetail: 7,
     PlanetWireframe: false,
     PlanetFlatShading: true,
     PlanetRotationY: 0,

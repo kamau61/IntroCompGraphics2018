@@ -17,16 +17,18 @@ PLANET.debug.Debug = function () {
         SmoothTerrain: function () {
             params.PlanetRadius = 100;
             params.PlanetDetail = 7;
-            params.TerrainDisplacement = 0.1;
-            params.TerrainDensity = 0.1;
+            params.TerrainDisplacement = 5;
+            params.TerrainDensity = 0.3;
             params.TerrainDetail = 9;
+            simplex = new SimplexNoise();
             update();
         },
         SharpTerrain: function () {
             params.TerrainDensity = 0.03;
             params.TerrainDetail = 9;
             params.PlanetRadius = 100;
-            params.TerrainDisplacement = 0.25;
+            params.TerrainDisplacement = 25;
+            simplex = new SimplexNoise();
             update();
         },
         SmoothOcean: function () {
