@@ -70,7 +70,7 @@ let axis = new THREE.Vector3(1, 0, 0);
 PLANET.main.main = function () {
     timer = 0;
     utils = new PLANET.utils();
-    // params.Color = Math.floor(Math.random() * colorSchemes.length);
+    params.Color = Math.floor(Math.random() * colorSchemes.length);
     colors = colorSchemes[params.Color];
     //init scene
     scene = new THREE.Scene();
@@ -124,13 +124,11 @@ PLANET.main.loadModels = function () {
     let planetGeometry;
     let fbxLoader = new THREE.FBXLoader(manager);
 
-    plyLoader.load('Resources/models/sphere-' + params.PlanetDetail + ".ply", function (bufferGeometry) {
+    plyLoader.load('res/models/sphere-' + params.PlanetDetail + ".ply", function (bufferGeometry) {
         planetGeometry = bufferGeometry;
     });
 
-
-    fbxLoader.load('Resources/models/trees.fbx', function (object) {
-        console.log(object);
+    fbxLoader.load('res/models/trees.fbx', function (object) {
         object.traverse(function (child) {
             if (child.isMesh) {
                 for (let material of child.material) {
