@@ -149,7 +149,11 @@ PLANET.debug.Debug = function () {
     cameraControls.open();
 
     let lightingControls = gui.addFolder('Lighting');
-      //lightingControls.add(params, 'placeholder', 0, 100).onChange(PLANET.lighting.update);
+  	 lightingControls.add( effectController, "mieCoefficient", 0.0, 0.1, 0.001 ).onChange( PLANET.lighting.update );
+  	 lightingControls.add( effectController, "mieDirectionalG", 0.0, 1, 0.001 ).onChange( PLANET.lighting.update );
+  	 lightingControls.add( effectController, "luminance", 0.0, 1 ).onChange( PLANET.lighting.update );
+  	 lightingControls.add( effectController, "inclination", 0, 1, 0.0001 ).onChange( PLANET.lighting.update );
+  	 lightingControls.add( effectController, "sun" ).onChange( PLANET.lighting.update );
     lightingControls.open();
 
 
