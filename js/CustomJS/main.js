@@ -12,7 +12,7 @@ const CONSTANTS = {
 };
 let params = {
     PlanetRadius: 100,
-    PlanetDetail: 7,
+    PlanetDetail: 6,
     PlanetWireframe: false,
     PlanetFlatShading: true,
     PlanetRotationY: 0,
@@ -46,7 +46,7 @@ let params = {
     GrassSpread: -0.5,//0, //less the number, wider each grassland, -1/+1
     ForestDensity: 0.3, //more the number, more forests, 0.1/0.3
 
-    TreeCount: 10000,
+    TreeCount: 5000,
 
     //params regarding ocean
     WaterOpacity: 90,
