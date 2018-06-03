@@ -12,7 +12,7 @@ const CONSTANTS = {
 };
 let params = {
     PlanetRadius: 100,
-    PlanetDetail: 7,
+    PlanetDetail: 5,
     PlanetWireframe: false,
     PlanetFlatShading: true,
     PlanetRotationY: 0,
@@ -59,6 +59,7 @@ let params = {
     RotateSpeed: 2,
     PanSpeed: 10
 };
+
 let colors = colorSchemes[0];
 let res = {
     TreesGeometry: [],
@@ -112,7 +113,9 @@ PLANET.main.loadModels = function () {
         console.log('Loading complete!');
         planet = new PLANET.planet.Planet(planetGeometry);
         scene.add(planet);
-        let loadingScreen = document.getElementById('loading-screen');
+        planet.castShadow = true;
+        planet.receiveShadow = true;
+        var loadingScreen = document.getElementById('loading-screen');
         loadingScreen.classList.add('fade-out');
         loadingScreen.addEventListener('transitionend', onTransitionEnd);
         console.log(scene);

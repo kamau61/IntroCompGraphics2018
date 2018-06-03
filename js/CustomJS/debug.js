@@ -86,7 +86,7 @@ PLANET.debug.Debug = function () {
             planet.climate.set(params.Temperature);
         })
         .step(0.1).listen();
-    planetControls.open();
+    planetControls.close();
     let terrainControls = planetControls.addFolder('Terrain');
     //TODO onChange -> generate terrain
     terrainControls.add(params, 'TerrainDensity', 0, 1).onChange(update).listen();
@@ -137,7 +137,7 @@ PLANET.debug.Debug = function () {
         LazyPanda: colorSchemes.indexOf(LazyPanda)
     }).onChange(updateColor).listen();
     colorControls.add(options, 'RandomColor');
-    colorControls.open();
+    colorControls.close();
 
 
     let cameraControls = gui.addFolder('Camera');
@@ -147,5 +147,15 @@ PLANET.debug.Debug = function () {
     cameraControls.add(controls, 'maxDistance', 200, 1000).name('Maximum Distance').listen();
     cameraControls.add(controls, 'viewChangingDist', 20, 100).name('View Changing Distance').listen();
     cameraControls.open();
+
+    let lightingControls = gui.addFolder('Lighting');
+  	 lightingControls.add( effectController, "mieCoefficient", 0.0, 0.1, 0.001 ).onChange( PLANET.lighting.update );
+  	 lightingControls.add( effectController, "mieDirectionalG", 0.0, 1, 0.001 ).onChange( PLANET.lighting.update );
+  	 lightingControls.add( effectController, "luminance", 0.0, 1 ).onChange( PLANET.lighting.update );
+  	 lightingControls.add( effectController, "inclination", 0, 1, 0.0001 ).onChange( PLANET.lighting.update );
+  	 lightingControls.add( effectController, "sun" ).onChange( PLANET.lighting.update );
+    lightingControls.open();
+
+
     gui.add(options, 'reset');
 };
