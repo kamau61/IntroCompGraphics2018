@@ -15,7 +15,10 @@ PLANET.planet.Planet = function(bufferGeometry) {
         this.terrain.animate();
         this.ocean.animate();
     };
-    this.update = function () {
+    this.update = function (rebuildTerrain) {
+        if (rebuildTerrain === true){
+            this.terrain.generateTerrain();
+        }
         this.terrain.update();
         this.ocean.update();
     };

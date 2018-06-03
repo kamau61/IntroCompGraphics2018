@@ -46,7 +46,7 @@ let params = {
     GrassSpread: -0.5,//0, //less the number, wider each grassland, -1/+1
     ForestDensity: 0.3, //more the number, more forests, 0.1/0.3
 
-    TreeCount: 1000000,
+    TreeCount: 10000,
 
     //params regarding ocean
     WaterOpacity: 90,
@@ -88,7 +88,6 @@ PLANET.main.main = function () {
     light = new PLANET.lighting.Lighting();
     raycaster = new THREE.Raycaster();
     scene.add(light);
-    PLANET.debug.Debug();
     PLANET.main.render();
 
     window.addEventListener('resize', function () {
@@ -97,7 +96,6 @@ PLANET.main.main = function () {
         renderer.setSize(width, height);
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
-        renderer.render(scene, camera);
     });
 };
 
@@ -115,6 +113,8 @@ PLANET.main.loadModels = function () {
         scene.add(planet);
         planet.castShadow = true;
         planet.receiveShadow = true;
+        document.addEventListener('mousedown', planet.terrain.modifyTerrain, false);
+        PLANET.debug.Debug();
         var loadingScreen = document.getElementById('loading-screen');
         loadingScreen.classList.add('fade-out');
         loadingScreen.addEventListener('transitionend', onTransitionEnd);
