@@ -12,7 +12,7 @@ const CONSTANTS = {
 };
 let params = {
     PlanetRadius: 100,
-    PlanetDetail: 5,
+    PlanetDetail: 7,
     PlanetWireframe: false,
     PlanetFlatShading: true,
     PlanetRotationY: 0,
@@ -115,7 +115,7 @@ PLANET.main.loadModels = function () {
         planet.receiveShadow = true;
         document.addEventListener('mousedown', planet.terrain.modifyTerrain, false);
         PLANET.debug.Debug();
-        var loadingScreen = document.getElementById('loading-screen');
+        let loadingScreen = document.getElementById('loading-screen');
         loadingScreen.classList.add('fade-out');
         loadingScreen.addEventListener('transitionend', onTransitionEnd);
         console.log(scene);
