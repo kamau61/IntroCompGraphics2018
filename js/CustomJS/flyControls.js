@@ -4,20 +4,20 @@ PLANET.flyControls = PLANET.flyControls || {};
 PLANET.flyControls.FlyControls = function (camara) {
     camera.rotation.set(0, 0, 0);
     camera.position.set(0, 0, 0);
-    //camera.lookAt(0, 0, 0);
+    camera.lookAt(0, 0, 1);
 
   	var holder = new THREE.Object3D();
   	holder.add( camera );
 
     //Some preset values;
-  	var PI_2 = Math.PI / 2;
+  	var PI_2 = Math.PI/2;
     var DEG1 = Math.PI/180;
-    var dirLeft = new THREE.Vector3(1, 0, 0);
+    var dirLeft = new THREE.Vector3(-1, 0, 0);
     var dirUp = new THREE.Vector3(0, 1, 0);
-    var dirFront = new THREE.Vector3(0, 0, -1);
+    var dirFront = new THREE.Vector3(0, 0, 1);
 
-    var nearGround = false;   //If it's on minimum distance, which is
-    var flyMode = false;      //If it's on self control mode.
+    var nearGround = false;   //If it's on minimum distance.
+    var flyMode = false;      //If it's on self control mode. For demonstrate use.
     var freeControl = false;  //If it's on free control mode.
 
     //All different direction controls
@@ -33,32 +33,25 @@ PLANET.flyControls.FlyControls = function (camara) {
     var turnRight = false;
     var rollLeft = false;
     var rollRight = false;
-    var cancelMode = false;
-    var testMode = false;
-
-    // var prevTime = performance.now();
-    var facingTo = new THREE.Vector3();
-    var velocity = new THREE.Vector3();
 
     //Some variables for flymode.
+    var facingTo = new THREE.Vector3();
+    var velocity = new THREE.Vector3();
+    var velocityNew = new THREE.Vector3();
     var facingPoint = new THREE.Vector3();
     var facingTarget = new THREE.Vector3();
     var movingTarget = new THREE.Vector3();
-    var flySpeed = 10;
-    var velocityNew = new THREE.Vector3();
-    var currentHeight = 100;
-    var height = this.minDistance;
+    var flySpeed = 1;
+
+    var height = params.PlanetRadius * params.CameraMax;
+    var currentHeight = height;
+    var tiltedAngle = 0;
 
     //Some temporary variables to be reuse.
+    //I'm not sure if keep creating new Vector3 would be slower than reusing a exist value.
     var tempVector = new THREE.Vector3();
     var tempVector2 = new THREE.Vector3();
     var tempObj = new THREE.Object3D();
-
-    //For save and load position and rotation.
-    var position0 = new THREE.Vector3();
-    var rotation0 = new THREE.Vector3();
-
-    var tiltedAngle = 0;
 
     this.object = holder;             //The object that hold the camera.
     this.position = holder.position;  //Holder's position.
@@ -70,23 +63,6 @@ PLANET.flyControls.FlyControls = function (camara) {
     this.viewChangingDist = params.PlanetRadius*0.3;  //The distance that camera starts to change the angle when close to planet.
 
     holder.position.set(0, 0, params.PlanetRadius * params.CameraMax);
-    facingPoint.set(0, this.minDistance, 0);
-    facingTarget.copy(facingPoint);
-    movingTarget.copy(holder.position);
-
-    //Save the position and rotation.
-    var saveState = function (){
-      position0.copy(holder.position);
-      rotation0.copy(holder.rotation);
-      //rotation0.set(xRotated, yRotated, zRotated);
-    };
-
-    //Load the position and rotation.
-    var loadState = function (){
-      holder.position.copy(position0);
-      holder.rotation.copy(rotation0);
-      //rotateHolder(rotation0.x-xRotated, rotation0.y-yRotated, rotation0.z-zRotated);
-    };
 
     //Get the direction in world coordinate.
     function directionToWorld(obj, dir){
@@ -103,22 +79,26 @@ PLANET.flyControls.FlyControls = function (camara) {
       tiltCamera(ang - tiltedAngle);
     }
 
-    // function resetCamera(){
-    //   camera.rotation.set(0, 0, 0);
-    // }
+    //Reset the camera to origin state;
+    function resetCamera(){
+      nearGround = false;
+      holder.position.set(0, 0, params.PlanetRadius * params.CameraMax);
+      holder.rotation.set(0, 0, 0);
+      holder.lookAt(0, 0, 0);
+      tiltCameraTo(0);
+    }
 
+    //Set camara's angle to x, 0 when camera looks at (0, 0, 0), PI/2 when camera looks at tangent direction.
     function rotateHolderXTo(x){
       holder.getWorldDirection(tempVector);
       var ang = holder.position.angleTo(tempVector);
+      ang = Math.PI - ang;
       var myLeft = dirLeft.clone();
       directionToWorld(holder, myLeft);
-      // var worldLeft = myLeft.clone();
-      // if (ang != 0){
-      //   worldLeft.crossVectors(holder.position, tempVector).normalize();
-      // }
       holder.rotateOnWorldAxis(myLeft, x-ang);
     }
 
+    //Key down event handler
     var onKeyDown = function ( event ) {
       if (freeControl){
         switch ( event.keyCode ) {
@@ -150,6 +130,7 @@ PLANET.flyControls.FlyControls = function (camara) {
       }
     };
 
+    //Key up event handler
     var onKeyUp = function ( event ) {
       if (freeControl){
         switch( event.keyCode ) {
@@ -165,10 +146,9 @@ PLANET.flyControls.FlyControls = function (camara) {
           case 70:  headDown = false;    break;  // F
           case 81:  rollLeft = false;    break;  // Q
           case 69:  rollRight = false;   break;  // E
-          case 27:  cancelMode = true;   break;
-          case 84:  if (testMode){ testMode = false; loadState();}
-                    else{ testMode = true; saveState();}
-                    break;
+          case 27:  flyMode = false; resetCamera();   break;  //ESC
+          case 13:  flyMode = true; initFlymode();   break;
+          case 84:  test(); break;
         }
       }
       else {
@@ -181,20 +161,18 @@ PLANET.flyControls.FlyControls = function (camara) {
           case 39:  if (nearGround)  turnRight = false;
                     else            moveRight = false;
                     break;  // right
-          case 27:  cancelMode = true;   break;
-          case 13:  if (!flyMode){
-            flyMode = true;   saveState();
-          }    break;
+          case 27:  flyMode = false; resetCamera(); break;
+          case 13:  flyMode = true; initFlymode();  break;
+          case 84:  test(); break;
         }
       }
     };
 
+    //Add Keyboard event.
     document.addEventListener( 'keydown', onKeyDown, false );
     document.addEventListener( 'keyup', onKeyUp, false );
 
-    this.getObject = function () { return holder; };
-
-    //dirX for left or right, dirY for forward or backward.
+    //dirX for left(1) or right(-1), dirY for forward(1) or backward(-1).
     function orbitTo(dirX, dirY, speed){
       if (dirX == 0 && dirY == 0) return;
 
@@ -205,44 +183,40 @@ PLANET.flyControls.FlyControls = function (camara) {
 
       if (dirX != 0){
         tempVector.copy(obFront);
-        holder.rotateOnWorldAxis(tempVector, speed*DEG1*dirX);
-        holder.position.applyAxisAngle(tempVector,speed*DEG1*dirX);
+        holder.rotateOnWorldAxis(tempVector, speed*dirX);
+        holder.position.applyAxisAngle(tempVector,speed*dirX);
       }
 
       if (dirY != 0){
         tempVector.copy(obLeft);
-        holder.rotateOnWorldAxis(tempVector, -speed*DEG1*dirY);
-        holder.position.applyAxisAngle(tempVector,-speed*DEG1*dirY);
+        holder.rotateOnWorldAxis(tempVector, -speed*dirY);
+        holder.position.applyAxisAngle(tempVector,-speed*dirY);
       }
     }
 
+    //Main function of camera. Needs to be called for controls and movements.
     this.update = function() {
       holder.getWorldDirection(facingTo);
-      facingTo.negate();
 
       if (flyMode){
         this.fly();
-        if (cancelMode){
-          cancelMode = false;
-          flyMode = false;
-          loadState();
-        }
       }else{
+        //Rotate holder
         holder.rotateY(DEG1*this.rotatingSpeed*(Number(turnLeft) - Number(turnRight)));
         holder.rotateZ(DEG1*this.rotatingSpeed*(Number(rollLeft) - Number(rollRight)));
         holder.rotateX(DEG1*this.rotatingSpeed*(Number(headDown) - Number(headUp)));
 
         if (nearGround){
-          holder.rotateY(DEG1*this.rotatingSpeed*(Number(turnLeft) - Number(turnRight)));
+          //holder.rotateY(DEG1*this.rotatingSpeed*(Number(turnLeft) - Number(turnRight)));
           if (moveBackward){
             nearGround = false;
             moveLeft = turnLeft;  turnLeft = false;
             moveRight = turnRight;turnRight = false;
           }else {
-            orbitTo(0, Number(moveForward)-Number(moveBackward), this.rotatingSpeed);
+            orbitTo(0, Number(moveForward)-Number(moveBackward), this.movingSpeed/this.position.length());
           }
         }else{
-          orbitTo(Number(moveLeft)-Number(moveRight), 0, this.rotatingSpeed);
+          orbitTo(Number(moveLeft)-Number(moveRight), 0, this.rotatingSpeed*DEG1);
 
           currentHeight = holder.position.length();
           if (currentHeight <= this.minDistance + this.viewChangingDist && currentHeight > this.minDistance){
@@ -277,53 +251,65 @@ PLANET.flyControls.FlyControls = function (camara) {
     //   }
     // }
 
-    // var randomForce = function( dir, strength, force ){
-    //   //var dir = forward?-1:1;
-    //   var x = Math.abs(holder.position.x);
-    //   var y = Math.abs(holder.position.y);
-    //   var z = Math.abs(holder.position.z);
-    //   var nx = (x!=0?dir*Math.random()*holder.position.x/x:dir);
-    //   var ny = (y!=0?dir*Math.random()*holder.position.y/y:dir);
-    //   var nz = (z!=0?dir*Math.random()*holder.position.z/z:dir);
-    //
-    //   force.set(nx, ny, nz).normalize().multiplyScalar(strength);
-    // };
-    //
-    var randomDest = function( vec, min ){
+    //A random point around planet. Always move a quarter of planet.
+    //Camera should not move under minDistance during movement.
+    var randomDest = function(vec, min, max){
       tempVector.set(Math.random()*2-1,Math.random()*2-1,Math.random()*2-1);
-      var rd = (Math.random()*0.2+1)*min;
-      tempVector.cross(vec).normalize().multiplyScalar(rd);
-      vec.add(tempVector).normalize().multiplyScalar((Math.random()*0.5+1)*min);
+      var randMin = min/Math.sin(Math.PI/4);
+      vec.crossVectors(vec, tempVector).setLength((Math.random()*(max-randMin))+randMin);
     };
 
-    var randomPos = function( position, min ) {
-      position.set(Math.random()*2-1,Math.random()*2-1,Math.random()*2-1).normalize().multiplyScalar(min*1.1);
+    //For looking points. Camera should always look at the planet.
+    var randomPos = function (position, height){
+      position.set(Math.random()*2-1,Math.random()*2-1,Math.random()*2-1).setLength(height);
     };
 
+    //Initialize variables before enter to fly mode.
+    function initFlymode(){
+      movingTarget.copy(holder.position);
+      holder.getWorldDirection(tempVector2);
+      tempVector2.normalize();
+      facingTarget.copy(holder.position.clone().add(tempVector2)).setLength(params.PlanetRadius);
+      facingPoint.copy(facingTarget);
+      velocityNew.copy(tempVector2).setLength(flySpeed);
+      velocity.copy(velocityNew);
+    }
+
+    //Fly mode.
     this.fly = function(){
-      // velocity.multiplyScalar(0.9);
-      // velocityNew.copy(movingTarget.clone().sub(holder.position)).normalize().multiplyScalar(3);
-      // var move = velocity.clone().multiplyScalar(flySpeed*delta).add(velocityNew.clone().multiplyScalar(flySpeed*delta));
-      // move.add(holder.position);
-      // if (move.length() < this.minDistance)
-      //   move.normalize().multiplyScalar(this.minDistance);
-      // holder.position.copy(move);
-      //
-      // if (holder.position.distanceTo(movingTarget)<10){
-      //   movingTarget.copy(holder.position);
-      //   randomDest(movingTarget, this.minDistance);
-      //   //velocity.copy(velocityNew);
-      // }
+      //If movingTarget is reached. Randomize movingTarget again.
+      if (holder.position.distanceTo(movingTarget) < 5){
+        movingTarget.copy(holder.position);
+        randomDest(movingTarget, this.minDistance, this.minDistance*2);
+        velocity.copy(velocityNew);
+      }else{
+        //Move from current point to movingTarget.
+        velocity.multiplyScalar(0.9);
+        velocityNew.copy(movingTarget.clone().sub(holder.position)).setLength(flySpeed);
+        var move = velocity.clone().add(velocityNew);
+        move.add(holder.position);
+        if (move.length() < this.minDistance)
+          move.setLength(this.minDistance);
+        holder.position.copy(move);
+      }
 
-      facingPoint.set(0, 0, 0);
+      //If facingPoint reached facingTarget, randomize facingTarget again.
+      if (facingTarget.distanceTo(facingPoint) < 5){
+        randomPos(facingTarget, params.PlanetRadius);
+      }
+      else {
+        facingPoint.add(facingTarget.clone().sub(facingPoint).normalize());
+      }
+
+      //Keep looking at facingPoint.
       holder.lookAt(facingPoint);
-
-      // if (facingTarget.distanceTo(facingPoint) < 10)
-      //   randomPos(facingTarget, this.minDistance);
-      // else {
-      //   facingPoint.add(facingTarget.clone().sub(facingPoint).normalize());
-      // }
-
     };
+
+    //Just for test purpose.
+    function test(){
+      //Whatever needs to be tested goes here.
+    }
+
+    holder.lookAt(0, 0, 0);
     //return holder;
   };
