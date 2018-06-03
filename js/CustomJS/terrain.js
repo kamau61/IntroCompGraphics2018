@@ -12,10 +12,7 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
     terrain.name = "Terrain";
     terrain.castShadow = true;
     terrain.receiveShadow = true;
-    terrain.trees = new THREE.Object3D();
-    terrain.trees.name = "Trees";
-    terrain.trees.castShadow = true;
-    terrain.trees.receiveShadow = true;
+    terrain.frustumCulled = false;
 
     let treeGeo = new THREE.InstancedBufferGeometry().copy(res.TreesGeometry[1]);
     let mcol0 = new THREE.InstancedBufferAttribute(new Float32Array(params.TreeCount * 3), 3, 1);
@@ -149,8 +146,7 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
     treeGeo.addAttribute('light', treeLights);
     console.log(treeGeo);
     let treeMesh = new THREE.Mesh(treeGeo, mat);
-    // treeMesh.castShadow = true;
-    // treeMesh.receiveShadow = true;
+    treeMesh.frustumCulled = false;
     terrain.add(treeMesh);
 
     terrain.updateTree = function (face, snowLevel, sandLevel) {
@@ -221,7 +217,7 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
     };
 
     terrain.modifyTerrain = function (event) {
-
+        event.preventDefault();
         let mouse = new THREE.Vector2;
         mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
         mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
@@ -235,17 +231,31 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
                     console.log(object);
                     let face = terrainGeometry.faces[object.faceIndex];
 
-                    function movePoint(vertex) {
+                    function movePoint(vertex, amount) {
                         let direction = vertex.clone().normalize();
-                        vertex.addScaledVector(direction, 0.5);
+                        vertex.addScaledVector(direction, amount);
                         if (vertex.length() >= params.PlanetRadius * (1 + (params.TerrainDisplacement / 100))) {
                             vertex.setLength(params.PlanetRadius * (1 + (params.TerrainDisplacement / 100)));
+                        } else if (vertex.length() <= params.PlanetRadius * (1 - (params.TerrainDisplacement / 100))) {
+                            vertex.setLength(params.PlanetRadius * (1 - (params.TerrainDisplacement / 100)));
                         }
                     }
 
-                    movePoint(terrainGeometry.vertices[face.a]);
-                    movePoint(terrainGeometry.vertices[face.b]);
-                    movePoint(terrainGeometry.vertices[face.c]);
+                    switch (event.button) {
+                        case 0: // left
+                            movePoint(terrainGeometry.vertices[face.a], 0.5);
+                            movePoint(terrainGeometry.vertices[face.b], 0.5);
+                            movePoint(terrainGeometry.vertices[face.c], 0.5);
+                            break;
+                        case 1: // middle
+                            break;
+                        case 2: // right
+                            movePoint(terrainGeometry.vertices[face.a], -0.5);
+                            movePoint(terrainGeometry.vertices[face.b], -0.5);
+                            movePoint(terrainGeometry.vertices[face.c], -0.5);
+                            break;
+                    }
+
                     terrainGeometry.verticesNeedUpdate = true;
                     terrain.update();
                     console.log(object);
