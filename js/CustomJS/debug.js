@@ -108,6 +108,10 @@ PLANET.debug.Debug = function () {
             planet.climate.set(params.Temperature);
         })
         .step(0.1).listen();
+    gui.add(params, 'BrushSize')
+        .min(1)
+        .max(5)
+        .step(1).listen();
 
     gui.add(options, 'reset');
 };

@@ -132,57 +132,55 @@
 </section>
 
 <script id="treeVertShader" type="x-shader/x-vertex">
-		#define SHADER_NAME vertInstanced
-		precision highp float;
-		uniform mat4 modelViewMatrix;
+        #define SHADER_NAME vertInstanced
+        precision highp float;
+        uniform mat4 modelViewMatrix;
         uniform mat4 projectionMatrix;
         uniform vec3 color;
 
-		attribute vec3 position;
-		attribute vec3 mcol0;
-		attribute vec3 mcol1;
-		attribute vec3 mcol2;
-		attribute vec3 mcol3;
+        attribute vec3 position;
+        attribute vec3 mcol0;
+        attribute vec3 mcol1;
+        attribute vec3 mcol2;
+        attribute vec3 mcol3;
         attribute vec3 light;
         attribute float alpha;
 
-	    varying vec3 vPosition;
-		varying vec3 vColor;
-		varying vec3 vLight;
-		varying float vAlpha;
+        varying vec3 vPosition;
+        varying vec3 vLight;
+        varying float vAlpha;
 
-		void main()	{
-			mat4 matrix = mat4(
-				vec4( mcol0, 0 ),
-				vec4( mcol1, 0 ),
-				vec4( mcol2, 0 ),
-				vec4( mcol3, 1 )
-			);
-			vec3 positionEye = (modelViewMatrix * matrix * vec4(position, 1.0)).xyz;
-			vColor = color;
-			vAlpha = alpha;
-			vLight = (modelViewMatrix * vec4(light, 1.0)).xyz;
-			vPosition = positionEye;
-        	gl_Position = projectionMatrix * vec4(positionEye, 1.0);
-		}
-	</script>
+        void main()    {
+            mat4 matrix = mat4(
+                vec4( mcol0, 0 ),
+                vec4( mcol1, 0 ),
+                vec4( mcol2, 0 ),
+                vec4( mcol3, 1 )
+            );
+            vec3 positionEye = (modelViewMatrix * matrix * vec4(position, 1.0)).xyz;
+            vAlpha = alpha;
+            vLight = (modelViewMatrix * vec4(light, 1.0)).xyz;
+            vPosition = positionEye;
+            gl_Position = projectionMatrix * vec4(positionEye, 1.0);
+        }
+    
+</script>
 
 <script id="treeFragShader" type="x-shader/x-fragment">
         #define SHADER_NAME fragInstanced
-		#extension GL_OES_standard_derivatives : enable
-		precision highp float;
-		uniform vec3 color;
-		uniform int materialIndex;
+        #extension GL_OES_standard_derivatives : enable
+        precision highp float;
+        uniform vec3 color;
+        uniform int materialIndex;
 
-		varying vec3 vColor;
-		varying vec3 vPosition;
-		varying vec3 vLight;
-		varying float vAlpha;
+        varying vec3 vPosition;
+        varying vec3 vLight;
+        varying float vAlpha;
 
-		void main()	{
-		    if (vAlpha < 0.1 && materialIndex == 1) {
-		        discard; //Discard invisible fragments
-		    }
+        void main()    {
+            if (vAlpha < 0.1 && materialIndex == 1) {
+                discard; //Discard invisible fragments
+            }
             vec3 fdx = dFdx(vPosition);
             vec3 fdy = dFdy(vPosition);
             vec3 normal = normalize(cross(fdx, fdy));
@@ -190,8 +188,9 @@
             float gray = dot(light,normal);
             gl_FragColor = vec4(gray * color, 1.0);
             gl_FragColor.a = vAlpha;
-		}
-	</script>
+        }
+    
+</script>
 
 <script id="lavaVertShader" type="x-shader/x-fragment">
         vec3 mod289(vec3 x) {
@@ -287,6 +286,7 @@
             vec3 newPosition = normal * (displacement + level);
             gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.);
         }
+
 </script>
 
 <script id="lavaFragShader" type="x-shader/x-fragment">
@@ -294,6 +294,7 @@
         void main() {
             gl_FragColor = vec4(1. - 2. * noise, .5-3.*noise, 0., 1.);
         }
+
 </script>
 
 <script type="text/javascript">

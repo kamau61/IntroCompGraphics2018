@@ -163,7 +163,6 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
     };
 
 
-
     terrain.updateTree = function (face, snowLevel, sandLevel, seaLevel, lavaLevel) {
         let matrix = terrain.getTreeMatrix(face);
         let position = new THREE.Vector3();
@@ -243,6 +242,35 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
         }
     };
 
+    let draging = false;
+    let dragPos = new THREE.Vector2;
+    let currentMouse = new THREE.Vector2;
+    let vertices = new Set();
+
+    function movePoint(vertex, amount) {
+        let direction = vertex.clone().normalize();
+        vertex.addScaledVector(direction, amount);
+        if (vertex.length() >= params.PlanetRadius * (1 + (params.TerrainDisplacement / 100))) {
+            vertex.setLength(params.PlanetRadius * (1 + (params.TerrainDisplacement / 100)));
+        } else if (vertex.length() <= params.PlanetRadius * (1 - (params.TerrainDisplacement / 100))) {
+            vertex.setLength(params.PlanetRadius * (1 - (params.TerrainDisplacement / 100)));
+        }
+    }
+
+    function moveFace(amount) {
+        let count = 0;
+        let interval = 3;
+        vertices.forEach(vert => {
+            movePoint(vert, amount);
+            count++;
+            if (count === interval) {
+                amount = amount * Math.cos(utils.map((interval-3)/6, 0, params.BrushSize, 0, Math.PI/2));
+                interval += 6;
+                count = 0;
+            }
+        })
+    }
+
     terrain.modifyTerrain = function (event) {
         event.preventDefault();
         let mouse = new THREE.Vector2;
@@ -257,28 +285,19 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
                     let terrainGeometry = object.object.geometry;
                     let face = terrainGeometry.faces[object.faceIndex];
 
-                    function movePoint(vertex, amount) {
-                        let direction = vertex.clone().normalize();
-                        vertex.addScaledVector(direction, amount);
-                        if (vertex.length() >= params.PlanetRadius * (1 + (params.TerrainDisplacement / 100))) {
-                            vertex.setLength(params.PlanetRadius * (1 + (params.TerrainDisplacement / 100)));
-                        } else if (vertex.length() <= params.PlanetRadius * (1 - (params.TerrainDisplacement / 100))) {
-                            vertex.setLength(params.PlanetRadius * (1 - (params.TerrainDisplacement / 100)));
-                        }
-                    }
-
                     switch (event.button) {
                         case 0: // left
-                            movePoint(terrainGeometry.vertices[face.a], 0.5);
-                            movePoint(terrainGeometry.vertices[face.b], 0.5);
-                            movePoint(terrainGeometry.vertices[face.c], 0.5);
+                            draging = true;
+                            dragPos.copy(mouse);
+                            currentMouse.copy(mouse);
+                            vertices.add(terrainGeometry.vertices[face.a]);
+                            vertices.add(terrainGeometry.vertices[face.b]);
+                            vertices.add(terrainGeometry.vertices[face.c]);
+                            terrain.getNeighbours(params.BrushSize);
                             break;
                         case 1: // middle
                             break;
                         case 2: // right
-                            movePoint(terrainGeometry.vertices[face.a], -0.5);
-                            movePoint(terrainGeometry.vertices[face.b], -0.5);
-                            movePoint(terrainGeometry.vertices[face.c], -0.5);
                             break;
                     }
 
@@ -287,6 +306,48 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
                 }
             }
         }
+    };
+
+    terrain.getNeighbours = function (brushSize) {
+        for (let i = 1; i < brushSize; i++) {
+            let vertIndex = [];
+            vertices.forEach(vert =>
+                vertIndex.push(terrain.geometry.vertices.indexOf(vert)));
+            for (let face of geometry.faces) {
+                if (vertices.size > vertIndex + 6) {
+                    break;
+                } else {
+                    if (vertIndex.includes(face.a) || vertIndex.includes(face.b) || vertIndex.includes(face.c)) {
+                        vertices.add(terrain.geometry.vertices[face.a]);
+                        vertices.add(terrain.geometry.vertices[face.b]);
+                        vertices.add(terrain.geometry.vertices[face.c]);
+                    }
+                }
+            }
+        }
+    };
+
+    terrain.onMouseDown = function (event) {
+
+    };
+
+    terrain.onMouseMove = function (event) {
+        if (!draging) {
+            return;
+        }
+        currentMouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
+        let movementY = currentMouse.y - dragPos.y;
+
+        let currentHeight = controls.object.position.length() - params.PlanetRadius;
+        moveFace(movementY * currentHeight);
+        dragPos.copy(currentMouse);
+        terrain.geometry.verticesNeedUpdate = true;
+        terrain.update();
+    };
+
+    terrain.onMouseUp = function (event) {
+        draging = false;
+        vertices.clear();
     };
 
     terrain.generate();
