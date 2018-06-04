@@ -155,7 +155,7 @@ PLANET.lighting.animate = function () {
     star.position.x =  distance*20/i * Math.sin( r + i );
     star.position.z =  distance*20/i * Math.cos( r + i );
   }*/
-  starRotation += 1;
-  //starField.rotateOnAxis(0, 0, 0, starRotation);
+  /*starRotation += 0.01;
+  starField.rotateOnAxis(camera.position, starRotation);*/
   PLANET.lighting.update();
 };
