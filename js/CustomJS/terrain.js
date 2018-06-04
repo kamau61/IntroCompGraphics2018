@@ -21,8 +21,38 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
     let mcol3 = new THREE.InstancedBufferAttribute(new Float32Array(params.TreeCount * 3), 3, 1);
     let treeLights = new THREE.InstancedBufferAttribute(new Float32Array(params.TreeCount * 3), 3, 1);
     let treeAlpha = new THREE.InstancedBufferAttribute(new Float32Array(params.TreeCount), 1, 1);
-
     let treeCount = 0;
+    let mat = [
+        new THREE.RawShaderMaterial({
+            uniforms: {
+                "color": {type: "3f", value: new THREE.Color()},
+                "materialIndex": {type: "i", value: 0}
+            },
+            vertexShader: document.getElementById('treeVertShader').textContent,
+            fragmentShader: document.getElementById('treeFragShader').textContent,
+            transparent: false
+        }),
+        new THREE.RawShaderMaterial({
+            uniforms: {
+                "color": {type: "3f", value: new THREE.Color()},
+                "materialIndex": {type: "i", value: 1}
+            },
+            vertexShader: document.getElementById('treeVertShader').textContent,
+            fragmentShader: document.getElementById('treeFragShader').textContent,
+            transparent: true
+        })
+    ];
+    mat[0].uniforms.color.value.setHex(colors.TrunkColor);
+    mat[1].uniforms.color.value.setHex(colors.LeafColor);
+    treeGeo.addAttribute('mcol0', mcol0);
+    treeGeo.addAttribute('mcol1', mcol1);
+    treeGeo.addAttribute('mcol2', mcol2);
+    treeGeo.addAttribute('mcol3', mcol3);
+    treeGeo.addAttribute('light', treeLights);
+    treeGeo.addAttribute('alpha', treeAlpha);
+    let treeMesh = new THREE.Mesh(treeGeo, mat);
+    treeMesh.frustumCulled = false;
+    terrain.add(treeMesh);
 
     terrain.generateTerrain = function () {
         //shapes terrain
@@ -58,8 +88,10 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
         face.length = face.position.length();
     };
 
-    terrain.calculateFaceColors = function (face, snowLevel, sandLevel, seabedLevel, forest) {
-        if (face.length > snowLevel) {
+    terrain.calculateFaceColors = function (face, snowLevel, sandLevel, seabedLevel, lavaLevel, forest) {
+        if (params.Temperature > 100 && face.length < lavaLevel + 2.5) {
+            face.color.setHex(colors.LavaColor);
+        } else if (face.length > snowLevel) {
             face.color.setHex(colors.SnowColor);
         } else if (face.length > sandLevel) {
             if (forest > params.TreeSpread) {
@@ -130,39 +162,7 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
         return matrix;
     };
 
-    let mat = [
-        new THREE.RawShaderMaterial({
-            uniforms: {
-                "color": {type: "3f", value: new THREE.Color()},
-                "materialIndex": {type: "i", value: 0}
-            },
-            vertexShader: document.getElementById('vertInstanced').textContent,
-            fragmentShader: document.getElementById('fragInstanced').textContent,
-            transparent: false
-        }),
-        new THREE.RawShaderMaterial({
-            uniforms: {
-                "color": {type: "3f", value: new THREE.Color()},
-                "materialIndex": {type: "i", value: 1}
-            },
-            vertexShader: document.getElementById('vertInstanced').textContent,
-            fragmentShader: document.getElementById('fragInstanced').textContent,
-            transparent: true
-        })
-    ];
-    console.log(mat);
-    mat[0].uniforms.color.value.setHex(colors.TrunkColor);
-    mat[1].uniforms.color.value.setHex(colors.LeafColor);
-    treeGeo.addAttribute('mcol0', mcol0);
-    treeGeo.addAttribute('mcol1', mcol1);
-    treeGeo.addAttribute('mcol2', mcol2);
-    treeGeo.addAttribute('mcol3', mcol3);
-    treeGeo.addAttribute('light', treeLights);
-    treeGeo.addAttribute('alpha', treeAlpha);
-    console.log(treeGeo);
-    let treeMesh = new THREE.Mesh(treeGeo, mat);
-    treeMesh.frustumCulled = false;
-    terrain.add(treeMesh);
+
 
     terrain.updateTree = function (face, snowLevel, sandLevel, seaLevel, lavaLevel) {
         let matrix = terrain.getTreeMatrix(face);
@@ -170,7 +170,7 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
         let quaternion = new THREE.Quaternion();
         let scale = new THREE.Vector3();
         matrix.decompose(position, quaternion, scale);
-        if (params.Temperature > 100 && face.length < lavaLevel + 1.5) {
+        if (params.Temperature > 100 && face.length < lavaLevel + 3) {
             position = new THREE.Vector3(0, 0, 0);
         } else if (face.length < snowLevel && face.length > sandLevel) {
             position = face.position;
@@ -217,15 +217,13 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
         let seabedLevel = utils.getSeabedLevel();
         let seaLevel = utils.getSeaLevel();
         let lavaLevel = utils.getLavaLevel();
-        console.log(lavaLevel);
-        console.log(geometry.faces[0].length);
         for (let face of geometry.faces) {
             terrain.calculateFaceValues(face);
             let forest = simplex.noise3d(
                 face.position.x * params.ForestDensity,
                 face.position.y * params.ForestDensity,
                 face.position.z * params.ForestDensity);
-            terrain.calculateFaceColors(face, snowLevel, sandLevel, seabedLevel, forest);
+            terrain.calculateFaceColors(face, snowLevel, sandLevel, seabedLevel, lavaLevel, forest);
             if (face.hasTree === true) {
                 terrain.updateTree(face, snowLevel, sandLevel, seaLevel, lavaLevel);
             }
@@ -257,7 +255,6 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
             for (let object of intersects) {
                 if (object.object.name === "Terrain") {
                     let terrainGeometry = object.object.geometry;
-                    console.log(object);
                     let face = terrainGeometry.faces[object.faceIndex];
 
                     function movePoint(vertex, amount) {
@@ -287,7 +284,6 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
 
                     terrainGeometry.verticesNeedUpdate = true;
                     terrain.update();
-                    console.log(object);
                 }
             }
         }

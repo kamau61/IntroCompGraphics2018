@@ -11,7 +11,6 @@ PLANET.planet.Planet = function(bufferGeometry, lavaGeometry) {
     this.add(this.terrain);
     this.lava = PLANET.lava.Lava(lavaGeometry);
     this.add(this.lava);
-
     this.climate = PLANET.climate.Climate();
     this.animate = function () {
         this.terrain.animate();
@@ -25,6 +24,7 @@ PLANET.planet.Planet = function(bufferGeometry, lavaGeometry) {
         this.terrain.update();
         this.ocean.update();
     };
+    this.update(false);
 };
 
 PLANET.planet.Planet.prototype = Object.create(THREE.Object3D.prototype);

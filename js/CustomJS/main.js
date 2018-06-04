@@ -6,29 +6,17 @@ let scene, camera, renderer, light, canvas, gui, simplex, timer, manager, color,
 
 const CONSTANTS = {
     OPT_TEMP: 25.5,
-    OPT_RANGE: 4.5,
     FREEZE_POINT: -10,
     BOIL_POINT: 100,
     LAVA_POINT: 200
 };
 let params = {
     PlanetRadius: 100,
-    PlanetDetail: 6,
-    PlanetWireframe: false,
-    PlanetFlatShading: true,
-    PlanetRotationY: 0,
-    SnowColor: 0xEEEEEE, //snow
-    MountainColor: 0x594C3A,
-    TerrainColor: 0x6B8E23, //olivedrab
-    ForestColor: 0x456800,
-    BeachColor: 0xF4A460, //sandybrown
-    CoralColor: 0x4682B4, //steelblue
-    WaterColor: 0x4682B4, //steelblue
-    WaterLevel: 100,
+    PlanetDetail: 7,
 
     //params regarding temperature
     Temperature: 25.5,
-    // ReactionRate: 0.2,
+
     Color: 0,
 
     //params regarding terrain generation
@@ -41,13 +29,12 @@ let params = {
     SandLevel: 10,//10% of height above water
     SeaLevel: 50,//50% of terrain displacement
     LavaLevel: 0,//0% of terrain displacement
-
-    //params regarding forest
-    TreeScale: 0.01, //TODO bind this with planet detail
     TreeSpread: -0.5,//0.6, //less the number, wider each forest, -1/+1
     GrassSpread: -0.5,//0, //less the number, wider each grassland, -1/+1
     ForestDensity: 0.3, //more the number, more forests, 0.1/0.3
 
+    //params regarding tree models
+    TreeScale: 0.01,
     TreeCount: 5000,
 
     //params regarding ocean
@@ -57,9 +44,6 @@ let params = {
     WaveHeight: 0.05,
 
     CameraMax: 2,
-    ZoomSpeed: 1,
-    RotateSpeed: 2,
-    PanSpeed: 10
 };
 
 let colors = colorSchemes[0];
@@ -120,7 +104,6 @@ PLANET.main.loadModels = function () {
         let loadingScreen = document.getElementById('loading-screen');
         loadingScreen.classList.add('fade-out');
         loadingScreen.addEventListener('transitionend', onTransitionEnd);
-        console.log(scene);
     };
 
     manager.onProgress = function (url, itemsLoaded, itemsTotal) {
@@ -141,7 +124,6 @@ PLANET.main.loadModels = function () {
     });
 
     fbxLoader.load('Resources/models/trees.fbx', function (object) {
-        console.log(object);
         object.traverse(function (child) {
             if (child.isMesh) {
                 for (let material of child.material) {

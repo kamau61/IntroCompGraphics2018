@@ -44,7 +44,7 @@ PLANET.ocean.Ocean = function (bufferGeometry) {
         material.color.setHex(colors.SeaColor);
         material.opacity = params.WaterOpacity / 100;
         material.needsUpdate = true;
-
+        geometry.colorsNeedUpdate = true;
     };
     return ocean;
 };

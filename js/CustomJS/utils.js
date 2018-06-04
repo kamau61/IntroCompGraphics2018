@@ -10,13 +10,6 @@ PLANET.utils = function () {
         return b1 + (x - a1) * (b2 - b1) / (a2 - a1);
     };
 
-    this.Z_AXIS = new THREE.Vector3(0, 0, 1);
-    this.alignOnFace = function (object, face, scale) {
-        object.quaternion.setFromUnitVectors(this.Z_AXIS, face.position.clone().normalize());
-        object.scale.set(scale, scale, scale);
-        object.position.set(face.position.x, face.position.y, face.position.z);
-    };
-
     this.getPeakLevel = function () {
         return params.PlanetRadius * (1 + params.TerrainDisplacement / 100);
     };

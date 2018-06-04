@@ -1,57 +1,57 @@
 window.PLANET = window.PLANET || {};
 PLANET.flyControls = PLANET.flyControls || {};
 
-PLANET.flyControls.FlyControls = function (camara) {
+PLANET.flyControls.FlyControls = function (camera) {
     camera.rotation.set(0, 0, 0);
     camera.position.set(0, 0, 0);
     camera.lookAt(0, 0, 1);
 
-  	var holder = new THREE.Object3D();
+  	let holder = new THREE.Object3D();
   	holder.add( camera );
 
     //Some preset values;
-  	var PI_2 = Math.PI/2;
-    var DEG1 = Math.PI/180;
-    var dirLeft = new THREE.Vector3(-1, 0, 0);
-    var dirUp = new THREE.Vector3(0, 1, 0);
-    var dirFront = new THREE.Vector3(0, 0, 1);
+  	const PI_2 = Math.PI/2;
+    const DEG1 = Math.PI/180;
+    const dirLeft = new THREE.Vector3(-1, 0, 0);
+    const dirUp = new THREE.Vector3(0, 1, 0);
+    const dirFront = new THREE.Vector3(0, 0, 1);
 
-    var nearGround = false;   //If it's on minimum distance.
-    var flyMode = false;      //If it's on self control mode. For demonstrate use.
-    var freeControl = false;  //If it's on free control mode.
+    let nearGround = false;   //If it's on minimum distance.
+    let flyMode = false;      //If it's on self control mode. For demonstrate use.
+    let freeControl = false;  //If it's on free control mode.
 
     //All different direction controls
-    var moveForward = false;
-    var moveBackward = false;
-    var moveLeft = false;
-    var moveRight = false;
-    var moveUp = false;
-    var moveDown = false;
-    var headUp = false;
-    var headDown = false;
-    var turnLeft = false;
-    var turnRight = false;
-    var rollLeft = false;
-    var rollRight = false;
+    let moveForward = false;
+    let moveBackward = false;
+    let moveLeft = false;
+    let moveRight = false;
+    let moveUp = false;
+    let moveDown = false;
+    let headUp = false;
+    let headDown = false;
+    let turnLeft = false;
+    let turnRight = false;
+    let rollLeft = false;
+    let rollRight = false;
 
-    //Some variables for flymode.
-    var facingTo = new THREE.Vector3();
-    var velocity = new THREE.Vector3();
-    var velocityNew = new THREE.Vector3();
-    var facingPoint = new THREE.Vector3();
-    var facingTarget = new THREE.Vector3();
-    var movingTarget = new THREE.Vector3();
-    var flySpeed = 1;
+    //Some letiables for flymode.
+    let facingTo = new THREE.Vector3();
+    let velocity = new THREE.Vector3();
+    let velocityNew = new THREE.Vector3();
+    let facingPoint = new THREE.Vector3();
+    let facingTarget = new THREE.Vector3();
+    let movingTarget = new THREE.Vector3();
+    let flySpeed = 1;
 
-    var height = params.PlanetRadius * params.CameraMax;
-    var currentHeight = height;
-    var tiltedAngle = 0;
+    let height = params.PlanetRadius * params.CameraMax;
+    let currentHeight = height;
+    let tiltedAngle = 0;
 
-    //Some temporary variables to be reuse.
+    //Some temporary letiables to be reuse.
     //I'm not sure if keep creating new Vector3 would be slower than reusing a exist value.
-    var tempVector = new THREE.Vector3();
-    var tempVector2 = new THREE.Vector3();
-    var tempObj = new THREE.Object3D();
+    let tempVector = new THREE.Vector3();
+    let tempVector2 = new THREE.Vector3();
+    let tempObj = new THREE.Object3D();
 
     this.object = holder;             //The object that hold the camera.
     this.position = holder.position;  //Holder's position.
@@ -91,15 +91,15 @@ PLANET.flyControls.FlyControls = function (camara) {
     //Set camara's angle to x, 0 when camera looks at (0, 0, 0), PI/2 when camera looks at tangent direction.
     function rotateHolderXTo(x){
       holder.getWorldDirection(tempVector);
-      var ang = holder.position.angleTo(tempVector);
+      let ang = holder.position.angleTo(tempVector);
       ang = Math.PI - ang;
-      var myLeft = dirLeft.clone();
+      let myLeft = dirLeft.clone();
       directionToWorld(holder, myLeft);
       holder.rotateOnWorldAxis(myLeft, x-ang);
     }
 
     //Key down event handler
-    var onKeyDown = function ( event ) {
+    let onKeyDown = function ( event ) {
       if (freeControl){
         switch ( event.keyCode ) {
           case 38:  moveForward = true; break;  // up
@@ -131,7 +131,7 @@ PLANET.flyControls.FlyControls = function (camara) {
     };
 
     //Key up event handler
-    var onKeyUp = function ( event ) {
+    let onKeyUp = function ( event ) {
       if (freeControl){
         switch( event.keyCode ) {
           case 38:  moveForward = false; break;  // up
@@ -176,10 +176,10 @@ PLANET.flyControls.FlyControls = function (camara) {
     function orbitTo(dirX, dirY, speed){
       if (dirX == 0 && dirY == 0) return;
 
-      var obLeft = dirLeft.clone();
+      let obLeft = dirLeft.clone();
       directionToWorld(holder, obLeft);
-      var obUp = holder.position.clone().normalize();
-      var obFront = new THREE.Vector3().crossVectors(obLeft, obUp).normalize();
+      let obUp = holder.position.clone().normalize();
+      let obFront = new THREE.Vector3().crossVectors(obLeft, obUp).normalize();
 
       if (dirX != 0){
         tempVector.copy(obFront);
@@ -220,13 +220,13 @@ PLANET.flyControls.FlyControls = function (camara) {
 
           currentHeight = holder.position.length();
           if (currentHeight <= this.minDistance + this.viewChangingDist && currentHeight > this.minDistance){
-            var movement = facingTo.clone().setLength(this.movingSpeed);
+            let movement = facingTo.clone().setLength(this.movingSpeed);
             holder.position.add(movement.multiplyScalar(Number(moveForward) - Number(moveBackward)));
 
-            var distPercent = (this.minDistance + this.viewChangingDist - currentHeight)/this.viewChangingDist;
-            var ag = distPercent*PI_2;
+            let distPercent = (this.minDistance + this.viewChangingDist - currentHeight)/this.viewChangingDist;
+            let ag = distPercent*PI_2;
             rotateHolderXTo(ag);
-            var ttAngle = distPercent*this.tiltToAngle;
+            let ttAngle = distPercent*this.tiltToAngle;
             tiltCameraTo(-ttAngle);
             if (facingTo.angleTo(holder.position) <= PI_2){
               nearGround = true;
@@ -243,9 +243,9 @@ PLANET.flyControls.FlyControls = function (camara) {
     };
 
     // function rotateToDirection(obj, from, to, isLocal){
-    //   var ang = from.angleTo(to);
+    //   let ang = from.angleTo(to);
     //   if (ang != 0){
-    //     var axis = new THREE.Vector3().crossVectors(from, to).normalize();
+    //     let axis = new THREE.Vector3().crossVectors(from, to).normalize();
     //     if (isLocal) obj.rotateOnAxis(axis, -ang);
     //     else obj.rotateOnWorldAxis(axis, -ang);
     //   }
@@ -253,18 +253,18 @@ PLANET.flyControls.FlyControls = function (camara) {
 
     //A random point around planet. Always move a quarter of planet.
     //Camera should not move under minDistance during movement.
-    var randomDest = function(vec, min, max){
+    let randomDest = function(vec, min, max){
       tempVector.set(Math.random()*2-1,Math.random()*2-1,Math.random()*2-1);
-      var randMin = min/Math.sin(Math.PI/4);
+      let randMin = min/Math.sin(Math.PI/4);
       vec.crossVectors(vec, tempVector).setLength((Math.random()*(max-randMin))+randMin);
     };
 
     //For looking points. Camera should always look at the planet.
-    var randomPos = function (position, height){
+    let randomPos = function (position, height){
       position.set(Math.random()*2-1,Math.random()*2-1,Math.random()*2-1).setLength(height);
     };
 
-    //Initialize variables before enter to fly mode.
+    //Initialize letiables before enter to fly mode.
     function initFlymode(){
       movingTarget.copy(holder.position);
       holder.getWorldDirection(tempVector2);
@@ -286,7 +286,7 @@ PLANET.flyControls.FlyControls = function (camara) {
         //Move from current point to movingTarget.
         velocity.multiplyScalar(0.9);
         velocityNew.copy(movingTarget.clone().sub(holder.position)).setLength(flySpeed);
-        var move = velocity.clone().add(velocityNew);
+        let move = velocity.clone().add(velocityNew);
         move.add(holder.position);
         if (move.length() < this.minDistance)
           move.setLength(this.minDistance);
