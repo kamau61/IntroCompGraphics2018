@@ -158,8 +158,6 @@ PLANET.lighting.animate = function () {
 
     quaternion.setFromAxisAngle(moonAxis, .01);
     moonSphere.position.applyQuaternion(quaternion);
-    // moonSphere.position.y = -0.75 * distance * Math.sin(r);
-    // moonSphere.position.z = -0.75 * distance * Math.cos(r);
 
 
 
