@@ -109,51 +109,26 @@ PLANET.lighting.Lighting = function () {
 
     };
 
-    function addShaders(){
-      var sunGlow = new THREE.Mesh(
-        new THREE.IcosahedronBufferGeometry( 500, 1 ),
-        new THREE.ShaderMaterial({
-          uniforms:
-          {
-            "c":   { type: "f", value: 0.5 },
-            "p":   { type: "f", value: 4.5 },
-            glowColor: { type: "c", value: new THREE.Color(0xffffff) },
-            viewVector: { type: "v3", value: camera.position }
-          },
-          vertexShader: [
-            'uniform vec3 viewVector;',
-            'uniform float c;',
-            'uniform float p;',
-            'varying float intensity;',
-            'void main() ',
-            '{',
-              'vec3 vNormal = normalize( normalMatrix * normal );',
-	            'vec3 vNormel = normalize( normalMatrix * viewVector );',
-	            'intensity = pow( c - dot(vNormal, vNormel), p );',
+    function addGlows(){
+      var sunMaterial = new THREE.SpriteMaterial({
+		      map: new THREE.ImageUtils.loadTexture( 'Resources/img/glow.png' ),
+	        useScreenCoordinates: false, color: 0xffff00, transparent: false, blending: THREE.AdditiveBlending
+	    });
+	    var sunGlow = new THREE.Sprite( sunMaterial );
+	    sunGlow.scale.set(3000, 1500, 1.0);
+	    sunSphere.add(sunGlow);
 
-              'gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );',
-            '}',
-          ].join('\n'),
-          fragmentShader: [
-            'uniform vec3 glowColor;',
-            'varying float intensity;',
-            'void main() ',
-            '{',
-	             'vec3 glow = glowColor * intensity;',
-               'gl_FragColor = vec4( glow, 1.0 );',
-            '}',
-          ].join('\n'),
-          side: THREE.BackSide,
-          blending: THREE.AdditiveBlending,
-          transparent: true
-        })
-      )
-      sunGlow.scale.multiplyScalar(1.5);
-      sunSphere.add( sunGlow );
-    };
+      var moonMaterial = new THREE.SpriteMaterial({
+		      map: new THREE.ImageUtils.loadTexture( 'Resources/img/glow.png' ),
+	        useScreenCoordinates: false, color: 0xffffff, transparent: false, blending: THREE.AdditiveBlending
+	    });
+	    var moonGlow = new THREE.Sprite( moonMaterial );
+	    moonGlow.scale.set(1000, 500, 1.0);
+      moonSphere.add(moonGlow);
+     };
 
     initSky();
-    addShaders();
+    addGlows();
     return this;
 };
 
