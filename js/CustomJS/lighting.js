@@ -7,6 +7,12 @@ var starLight = new THREE.AmbientLight(0x7f7f7f, 0.2);
 var stars = [];
 var clock = new THREE.Clock();
 var distance = 10000;
+var starRotation = 0;
+
+sunLight.shadow = new THREE.LightShadow(new THREE.PerspectiveCamera(100, 1));
+sunLight.shadow.mapSize.width = 512;
+sunLight.shadow.mapSize.height = 512;
+sunLight.castShadow = true;
 
 var effectController  = {
   turbidity: 1,
@@ -38,11 +44,6 @@ PLANET.lighting.update = function () {
 	uniforms.sunPosition.value.copy( sunSphere.position );
 };
 
-sunLight.shadow = new THREE.LightShadow(new THREE.PerspectiveCamera(100, 1));
-sunLight.shadow.mapSize.width = 512;
-sunLight.shadow.mapSize.height = 512;
-sunLight.castShadow = true;
-
 PLANET.lighting.Lighting = function () {
     THREE.Object3D.call(this);
 
@@ -61,15 +62,6 @@ PLANET.lighting.Lighting = function () {
 					new THREE.MeshBasicMaterial( { color: 0xeeeeee } )
 				);
 
-        sunSphere.add(sunLight);
-        moonSphere.add(moonLight);
-        scene.add(sunSphere);
-        scene.add(moonSphere);
-        scene.add(starLight);
-
-    };
-
-    function addStars(){
         var mergedGeometry = new THREE.Geometry();
 				for ( var i = -distance*2; i < distance*2; i+=150 ) {
 					var geometry = new THREE.SphereGeometry( 50, 1 );
@@ -105,40 +97,63 @@ PLANET.lighting.Lighting = function () {
 
           geometry.translate(x, y, z);
 					mergedGeometry.merge(geometry);
-					//stars.push(star);
-				}
-        var star = new THREE.Mesh(mergedGeometry, material);
-        scene.add(star);
-	  }
+        };
+        var starField = new THREE.Mesh(mergedGeometry, material);
 
-    /*function addShaders(){
+        sunSphere.add(sunLight);
+        moonSphere.add(moonLight);
+        scene.add(starField);
+        scene.add(sunSphere);
+        scene.add(moonSphere);
+        scene.add(starLight);
+
+    };
+
+    function addShaders(){
       var sunGlow = new THREE.Mesh(
         new THREE.IcosahedronBufferGeometry( 500, 1 ),
         new THREE.ShaderMaterial({
           uniforms:
           {
-            "c":   { type: "f", value: 1.0 },
-            "p":   { type: "f", value: 1.4 },
-            glowColor: { type: "c", value: new THREE.Color(0xffff00) },
+            "c":   { type: "f", value: 0.5 },
+            "p":   { type: "f", value: 4.5 },
+            glowColor: { type: "c", value: new THREE.Color(0xffffff) },
             viewVector: { type: "v3", value: camera.position }
           },
-          vertexShader: document.getElementById( 'vertexShader' ).textContent,
-          fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
-          side: THREE.FrontSide,
+          vertexShader: [
+            'uniform vec3 viewVector;',
+            'uniform float c;',
+            'uniform float p;',
+            'varying float intensity;',
+            'void main() ',
+            '{',
+              'vec3 vNormal = normalize( normalMatrix * normal );',
+	            'vec3 vNormel = normalize( normalMatrix * viewVector );',
+	            'intensity = pow( c - dot(vNormal, vNormel), p );',
+
+              'gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );',
+            '}',
+          ].join('\n'),
+          fragmentShader: [
+            'uniform vec3 glowColor;',
+            'varying float intensity;',
+            'void main() ',
+            '{',
+	             'vec3 glow = glowColor * intensity;',
+               'gl_FragColor = vec4( glow, 1.0 );',
+            '}',
+          ].join('\n'),
+          side: THREE.BackSide,
           blending: THREE.AdditiveBlending,
           transparent: true
         })
       )
-      sunGlow.position = sunSphere.position;
-      sunGlow.scale.multiplyScalar(1.2);
-      scene.add( sunGlow );
-    };*/
-
-
+      sunGlow.scale.multiplyScalar(1.5);
+      sunSphere.add( sunGlow );
+    };
 
     initSky();
-    addStars();
-    //addShaders();
+    addShaders();
     return this;
 };
 
@@ -165,5 +180,7 @@ PLANET.lighting.animate = function () {
     star.position.x =  distance*20/i * Math.sin( r + i );
     star.position.z =  distance*20/i * Math.cos( r + i );
   }*/
+  starRotation += 1;
+  //starField.rotateOnAxis(0, 0, 0, starRotation);
   PLANET.lighting.update();
 };
