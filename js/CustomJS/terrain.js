@@ -164,21 +164,23 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
     treeMesh.frustumCulled = false;
     terrain.add(treeMesh);
 
-    terrain.updateTree = function (face, snowLevel, sandLevel, seaLevel) {
+    terrain.updateTree = function (face, snowLevel, sandLevel, seaLevel, lavaLevel) {
         let matrix = terrain.getTreeMatrix(face);
         let position = new THREE.Vector3();
         let quaternion = new THREE.Quaternion();
         let scale = new THREE.Vector3();
         matrix.decompose(position, quaternion, scale);
-        if (face.length < snowLevel && face.length > sandLevel) {
+        if (params.Temperature > 100 && face.length < lavaLevel + 1.5) {
+            position = new THREE.Vector3(0, 0, 0);
+        } else if (face.length < snowLevel && face.length > sandLevel) {
             position = face.position;
             quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), face.position.clone().normalize());
             treeMesh.geometry.attributes.alpha.setX(face.treeIndex, 1.0);
-        } else if (face.length > snowLevel || (face.length < sandLevel && face.length > seaLevel)){
+        } else if (face.length > snowLevel || (face.length < sandLevel && face.length > seaLevel)) {
             position = face.position;
             quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), face.position.clone().normalize());
             treeMesh.geometry.attributes.alpha.setX(face.treeIndex, 0.0);
-        }  else {
+        } else {
             position = new THREE.Vector3(0, 0, 0);
         }
         matrix.compose(position, quaternion, scale);
@@ -214,6 +216,9 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
         let sandLevel = utils.getSandLevel();
         let seabedLevel = utils.getSeabedLevel();
         let seaLevel = utils.getSeaLevel();
+        let lavaLevel = utils.getLavaLevel();
+        console.log(lavaLevel);
+        console.log(geometry.faces[0].length);
         for (let face of geometry.faces) {
             terrain.calculateFaceValues(face);
             let forest = simplex.noise3d(
@@ -222,7 +227,7 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
                 face.position.z * params.ForestDensity);
             terrain.calculateFaceColors(face, snowLevel, sandLevel, seabedLevel, forest);
             if (face.hasTree === true) {
-                terrain.updateTree(face, snowLevel, sandLevel, seaLevel);
+                terrain.updateTree(face, snowLevel, sandLevel, seaLevel, lavaLevel);
             }
         }
         mat[0].uniforms.color.value.setHex(colors.TrunkColor);

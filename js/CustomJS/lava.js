@@ -1,9 +1,9 @@
 window.PLANET = window.PLANET || {};
 PLANET.lava = PLANET.lava || {};
 
-PLANET.lava.Lava = function () {
+PLANET.lava.Lava = function (bufferGeometry) {
     let level = utils.getLavaLevel();
-    let geometry = new THREE.IcosahedronGeometry(params.PlanetRadius, 4);
+    // let geometry = new THREE.IcosahedronGeometry(params.PlanetRadius, 1);
     let material = new THREE.ShaderMaterial({
         uniforms: {
             time: {
@@ -124,14 +124,15 @@ PLANET.lava.Lava = function () {
             '}'
         ].join('\n')
     });
-    let lava = new THREE.Mesh(geometry, material);
+    let lava = new THREE.Mesh(bufferGeometry, material);
     lava.castShadow = true;
     lava.receiveShadow = true;
     lava.name = "Lava";
+    lava.frustumCulled = false;
     lava.animate = function () {
         if (params.LavaLevel > 0) {
             material.uniforms['level'].value = utils.getLavaLevel();
-            material.uniforms['time'].value = timer * .1;
+            material.uniforms['time'].value = timer * .01;
         }
     };
     lava.update = function () {
