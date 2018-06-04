@@ -28,6 +28,7 @@ PLANET.debug.Debug = function () {
         },
         defaultLevels: function () {
             planet.climate.set(25.5);
+            params.Temperature = 25.5;
         },
         randomColor: function () {
             params.Color = Math.floor(Math.random() * colorSchemes.length);
