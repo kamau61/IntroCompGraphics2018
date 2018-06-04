@@ -13,7 +13,7 @@ const CONSTANTS = {
 };
 let params = {
     PlanetRadius: 100,
-    PlanetDetail: 8,
+    PlanetDetail: 6,
     PlanetWireframe: false,
     PlanetFlatShading: true,
     PlanetRotationY: 0,
@@ -132,15 +132,15 @@ PLANET.main.loadModels = function () {
     let lavaGeometry;
     let fbxLoader = new THREE.FBXLoader(manager);
 
-    plyLoader.load('res/models/sphere-' + params.PlanetDetail + '.ply', function (bufferGeometry) {
+    plyLoader.load('Resources/models/sphere-' + params.PlanetDetail + '.ply', function (bufferGeometry) {
         planetGeometry = bufferGeometry;
     });
 
-    plyLoader.load('res/models/sphere-6.ply', function (bufferGeometry) {
+    plyLoader.load('Resources/models/sphere-6.ply', function (bufferGeometry) {
         lavaGeometry = bufferGeometry;
     });
 
-    fbxLoader.load('res/models/trees.fbx', function (object) {
+    fbxLoader.load('Resources/models/trees.fbx', function (object) {
         console.log(object);
         object.traverse(function (child) {
             if (child.isMesh) {
