@@ -100,6 +100,8 @@ PLANET.main.loadModels = function () {
         planet.castShadow = true;
         planet.receiveShadow = true;
         document.addEventListener('mousedown', planet.terrain.modifyTerrain, false);
+        document.addEventListener('mousemove', planet.terrain.onMouseMove, false);
+        document.addEventListener('mouseup', planet.terrain.onMouseUp, false);
         PLANET.debug.Debug();
         let loadingScreen = document.getElementById('loading-screen');
         loadingScreen.classList.add('fade-out');
