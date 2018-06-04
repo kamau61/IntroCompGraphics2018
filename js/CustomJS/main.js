@@ -12,7 +12,7 @@ const CONSTANTS = {
 };
 let params = {
     PlanetRadius: 100,
-    PlanetDetail: 7,
+    PlanetDetail: 6,
 
     //params regarding temperature
     Temperature: 25.5,
@@ -44,6 +44,8 @@ let params = {
     WaveHeight: 0.05,
 
     CameraMax: 2,
+
+    BrushSize: 2,
 };
 
 let colors = colorSchemes[0];

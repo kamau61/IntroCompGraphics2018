@@ -163,7 +163,6 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
     };
 
 
-
     terrain.updateTree = function (face, snowLevel, sandLevel, seaLevel, lavaLevel) {
         let matrix = terrain.getTreeMatrix(face);
         let position = new THREE.Vector3();
@@ -244,10 +243,9 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
     };
 
     let draging = false;
-    let terrainGeo = null;
-    let v1, v2, v3;
     let dragPos = new THREE.Vector2;
     let currentMouse = new THREE.Vector2;
+    let vertices = new Set();
 
     function movePoint(vertex, amount) {
         let direction = vertex.clone().normalize();
@@ -260,9 +258,17 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
     }
 
     function moveFace(amount) {
-      movePoint(v1, amount);
-      movePoint(v2, amount);
-      movePoint(v3, amount);
+        let count = 0;
+        let interval = 3;
+        vertices.forEach(vert => {
+            movePoint(vert, amount);
+            count++;
+            if (count === interval) {
+                amount = amount * Math.cos(utils.map((interval-3)/6, 0, params.BrushSize, 0, Math.PI/2));
+                interval += 6;
+                count = 0;
+            }
+        })
     }
 
     terrain.modifyTerrain = function (event) {
@@ -282,22 +288,16 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
                     switch (event.button) {
                         case 0: // left
                             draging = true;
-                            terrainGeo = terrainGeometry;
                             dragPos.copy(mouse);
                             currentMouse.copy(mouse);
-                            v1 = terrainGeometry.vertices[face.a];
-                            v2 = terrainGeometry.vertices[face.b];
-                            v3 = terrainGeometry.vertices[face.c];
-                            // movePoint(terrainGeometry.vertices[face.a], 0.5);
-                            // movePoint(terrainGeometry.vertices[face.b], 0.5);
-                            // movePoint(terrainGeometry.vertices[face.c], 0.5);
+                            vertices.add(terrainGeometry.vertices[face.a]);
+                            vertices.add(terrainGeometry.vertices[face.b]);
+                            vertices.add(terrainGeometry.vertices[face.c]);
+                            terrain.getNeighbours(params.BrushSize);
                             break;
                         case 1: // middle
                             break;
                         case 2: // right
-                            // movePoint(terrainGeometry.vertices[face.a], -0.5);
-                            // movePoint(terrainGeometry.vertices[face.b], -0.5);
-                            // movePoint(terrainGeometry.vertices[face.c], -0.5);
                             break;
                     }
 
@@ -308,24 +308,46 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
         }
     };
 
+    terrain.getNeighbours = function (brushSize) {
+        for (let i = 1; i < brushSize; i++) {
+            let vertIndex = [];
+            vertices.forEach(vert =>
+                vertIndex.push(terrain.geometry.vertices.indexOf(vert)));
+            for (let face of geometry.faces) {
+                if (vertices.size > vertIndex + 6) {
+                    break;
+                } else {
+                    if (vertIndex.includes(face.a) || vertIndex.includes(face.b) || vertIndex.includes(face.c)) {
+                        vertices.add(terrain.geometry.vertices[face.a]);
+                        vertices.add(terrain.geometry.vertices[face.b]);
+                        vertices.add(terrain.geometry.vertices[face.c]);
+                    }
+                }
+            }
+        }
+    };
+
     terrain.onMouseDown = function (event) {
 
     };
 
     terrain.onMouseMove = function (event) {
-      if (!draging) return;
-      currentMouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
-      let moveMentY = currentMouse.y - dragPos.y;
+        if (!draging) {
+            return;
+        }
+        currentMouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
+        let movementY = currentMouse.y - dragPos.y;
 
-      let currentHeight = controls.object.position.length() - params.PlanetRadius;
-      moveFace(moveMentY*currentHeight);
-      dragPos.copy(currentMouse);
-      terrainGeo.verticesNeedUpdate = true;
-      terrain.update();
+        let currentHeight = controls.object.position.length() - params.PlanetRadius;
+        moveFace(movementY * currentHeight);
+        dragPos.copy(currentMouse);
+        terrain.geometry.verticesNeedUpdate = true;
+        terrain.update();
     };
 
     terrain.onMouseUp = function (event) {
-      draging = false;
+        draging = false;
+        vertices.clear();
     };
 
     terrain.generate();
