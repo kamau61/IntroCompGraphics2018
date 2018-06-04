@@ -153,7 +153,7 @@ PLANET.lighting.animate = function () {
         starLight.intensity = 1;
     }
 
-    moonSphere.position.x = -0.75 * distance * Math.sin(r);
+    moonSphere.position.y = -0.75 * distance * Math.sin(r);
     moonSphere.position.z = -0.75 * distance * Math.cos(r);
 
     if (timer % 1000) {
