@@ -2,7 +2,7 @@ window.PLANET = window.PLANET || {};
 PLANET.main = PLANET.main || {};
 
 //variables that need global access
-let scene, camera, renderer, light, canvas, gui, simplex, timer, manager, color, utils, raycaster,controls;
+let scene, camera, renderer, light, canvas, gui, simplex, timer, manager, color, utils, raycaster, controls;
 
 const CONSTANTS = {
     OPT_TEMP: 25.5,
@@ -61,12 +61,13 @@ let axis = new THREE.Vector3(1, 0, 0);
 PLANET.main.main = function () {
     timer = 0;
     utils = new PLANET.utils();
+    params.Color = Math.floor(Math.random() * colorSchemes.length);
     colors = colorSchemes[params.Color];
     //init scene
     scene = new THREE.Scene();
     PLANET.main.loadModels();
     renderer = new THREE.WebGLRenderer();
-    renderer.setPixelRatio( window.devicePixelRatio );
+    renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     canvas = document.createElement('div');
     canvas.appendChild(renderer.domElement);
