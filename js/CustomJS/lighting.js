@@ -61,8 +61,8 @@ PLANET.lighting.Lighting = function () {
 
         let mergedGeometry = new THREE.Geometry();
         let geometry = new THREE.SphereGeometry(50, 1);
+        let material = new THREE.MeshBasicMaterial({color: Math.random() * 0xff00000 - 0xff00000});
         for (let i = -distance * 2; i < distance * 2; i += 150) {
-            let material = new THREE.MeshBasicMaterial({color: Math.random() * 0xff00000 - 0xff00000});
             let x = Math.random() * distance * 2 - distance;
             let y = i;
             let z = Math.random() * distance * 2 - distance;
