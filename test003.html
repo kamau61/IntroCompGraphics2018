@@ -154,7 +154,7 @@
                 '}'
             ].join('\n')
         });
-        geometry = new THREE.IcosahedronGeometry(size, 6);
+        geometry = new THREE.IcosahedronGeometry(size, 4);
         mesh = new THREE.Mesh(geometry, material);
         scene.add(mesh);
         renderer = new THREE.WebGLRenderer();

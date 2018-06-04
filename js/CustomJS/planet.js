@@ -9,11 +9,14 @@ PLANET.planet.Planet = function(bufferGeometry) {
     this.add(this.ocean);
     this.terrain = PLANET.terrain.Terrain(bufferGeometry);
     this.add(this.terrain);
+    this.lava = PLANET.lava.Lava();
+    this.add(this.lava);
 
     this.climate = PLANET.climate.Climate();
     this.animate = function () {
         this.terrain.animate();
         this.ocean.animate();
+        this.lava.animate();
     };
     this.update = function (rebuildTerrain) {
         if (rebuildTerrain === true){

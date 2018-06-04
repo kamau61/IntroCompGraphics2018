@@ -1,18 +1,18 @@
 window.PLANET = window.PLANET || {};
 PLANET.lava = PLANET.lava || {};
 
-PLANET.lava.Lava = function (bufferGeometry) {
-    let geometry = new THREE.Geometry();
-    geometry.fromBufferGeometry(bufferGeometry);
+PLANET.lava.Lava = function () {
+    let level = utils.getLavaLevel();
+    let geometry = new THREE.IcosahedronGeometry(params.PlanetRadius, 4);
     let material = new THREE.ShaderMaterial({
         uniforms: {
             time: {
                 type: 'f',
                 value: 0.0
             },
-            sealevel: {
+            level: {
                 type: 'f',
-                value: utils.getSeaLevel()
+                value: level
             }
         },
         vertexShader: [
@@ -100,11 +100,9 @@ PLANET.lava.Lava = function (bufferGeometry) {
             '}',
             'varying float noise;',
             'uniform float time;',
-            'uniform float sealevel;',
+            'uniform float level;',
             'float turbulence (vec3 p) {',
-            'float w = 100.;',
             'float t = -.5;',
-
             'for(float f = 1.; f <= 10.; f++) {',
             'float power = pow(2., f);',
             't += abs(pnoise(vec3(power * p), vec3(10.)) / power);',
@@ -112,10 +110,10 @@ PLANET.lava.Lava = function (bufferGeometry) {
             'return t;',
             '}',
             'void main() {',
-            'noise = 10. * -.1 * turbulence(.5 * normal + time);',
-            'float b = 5. * pnoise(.05 * position + vec3(2. + time), vec3(100.));',
+            'noise = -1. * turbulence(.5 * normal + time);',
+            'float b = 5. * pnoise(.05 * position + vec3(2. + time), vec3(level));',
             'float displacement = -noise + b;',
-            'vec3 newPosition = normal * (displacement + sealevel);',
+            'vec3 newPosition = normal * (displacement + level);',
             'gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.);',
             '}',
         ].join('\n'),
@@ -130,15 +128,10 @@ PLANET.lava.Lava = function (bufferGeometry) {
     lava.castShadow = true;
     lava.receiveShadow = true;
     lava.name = "Lava";
-    lava.frosen = false;
     lava.animate = function () {
-        if (params.SeaLevel > 0) {
-            if (params.Temperature > CONSTANTS.FREEZE_POINT) {
-                material.uniforms['sealevel'].value = utils.getSeaLevel();
-                material.uniforms['time'].value = timer;
-            } else if (!this.frozen) {
-                this.frozen = true;
-            }
+        if (params.LavaLevel > 0) {
+            material.uniforms['level'].value = utils.getLavaLevel();
+            material.uniforms['time'].value = timer * .1;
         }
     };
     lava.update = function () {

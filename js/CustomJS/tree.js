@@ -11,8 +11,10 @@ PLANET.tree.Tree = function () {
     tree.castShadow = true;
     tree.receiveShadow = true;
     tree.isAlive = true;
+    tree.colorScheme = params.Color;
 
     tree.update = function(face) {
+        tree.isAlive ? tree.live() : tree.die();
         utils.alignOnFace(tree, face, scale);
     };
 
