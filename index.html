@@ -140,18 +140,20 @@
 		precision highp float;
 		uniform mat4 modelViewMatrix;
         uniform mat4 projectionMatrix;
+        uniform vec3 color;
 
 		attribute vec3 position;
 		attribute vec3 mcol0;
 		attribute vec3 mcol1;
 		attribute vec3 mcol2;
 		attribute vec3 mcol3;
-        attribute vec3 color;
         attribute vec3 light;
+        attribute float alpha;
 
 	    varying vec3 vPosition;
 		varying vec3 vColor;
 		varying vec3 vLight;
+		varying float vAlpha;
 
 		void main()	{
 			mat4 matrix = mat4(
@@ -162,6 +164,7 @@
 			);
 			vec3 positionEye = (modelViewMatrix * matrix * vec4(position, 1.0)).xyz;
 			vColor = color;
+			vAlpha = alpha;
 			vLight = (modelViewMatrix * vec4(light, 1.0)).xyz;
 			vPosition = positionEye;
         	gl_Position = projectionMatrix * vec4(positionEye, 1.0);
@@ -172,17 +175,25 @@
         #define SHADER_NAME fragInstanced
 		#extension GL_OES_standard_derivatives : enable
 		precision highp float;
+		uniform vec3 color;
+		uniform int materialIndex;
+
 		varying vec3 vColor;
 		varying vec3 vPosition;
 		varying vec3 vLight;
+		varying float vAlpha;
 
 		void main()	{
-				vec3 fdx = dFdx(vPosition);
-				vec3 fdy = dFdy(vPosition);
-				vec3 normal = normalize(cross(fdx, fdy));
-				vec3 light = normalize(vLight);
-                float gray = dot(light,normal);
-				gl_FragColor = vec4(gray * vColor, 1.0);
+		    if (vAlpha < 0.1 && materialIndex == 1) {
+		        discard; //Discard invisible fragments
+		    }
+            vec3 fdx = dFdx(vPosition);
+            vec3 fdy = dFdy(vPosition);
+            vec3 normal = normalize(cross(fdx, fdy));
+            vec3 light = normalize(vLight);
+            float gray = dot(light,normal);
+            gl_FragColor = vec4(gray * color, 1.0);
+            gl_FragColor.a = vAlpha;
 		}
 	</script>
 

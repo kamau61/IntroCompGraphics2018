@@ -19,8 +19,8 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
     let mcol1 = new THREE.InstancedBufferAttribute(new Float32Array(params.TreeCount * 3), 3, 1);
     let mcol2 = new THREE.InstancedBufferAttribute(new Float32Array(params.TreeCount * 3), 3, 1);
     let mcol3 = new THREE.InstancedBufferAttribute(new Float32Array(params.TreeCount * 3), 3, 1);
-    let treeColors = new THREE.InstancedBufferAttribute(new Float32Array(params.TreeCount * 3), 3, 1);
     let treeLights = new THREE.InstancedBufferAttribute(new Float32Array(params.TreeCount * 3), 3, 1);
+    let treeAlpha = new THREE.InstancedBufferAttribute(new Float32Array(params.TreeCount), 1, 1);
 
     let treeCount = 0;
 
@@ -84,11 +84,9 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
         mcol2.setXYZ(treeCount, me[8], me[9], me[10]);
         mcol3.setXYZ(treeCount, me[12], me[13], me[14]);
 
-        let color = new THREE.Color();
-        color.setHex(colorSchemes[params.Color].LeafColor);
-        treeColors.setXYZ(treeCount, color.r, color.g, color.b);
-
         treeLights.setXYZ(treeCount, sunSphere.position.x, sunSphere.position.y, sunSphere.position.z);
+
+        treeAlpha.setX(treeCount, 1.0);
 
         face.treeIndex = treeCount;
 
@@ -105,7 +103,7 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
         position.z = facePos.z;
         quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), facePos.clone().normalize());
 
-        scale.x = scale.y = scale.z = params.TreeScale * (Math.random() * (1 - 0.5 + 1) + 0.5);
+        scale.x = scale.y = scale.z = params.TreeScale * (Math.random() * (3 - 0.5 + 1) + 0.5);
         matrix.compose(position, quaternion, scale);
         return matrix;
     };
@@ -132,24 +130,41 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
         return matrix;
     };
 
-    let mat = new THREE.RawShaderMaterial({
-        uniforms: {},
-        vertexShader: document.getElementById('vertInstanced').textContent,
-        fragmentShader: document.getElementById('fragInstanced').textContent,
-        transparent: false
-    });
+    let mat = [
+        new THREE.RawShaderMaterial({
+            uniforms: {
+                "color": {type: "3f", value: new THREE.Color()},
+                "materialIndex": {type: "i", value: 0}
+            },
+            vertexShader: document.getElementById('vertInstanced').textContent,
+            fragmentShader: document.getElementById('fragInstanced').textContent,
+            transparent: false
+        }),
+        new THREE.RawShaderMaterial({
+            uniforms: {
+                "color": {type: "3f", value: new THREE.Color()},
+                "materialIndex": {type: "i", value: 1}
+            },
+            vertexShader: document.getElementById('vertInstanced').textContent,
+            fragmentShader: document.getElementById('fragInstanced').textContent,
+            transparent: true
+        })
+    ];
+    console.log(mat);
+    mat[0].uniforms.color.value.setHex(colors.TrunkColor);
+    mat[1].uniforms.color.value.setHex(colors.LeafColor);
     treeGeo.addAttribute('mcol0', mcol0);
     treeGeo.addAttribute('mcol1', mcol1);
     treeGeo.addAttribute('mcol2', mcol2);
     treeGeo.addAttribute('mcol3', mcol3);
-    treeGeo.addAttribute('color', treeColors);
     treeGeo.addAttribute('light', treeLights);
+    treeGeo.addAttribute('alpha', treeAlpha);
     console.log(treeGeo);
     let treeMesh = new THREE.Mesh(treeGeo, mat);
     treeMesh.frustumCulled = false;
     terrain.add(treeMesh);
 
-    terrain.updateTree = function (face, snowLevel, sandLevel) {
+    terrain.updateTree = function (face, snowLevel, sandLevel, seaLevel) {
         let matrix = terrain.getTreeMatrix(face);
         let position = new THREE.Vector3();
         let quaternion = new THREE.Quaternion();
@@ -158,7 +173,12 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
         if (face.length < snowLevel && face.length > sandLevel) {
             position = face.position;
             quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), face.position.clone().normalize());
-        } else {
+            treeMesh.geometry.attributes.alpha.setX(face.treeIndex, 1.0);
+        } else if (face.length > snowLevel || (face.length < sandLevel && face.length > seaLevel)){
+            position = face.position;
+            quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), face.position.clone().normalize());
+            treeMesh.geometry.attributes.alpha.setX(face.treeIndex, 0.0);
+        }  else {
             position = new THREE.Vector3(0, 0, 0);
         }
         matrix.compose(position, quaternion, scale);
@@ -171,8 +191,7 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
         treeMesh.geometry.attributes.mcol1.needsUpdate = true;
         treeMesh.geometry.attributes.mcol2.needsUpdate = true;
         treeMesh.geometry.attributes.mcol3.needsUpdate = true;
-
-        // face.color.setHex(0xff0000);
+        treeMesh.geometry.attributes.alpha.needsUpdate = true;
     };
 
     terrain.generate = function () {
@@ -194,6 +213,7 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
         let snowLevel = utils.getSnowLevel();
         let sandLevel = utils.getSandLevel();
         let seabedLevel = utils.getSeabedLevel();
+        let seaLevel = utils.getSeaLevel();
         for (let face of geometry.faces) {
             terrain.calculateFaceValues(face);
             let forest = simplex.noise3d(
@@ -202,10 +222,14 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
                 face.position.z * params.ForestDensity);
             terrain.calculateFaceColors(face, snowLevel, sandLevel, seabedLevel, forest);
             if (face.hasTree === true) {
-                terrain.updateTree(face, snowLevel, sandLevel);
+                terrain.updateTree(face, snowLevel, sandLevel, seaLevel);
             }
         }
+        mat[0].uniforms.color.value.setHex(colors.TrunkColor);
+        mat[1].uniforms.color.value.setHex(colors.LeafColor);
+        mat.colorsNeedUpdate = true;
         geometry.colorsNeedUpdate = true;
+        treeMesh.colorsNeedUpdate = true;
 
     };
 
@@ -266,4 +290,5 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
 
     terrain.generate();
     return terrain;
-};
+}
+;
