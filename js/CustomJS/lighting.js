@@ -3,10 +3,12 @@ PLANET.lighting = PLANET.lighting || {};
 
 let sunLight = new THREE.DirectionalLight(0xffffff, 1);
 let moonLight = new THREE.DirectionalLight(0xeeeeff, 0.2);
+let moonAxis = new THREE.Vector3(1, -0.6, 0).normalize();
 let starLight = new THREE.AmbientLight(0x7f7f7f, 0.2);
 let clock = new THREE.Clock();
 let distance = 10000;
 let starRotation = 0;
+let quaternion = new THREE.Quaternion();
 
 sunLight.shadow = new THREE.LightShadow(new THREE.PerspectiveCamera(100, 1));
 sunLight.shadow.mapSize.width = 512;
@@ -130,6 +132,7 @@ PLANET.lighting.Lighting = function () {
         });
         let moonGlow = new THREE.Sprite(moonMaterial);
         moonGlow.scale.set(1000, 500, 1.0);
+        moonSphere.position.setZ(distance);
         moonSphere.add(moonGlow);
     }
 
@@ -153,8 +156,12 @@ PLANET.lighting.animate = function () {
         starLight.intensity = 1;
     }
 
-    moonSphere.position.y = -0.75 * distance * Math.sin(r);
-    moonSphere.position.z = -0.75 * distance * Math.cos(r);
+    quaternion.setFromAxisAngle(moonAxis, .01);
+    moonSphere.position.applyQuaternion(quaternion);
+    // moonSphere.position.y = -0.75 * distance * Math.sin(r);
+    // moonSphere.position.z = -0.75 * distance * Math.cos(r);
+
+
 
     if (timer % 1000) {
         starRotation += 0.0001;
