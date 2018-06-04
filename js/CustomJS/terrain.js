@@ -160,12 +160,10 @@ PLANET.terrain.modifyTerrain = function (event) {
 
     raycaster.setFromCamera(mouse, camera);
     let intersects = raycaster.intersectObjects(scene.children, true);
-    console.log(intersects);
     if (intersects.length > 0) {
         for (let object of intersects) {
             if (object.object.name === "Terrain") {
                 let terrainGeometry = object.object.geometry;
-                console.log(object);
                 terrainGeometry.faces[object.faceIndex].color = new THREE.Color(1, 0, 0);
             }
         }
