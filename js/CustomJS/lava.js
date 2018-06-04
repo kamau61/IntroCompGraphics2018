@@ -3,7 +3,6 @@ PLANET.lava = PLANET.lava || {};
 
 PLANET.lava.Lava = function (bufferGeometry) {
     let level = utils.getLavaLevel();
-    // let geometry = new THREE.IcosahedronGeometry(params.PlanetRadius, 1);
     let material = new THREE.ShaderMaterial({
         uniforms: {
             time: {
