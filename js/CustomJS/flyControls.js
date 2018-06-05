@@ -58,7 +58,8 @@ PLANET.flyControls.FlyControls = function (camera) {
     this.movingSpeed = 1;            //Camera Moving speed.
     this.rotatingSpeed = 1;           //Camera rotating speed.
     this.tiltToAngle = DEG1 * 30;       //The angle that camera need to tilt when it's on ground.
-    this.minDistance = params.PlanetRadius * (1.1 + params.TerrainDisplacement / 100);  //The minimum distance of Camera to central of the planet.
+    // this.minDistance = params.PlanetRadius * (1.1 + params.TerrainDisplacement / 100);  //The minimum distance of Camera to central of the planet.
+    this.minDistance = utils.getPeakLevel();
     this.maxDistance = params.PlanetRadius * 4;     //The maximum distance of camera to central of the planet.
     this.viewChangingDist = params.PlanetRadius * 0.3;  //The distance that camera starts to change the angle when close to planet.
 
@@ -299,15 +300,25 @@ PLANET.flyControls.FlyControls = function (camera) {
 
                 currentHeight = holder.position.length();
                 if (currentHeight <= this.minDistance + this.viewChangingDist && currentHeight > this.minDistance) {
-                    let movement = facingTo.clone().setLength(this.movingSpeed);
-                    holder.position.add(movement.multiplyScalar(Number(moveForward) - Number(moveBackward)));
+                    let orbitalMovement = facingTo.clone().setLength(this.movingSpeed);
+                    holder.position.add(orbitalMovement.multiplyScalar(Number(moveForward) - Number(moveBackward)));
 
                     let distPercent = (this.minDistance + this.viewChangingDist - currentHeight) / this.viewChangingDist;
+
+                    let verticalCompensation = utils.map(distPercent, 0, 1, 0, this.movingSpeed);
+                    let verticalMovement = holder.position.clone().normalize().setLength(verticalCompensation);
+                    holder.position.add(verticalMovement.multiplyScalar(Number(moveBackward) - Number(moveForward)));
+
+                    if (holder.position.length() <= this.minDistance) distPercent = 1;
+
                     let ag = distPercent * PI_2;
                     rotateHolderXTo(ag);
                     let ttAngle = distPercent * this.tiltToAngle;
                     tiltCameraTo(-ttAngle);
-                    if (facingTo.angleTo(holder.position) <= PI_2) {
+                    // if (facingTo.angleTo(holder.position) <= PI_2) {
+                    // tedious checking and interestingly it doesn't match sometime even after rotateHolderXTo(PI_2)
+                    // seems like another logical problem here, Alex
+                    if (distPercent >= 1) {
                         nearGround = true;
                         turnLeft = moveLeft;
                         moveLeft = false;
