@@ -14,7 +14,7 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
     terrain.receiveShadow = true;
     terrain.frustumCulled = false;
 
-    let treeGeo = new THREE.InstancedBufferGeometry().copy(res.TreesGeometry[1]);
+    let treeGeo = new THREE.InstancedBufferGeometry().copy(res.TreesGeometry[Math.floor(Math.random() * res.TreesGeometry.length)]);
     let mcol0 = new THREE.InstancedBufferAttribute(new Float32Array(params.TreeCount * 3), 3, 1);
     let mcol1 = new THREE.InstancedBufferAttribute(new Float32Array(params.TreeCount * 3), 3, 1);
     let mcol2 = new THREE.InstancedBufferAttribute(new Float32Array(params.TreeCount * 3), 3, 1);
@@ -264,7 +264,7 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
             movePoint(vert, amount);
             count++;
             if (count === interval) {
-                amount = amount * Math.cos(utils.map((interval-3)/6, 0, params.BrushSize, 0, Math.PI/2));
+                amount = amount * Math.cos(utils.map((interval - 3) / 6, 0, params.BrushSize, 0, Math.PI / 2));
                 interval += 6;
                 count = 0;
             }

@@ -35,7 +35,7 @@ let params = {
 
     //params regarding tree models
     TreeScale: 0.01,
-    TreeCount: 5000,
+    TreeCount: 2000,
 
     //params regarding ocean
     WaterOpacity: 90,
