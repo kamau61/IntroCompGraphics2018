@@ -115,7 +115,7 @@ PLANET.lighting.Lighting = function () {
 
     function addGlows() {
         let sunMaterial = new THREE.SpriteMaterial({
-            map: new THREE.ImageUtils.loadTexture('Resources/img/glow.png'),
+            map: new THREE.ImageUtils.loadTexture('res/img/glow.png'),
             color: 0xffff00,
             transparent: false,
             blending: THREE.AdditiveBlending
@@ -125,7 +125,7 @@ PLANET.lighting.Lighting = function () {
         sunSphere.add(sunGlow);
 
         let moonMaterial = new THREE.SpriteMaterial({
-            map: new THREE.ImageUtils.loadTexture('Resources/img/glow.png'),
+            map: new THREE.ImageUtils.loadTexture('res/img/glow.png'),
             color: 0xffffff,
             transparent: false,
             blending: THREE.AdditiveBlending
