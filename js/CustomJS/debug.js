@@ -64,6 +64,7 @@ PLANET.debug.Debug = function () {
         colors.SnowColor = colorSchemes[params.Color].SnowColor;
         colors.SeaColor = colorSchemes[params.Color].SeaColor;
         colors.SeabedColor = colorSchemes[params.Color].SeabedColor;
+        colors.StarColor = colorSchemes[params.Color].StarColor;
         planet.update();
     };
 
@@ -148,13 +149,14 @@ PLANET.debug.Debug = function () {
     // cameraControls.add(PLANET.controls, 'maxDistance', 200, 1000).name('Maximum Distance').listen();
     cameraControls.open();
 
-    let lightingControls = gui.addFolder('Lighting');
-  	 lightingControls.add( effectController, "mieCoefficient", 0.0, 0.1, 0.001 ).onChange( PLANET.lighting.update );
-  	 lightingControls.add( effectController, "mieDirectionalG", 0.0, 1, 0.001 ).onChange( PLANET.lighting.update );
-  	 lightingControls.add( effectController, "luminance", 0.0, 1 ).onChange( PLANET.lighting.update );
-  	 lightingControls.add( effectController, "inclination", 0, 1, 0.0001 ).onChange( PLANET.lighting.update );
-  	 lightingControls.add( effectController, "sun" ).onChange( PLANET.lighting.update );
-    lightingControls.open();
+    let skyController = gui.addFolder('Sky');
+  	 skyController.add( effectController, "mieCoefficient", 0.0, 0.1, 0.001 ).onChange( PLANET.lighting.update );
+  	 skyController.add( effectController, "mieDirectionalG", 0.0, 1, 0.001 ).onChange( PLANET.lighting.update );
+  	 skyController.add( effectController, "luminance", 0.0, 1 ).onChange( PLANET.lighting.update );
+  	 skyController.add( effectController, "inclination", -1, 1, 0.0001 ).onChange( PLANET.lighting.update );
+  	 skyController.add( effectController, "sun" ).onChange( PLANET.lighting.update );
+     skyController.addColor( starController, "StarColor" ).onChange( PLANET.lighting.update );
+    skyController.open();
 
 
     gui.add(options, 'reset');

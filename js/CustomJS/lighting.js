@@ -25,6 +25,10 @@ var effectController  = {
 	sun: true
 };
 
+var starController  = {
+  StarColor: 0xffffff
+};
+
 PLANET.lighting.update = function () {
 	var uniforms = sky.material.uniforms;
 
@@ -42,6 +46,7 @@ PLANET.lighting.update = function () {
   sunSphere.position.z = distance * Math.cos( theta );
 	sunSphere.visible = effectController.sun;
 	uniforms.sunPosition.value.copy( sunSphere.position );
+  //starField.material.color.setHex(colors.StarColor);
 };
 
 PLANET.lighting.Lighting = function () {
@@ -63,9 +68,10 @@ PLANET.lighting.Lighting = function () {
 				);
 
         var mergedGeometry = new THREE.Geometry();
-				for ( var i = -distance*2; i < distance*2; i+=150 ) {
+				for ( var i = -distance*2; i < distance*2; i+=50 ) {
 					var geometry = new THREE.SphereGeometry( 50, 1 );
-					var material = new THREE.MeshBasicMaterial( {color: Math.random() * 0xff00000 - 0xff00000} );
+					var material = new THREE.MeshBasicMaterial( {color: 0xffffff} );
+
 					var x = Math.random() * distance * 2 - distance;
           var y = i;
 					var z = Math.random() * distance * 2 - distance;
