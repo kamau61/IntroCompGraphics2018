@@ -24,7 +24,7 @@ let effectController = {
     sun: true
 };
 
-var starController  = {
+let starController  = {
   StarColor: 0xffffff
 };
 
@@ -43,6 +43,7 @@ PLANET.lighting.update = function () {
     sunSphere.position.z = distance * Math.cos(theta);
     sunSphere.visible = effectController.sun;
     uniforms.sunPosition.value.copy(sunSphere.position);
+    //starField.material.color.setHex(colors.StarColor);
 };
 
 PLANET.lighting.Lighting = function () {
