@@ -52,7 +52,8 @@ PLANET.debug.Debug = function () {
         colors.SeaColor = colorSchemes[params.Color].SeaColor;
         colors.SeabedColor = colorSchemes[params.Color].SeabedColor;
         colors.LavaColor = colorSchemes[params.Color].LavaColor;
-        update();
+        colors.StarColor = colorSchemes[params.Color].StarColor;
+update();
     };
 
     gui = new dat.GUI();

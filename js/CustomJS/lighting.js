@@ -6,9 +6,10 @@ let moonLight = new THREE.DirectionalLight(0xeeeeff, 0.2);
 let moonAxis = new THREE.Vector3(1, -0.6, 0).normalize();
 let starLight = new THREE.AmbientLight(0x7f7f7f, 0.2);
 let clock = new THREE.Clock();
-let distance = 10000;
+let distance = 5000;
 let starRotation = 0;
 let quaternion = new THREE.Quaternion();
+let material = new THREE.MeshBasicMaterial({color: Math.random() * 0xff00000 - 0xff00000});
 
 sunLight.shadow = new THREE.LightShadow(new THREE.PerspectiveCamera(100, 1));
 sunLight.shadow.mapSize.width = 512;
@@ -26,6 +27,10 @@ let effectController = {
     sun: true
 };
 
+let starController  = {
+  StarColor: 0xffffff
+};
+
 PLANET.lighting.update = function () {
     let uniforms = sky.material.uniforms;
 
@@ -41,6 +46,7 @@ PLANET.lighting.update = function () {
     sunSphere.position.z = distance * Math.cos(theta);
     sunSphere.visible = effectController.sun;
     uniforms.sunPosition.value.copy(sunSphere.position);
+    material.color.setHex(starController.StarColor);
 };
 
 PLANET.lighting.Lighting = function () {
@@ -48,7 +54,7 @@ PLANET.lighting.Lighting = function () {
 
     function initSky() {
         sky = new THREE.Sky();
-        sky.scale.setScalar(distance);
+        sky.scale.setScalar(distance*1.2);
         scene.add(sky);
 
         sunSphere = new THREE.Mesh(
@@ -62,9 +68,8 @@ PLANET.lighting.Lighting = function () {
         );
 
         let mergedGeometry = new THREE.Geometry();
-        let geometry = new THREE.SphereGeometry(50, 1);
-        let material = new THREE.MeshBasicMaterial({color: Math.random() * 0xff00000 - 0xff00000});
-        for (let i = -distance * 2; i < distance * 2; i += 150) {
+        let geometry = new THREE.SphereGeometry(20, 1);
+        for (let i = -distance * 2; i < distance * 2; i += 50) {
             let x = Math.random() * distance * 2 - distance;
             let y = i;
             let z = Math.random() * distance * 2 - distance;
