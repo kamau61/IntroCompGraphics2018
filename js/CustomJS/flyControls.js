@@ -13,8 +13,8 @@ PLANET.flyControls.FlyControls = function (camera) {
     const PI_2 = Math.PI / 2;
     const DEG1 = Math.PI / 180;
     const dirLeft = new THREE.Vector3(-1, 0, 0);
-    const dirUp = new THREE.Vector3(0, 1, 0);
-    const dirFront = new THREE.Vector3(0, 0, 1);
+    // const dirUp = new THREE.Vector3(0, 1, 0);
+    // const dirFront = new THREE.Vector3(0, 0, 1);
 
     let nearGround = false;   //If it's on minimum distance.
     let flyMode = false;      //If it's on self control mode. For demonstrate use.
@@ -43,8 +43,7 @@ PLANET.flyControls.FlyControls = function (camera) {
     let movingTarget = new THREE.Vector3();
     let flySpeed = 1;
 
-    let height = params.PlanetRadius * params.CameraMax;
-    let currentHeight = height;
+    // let height = params.PlanetRadius * params.CameraMax;
     let tiltedAngle = 0;
 
     //Some temporary letiables to be reuse.
@@ -259,12 +258,14 @@ PLANET.flyControls.FlyControls = function (camera) {
         let obUp = holder.position.clone().normalize();
         let obFront = new THREE.Vector3().crossVectors(obLeft, obUp).normalize();
 
+        //To left or right.
         if (dirX != 0) {
             tempVector.copy(obFront);
             holder.rotateOnWorldAxis(tempVector, speed * dirX);
             holder.position.applyAxisAngle(tempVector, speed * dirX);
         }
 
+        //For forward and backward;
         if (dirY != 0) {
             tempVector.copy(obLeft);
             holder.rotateOnWorldAxis(tempVector, -speed * dirY);
@@ -276,6 +277,7 @@ PLANET.flyControls.FlyControls = function (camera) {
     this.update = function () {
         holder.getWorldDirection(facingTo);
 
+        //Self-control flying mode.
         if (flyMode) {
             this.fly();
         } else {
@@ -284,26 +286,36 @@ PLANET.flyControls.FlyControls = function (camera) {
             holder.rotateZ(DEG1 * this.rotatingSpeed * (Number(rollLeft) - Number(rollRight)));
             holder.rotateX(DEG1 * this.rotatingSpeed * (Number(headDown) - Number(headUp)));
 
+            //When camera is on the minDistance
             if (nearGround) {
-                //holder.rotateY(DEG1*this.rotatingSpeed*(Number(turnLeft) - Number(turnRight)));
+                //move backward allow user to exit the nearGround level.
+                //Transfer the turnleft to moveleft value so that if user hold the left key,
+                //movement is smoothly changed while switching key control.
                 if (moveBackward) {
                     nearGround = false;
                     moveLeft = turnLeft;
                     turnLeft = false;
                     moveRight = turnRight;
                     turnRight = false;
-                } else {
+                }
+                //Move forward to keep user in the same height.
+                else {
                     orbitTo(0, Number(moveForward) - Number(moveBackward), this.movingSpeed / this.position.length());
                 }
-            } else {
+            }
+            //When camera close enough to change the camera's angle.
+            else {
+              //For orbit left or right.
                 orbitTo(Number(moveLeft) - Number(moveRight), 0, this.rotatingSpeed * DEG1);
 
-                currentHeight = holder.position.length();
-                if (currentHeight <= this.minDistance + this.viewChangingDist && currentHeight > this.minDistance) {
+                //Move forward and get the distance.
+                let height = holder.position.length();
+                if (height <= this.minDistance + this.viewChangingDist && height > this.minDistance) {
                     let orbitalMovement = facingTo.clone().setLength(this.movingSpeed);
                     holder.position.add(orbitalMovement.multiplyScalar(Number(moveForward) - Number(moveBackward)));
 
-                    let distPercent = (this.minDistance + this.viewChangingDist - currentHeight) / this.viewChangingDist;
+                    //This is the percentage of how much the camera has moved from the view-changing distance to current height.
+                    let distPercent = (this.minDistance + this.viewChangingDist - height) / this.viewChangingDist;
 
                     let verticalCompensation = utils.map(distPercent, 0, 1, 0, this.movingSpeed);
                     let verticalMovement = holder.position.clone().normalize().setLength(verticalCompensation);
@@ -313,13 +325,13 @@ PLANET.flyControls.FlyControls = function (camera) {
                         distPercent = 1;
                     }
 
+                    //Change the angle depends on the distance(distPercent).
                     let ag = distPercent * PI_2;
                     rotateHolderXTo(ag);
                     let ttAngle = distPercent * this.tiltToAngle;
                     tiltCameraTo(-ttAngle);
-                    // if (facingTo.angleTo(holder.position) <= PI_2) {
-                    // tedious checking and interestingly it doesn't match sometime even after rotateHolderXTo(PI_2)
-                    // seems like another logical problem here, Alex
+
+                    //Once the view-changing period is passed, it reachs the minDistance which is the nearGround level.
                     if (distPercent >= 1) {
                         nearGround = true;
                         turnLeft = moveLeft;
@@ -327,7 +339,9 @@ PLANET.flyControls.FlyControls = function (camera) {
                         turnRight = moveRight;
                         moveRight = false;
                     }
-                } else {
+                }
+                //When camera still far way.
+                else {
                     let length = holder.position.length() - (Number(moveForward) - Number(moveBackward)) * this.movingSpeed;
                     length = length < this.maxDistance ? length : this.maxDistance;
                     holder.position.setLength(length);
@@ -335,19 +349,11 @@ PLANET.flyControls.FlyControls = function (camera) {
             }
         }
 
+        //Just to make sure holder doesn't go under the minDistance;
         if (holder.position.length() < this.minDistance) {
             holder.position.setLength(this.minDistance);
         }
     };
-
-    // function rotateToDirection(obj, from, to, isLocal){
-    //   let ang = from.angleTo(to);
-    //   if (ang != 0){
-    //     let axis = new THREE.Vector3().crossVectors(from, to).normalize();
-    //     if (isLocal) obj.rotateOnAxis(axis, -ang);
-    //     else obj.rotateOnWorldAxis(axis, -ang);
-    //   }
-    // }
 
     //A random point around planet. Always move a quarter of planet.
     //Camera should not move under minDistance during movement.
