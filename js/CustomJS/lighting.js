@@ -150,7 +150,7 @@ PLANET.lighting.Lighting.prototype = Object.create(THREE.Object3D.prototype);
 
 PLANET.lighting.animate = function () {
     let r = clock.getElapsedTime() / 10;
-    effectController.inclination += 0.01;
+    effectController.inclination += 0.001;
     if (effectController.inclination > 1) {
         effectController.inclination = -1;
     }
