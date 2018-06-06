@@ -61,7 +61,6 @@ let axis = new THREE.Vector3(1, 0, 0);
 PLANET.main.main = function () {
     timer = 0;
     utils = new PLANET.utils();
-    params.Color = Math.floor(Math.random() * colorSchemes.length);
     colors = colorSchemes[params.Color];
     //init scene
     scene = new THREE.Scene();
