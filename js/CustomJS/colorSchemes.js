@@ -1,14 +1,15 @@
 let colorSchemes = [
     EarthyTones = {
-        LeafColor: 0x5d7650,//0x233e23,
-        ForestColor: 0x7e874e,//0x136d15,
-        GrassColor: 0x8d9c61,//0x558822,
-        TrunkColor: 0x393226,//0x907350,
-        SoilColor: 0xabb6a0,//0x778811,
-        SandColor: 0xfae1bf,//0x998800,
-        SnowColor: 0xb6f5ff,//0xFFFAFA,
-        SeaColor: 0x49e8ff,//0x1b8594,
-        SeabedColor: 0x15454c
+        LeafColor: 0x5d7650,
+        ForestColor: 0x7e874e,
+        GrassColor: 0x8d9c61,
+        TrunkColor: 0x393226,
+        SoilColor: 0xabb6a0,
+        SandColor: 0xfae1bf,
+        SnowColor: 0xb6f5ff,
+        SeaColor: 0x49e8ff,
+        SeabedColor: 0x15454c,
+        LavaColor: 0x010101
     },
     QuickSilver = {
         LeafColor: 0xa6a6a6,
@@ -19,7 +20,8 @@ let colorSchemes = [
         SandColor: 0xcad6df,
         SnowColor: 0xffffff,
         SeaColor: 0xcad6df,
-        SeabedColor: 0x8a959b
+        SeabedColor: 0x8a959b,
+        LavaColor: 0x010101
     },
     RosyRed = {
         LeafColor: 0x881234,
@@ -30,7 +32,8 @@ let colorSchemes = [
         SandColor: 0xf4845f,
         SnowColor: 0xff6699,
         SeaColor: 0xff3377,
-        SeabedColor: 0xff0055
+        SeabedColor: 0xff0055,
+        LavaColor: 0x010101
     },
     LimyGreen = {
         LeafColor: 0x30ec2a,
@@ -41,7 +44,8 @@ let colorSchemes = [
         SandColor: 0xbab41f,
         SnowColor: 0xdbf986,
         SeaColor: 0xc6f680,
-        SeabedColor: 0x81df72
+        SeabedColor: 0x81df72,
+        LavaColor: 0x010101
     },
     MintyBlue = {
         LeafColor: 0x0455b0,
@@ -52,7 +56,8 @@ let colorSchemes = [
         SandColor: 0x6bcdff,
         SnowColor: 0x7efffa,
         SeaColor: 0x24fff6,
-        SeabedColor: 0x00eee5
+        SeabedColor: 0x00eee5,
+        LavaColor: 0x010101
     },
     BerryPurple = {
         LeafColor: 0x6f0054,
@@ -63,18 +68,20 @@ let colorSchemes = [
         SandColor: 0xb589ce,
         SnowColor: 0xeba7ff,
         SeaColor: 0xe77eff,
-        SeabedColor: 0xde47ff
+        SeabedColor: 0xde47ff,
+        LavaColor: 0x010101
     },
     FruityCandy = {
         LeafColor: 0xdf1313,
-        ForestColor: 0x16a085,//30c300,
+        ForestColor: 0x16a085,
         GrassColor: 0x63ff6e,
         TrunkColor: 0x895b5b,
         SoilColor: 0xffc300,
         SandColor: 0xffe338,
         SnowColor: 0x00fff9,
         SeaColor: 0x00deff,
-        SeabedColor: 0x00b1ff
+        SeabedColor: 0x00b1ff,
+        LavaColor: 0x010101
     },
     DreamyUnicorn = {
         LeafColor: 0xf0adf4,
@@ -85,7 +92,8 @@ let colorSchemes = [
         SandColor: 0xffbcbc,
         SnowColor: 0xc7f8ff,
         SeaColor: 0x99e5ff,
-        SeabedColor: 0x71c7e5
+        SeabedColor: 0x71c7e5,
+        LavaColor: 0x010101
     },
     PrettyMermaid = {
         LeafColor: 0xa7445d,
@@ -96,7 +104,8 @@ let colorSchemes = [
         SandColor: 0xdd9e74,
         SnowColor: 0x327bab,
         SeaColor: 0x0060a0,
-        SeabedColor: 0x0040c0
+        SeabedColor: 0x0040c0,
+        LavaColor: 0x010101
     },
     FancyFairy = {
         LeafColor: 0xfff88a,
@@ -107,7 +116,8 @@ let colorSchemes = [
         SandColor: 0xfacdd5,
         SnowColor: 0xe3c3ff,
         SeaColor: 0xee82ee,
-        SeabedColor: 0xfacdd5
+        SeabedColor: 0xfacdd5,
+        LavaColor: 0x010101
     },
     FlamyDragon = {
         LeafColor: 0x0e7c7e,
@@ -118,17 +128,19 @@ let colorSchemes = [
         SandColor: 0x402929,
         SnowColor: 0x812e2a,
         SeaColor: 0x691717,
-        SeabedColor: 0x51170c
+        SeabedColor: 0x51170c,
+        LavaColor: 0x010101
     },
-    LazyPanda = {
-        LeafColor: 0x70b16d,
-        ForestColor: 0x999999,
-        GrassColor: 0x999999,
-        TrunkColor: 0x2e8b57,
-        SoilColor: 0x000000,
-        SandColor: 0x000000,
-        SnowColor: 0xffffff,
-        SeaColor: 0xffffff,
-        SeabedColor: 0xffffff
+    WillyWonka = {
+        LeafColor: 0xece3e3,
+        ForestColor: 0xc82020,
+        GrassColor: 0xc034b4,
+        TrunkColor: 0x6f1e08,
+        SoilColor: 0x268b07,
+        SandColor: 0x117c13,
+        SnowColor: 0xccad93,
+        SeaColor: 0x9c5435,
+        SeabedColor: 0x5c2c1d,
+        LavaColor: 0x010101
     }
 ];

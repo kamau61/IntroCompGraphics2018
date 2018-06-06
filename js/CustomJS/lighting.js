@@ -1,89 +1,174 @@
 window.PLANET = window.PLANET || {};
 PLANET.lighting = PLANET.lighting || {};
 
-var effectController = {
-    turbidity: 10,
-    rayleigh: 2,
+let sunLight = new THREE.DirectionalLight(0xffffff, 1);
+let moonLight = new THREE.DirectionalLight(0xeeeeff, 0.2);
+let moonAxis = new THREE.Vector3(1, -0.6, 0).normalize();
+let starLight = new THREE.AmbientLight(0x7f7f7f, 0.2);
+let clock = new THREE.Clock();
+let distance = 5000;
+let starRotation = 0;
+let quaternion = new THREE.Quaternion();
+let material = new THREE.MeshBasicMaterial({color: Math.random() * 0xff00000 - 0xff00000});
+
+sunLight.shadow = new THREE.LightShadow(new THREE.PerspectiveCamera(100, 1));
+sunLight.shadow.mapSize.width = 512;
+sunLight.shadow.mapSize.height = 512;
+sunLight.castShadow = true;
+
+let effectController = {
+    turbidity: 1,
+    rayleigh: 0,
     mieCoefficient: 0.005,
     mieDirectionalG: 0.8,
     luminance: 1,
-    inclination: 0.49, // elevation / inclination
-    azimuth: 0.25, // Facing front,
+    inclination: 0.49,
+    azimuth: 0.25,
     sun: true
 };
 
-var sunSphere;
+let starController  = {
+  StarColor: 0xffffff
+};
+
+PLANET.lighting.update = function () {
+    let uniforms = sky.material.uniforms;
+
+    uniforms.turbidity.value = effectController.turbidity;
+    uniforms.rayleigh.value = effectController.rayleigh;
+
+    uniforms.luminance.value = effectController.luminance;
+    uniforms.mieCoefficient.value = effectController.mieCoefficient;
+    uniforms.mieDirectionalG.value = effectController.mieDirectionalG;
+    let theta = Math.PI * (effectController.inclination - 0.5);
+    sunSphere.position.x = distance * Math.sin(theta);
+    sunSphere.position.y = 0;
+    sunSphere.position.z = distance * Math.cos(theta);
+    sunSphere.visible = effectController.sun;
+    uniforms.sunPosition.value.copy(sunSphere.position);
+    material.color.setHex(starController.StarColor);
+};
 
 PLANET.lighting.Lighting = function () {
     THREE.Object3D.call(this);
-    this.name = "Lighting";
-    this.starLight = new THREE.AmbientLight(0x7f7f7f);
-    this.add(this.starLight);
-    // Add Sky
-    sky = new THREE.Sky();
-    sky.scale.setScalar(450000); //Set sky box size
-    sky.rotateOnAxis(new THREE.Vector3(0, 1, 0), Math.PI);
-    sky.name = "Sky";
-    this.add(sky);
-    // Add Sun Helper
-    sunSphere = new THREE.Mesh(
-        new THREE.IcosahedronBufferGeometry(500, 1),
-        new THREE.MeshBasicMaterial({color: 0xffff7f})
-    );
-    var sunlight = new THREE.PointLight(0xffffff, 0.8);
-    sunlight.castShadow = true;
-    sunSphere.add(sunlight);
 
-    sunSphere.position.y = -10000;
-    sunSphere.visible = true;
-    sunSphere.name = "SunSphere";
-    this.add(sunSphere);
-    /// GUI
+    function initSky() {
+        sky = new THREE.Sky();
+        sky.scale.setScalar(distance*1.2);
+        scene.add(sky);
 
+        sunSphere = new THREE.Mesh(
+            new THREE.IcosahedronBufferGeometry(500, 1),
+            new THREE.MeshBasicMaterial({color: 0xffff7f})
+        );
 
-    var gui = new dat.GUI();
-    gui.add(effectController, "turbidity", 1.0, 20.0, 0.1).onChange(guiChanged);
-    gui.add(effectController, "rayleigh", 0.0, 4, 0.001).onChange(guiChanged);
-    gui.add(effectController, "mieCoefficient", 0.0, 0.1, 0.001).onChange(guiChanged);
-    gui.add(effectController, "mieDirectionalG", 0.0, 1, 0.001).onChange(guiChanged);
-    gui.add(effectController, "luminance", 0.0, 2).onChange(guiChanged);
-    gui.add(effectController, "inclination", -1, 1, 0.0001).onChange(guiChanged);
-    gui.add(effectController, "azimuth", 0, 1, 0.0001).onChange(guiChanged);
-    gui.add(effectController, "sun").onChange(guiChanged);
-    guiChanged();
+        moonSphere = new THREE.Mesh(
+            new THREE.IcosahedronBufferGeometry(150, 1),
+            new THREE.MeshBasicMaterial({color: 0xeeeeee})
+        );
 
+        let mergedGeometry = new THREE.Geometry();
+        let geometry = new THREE.SphereGeometry(20, 1);
+        for (let i = -distance * 2; i < distance * 2; i += 50) {
+            let x = Math.random() * distance * 2 - distance;
+            let y = i;
+            let z = Math.random() * distance * 2 - distance;
+
+            if (-distance < x < distance && -distance < y < distance && -distance < z < distance) {
+                let minVal = Math.min(Math.abs(x), Math.abs(y), Math.abs(z));
+                if (Math.abs(x) === minVal) {
+                    if (x < 0) {
+                        x = x - distance;
+                    } else {
+                        x = x + distance;
+                    }
+
+                }
+                if (Math.abs(y) === minVal) {
+                    if (y < 0) {
+                        y = y - distance;
+                    } else {
+                        y = y + distance;
+                    }
+
+                }
+                if (Math.abs(z) === minVal) {
+                    if (z < 0) {
+                        z = z - distance;
+                    } else {
+                        z = z + distance;
+                    }
+
+                }
+            }
+
+            geometry.translate(x, y, z);
+            mergedGeometry.merge(geometry);
+            geometry.translate(-x, -y, -z);
+        }
+
+        starField = new THREE.Mesh(mergedGeometry, material);
+
+        sunSphere.add(sunLight);
+        moonSphere.add(moonLight);
+        starField.add(starLight);
+        scene.add(starField);
+        scene.add(sunSphere);
+        scene.add(moonSphere);
+
+    }
+
+    function addGlows() {
+        let sunMaterial = new THREE.SpriteMaterial({
+            map: new THREE.ImageUtils.loadTexture('res/img/glow.png'),
+            color: 0xffff00,
+            transparent: false,
+            blending: THREE.AdditiveBlending
+        });
+        let sunGlow = new THREE.Sprite(sunMaterial);
+        sunGlow.scale.set(3000, 1500, 1.0);
+        sunSphere.add(sunGlow);
+
+        let moonMaterial = new THREE.SpriteMaterial({
+            map: new THREE.ImageUtils.loadTexture('res/img/glow.png'),
+            color: 0xffffff,
+            transparent: false,
+            blending: THREE.AdditiveBlending
+        });
+        let moonGlow = new THREE.Sprite(moonMaterial);
+        moonGlow.scale.set(1000, 500, 1.0);
+        moonSphere.position.setZ(distance);
+        moonSphere.add(moonGlow);
+    }
+
+    initSky();
+    addGlows();
     return this;
 };
 
 PLANET.lighting.Lighting.prototype = Object.create(THREE.Object3D.prototype);
 
-
-function guiChanged() {
-    var distance = 100000;
-
-    var uniforms = sky.material.uniforms;
-    uniforms.turbidity.value = effectController.turbidity;
-    uniforms.rayleigh.value = effectController.rayleigh;
-    uniforms.luminance.value = effectController.luminance;
-    uniforms.mieCoefficient.value = effectController.mieCoefficient;
-    uniforms.mieDirectionalG.value = effectController.mieDirectionalG;
-    var theta = Math.PI * (effectController.inclination - 0.5);
-    sunSphere.position.x = distance * Math.sin(theta);
-    sunSphere.position.y = 0;
-    sunSphere.position.z = distance * Math.cos(theta);
-    uniforms.sunPosition.value = sunSphere.position;
-}
-
-
-/////////////////////////////////////////////////////
-// RENDER LOOP                                     //
-/////////////////////////////////////////////////////
-
 PLANET.lighting.animate = function () {
+    let r = clock.getElapsedTime() / 10;
     effectController.inclination += 0.01;
     if (effectController.inclination > 1) {
         effectController.inclination = -1;
     }
 
-    guiChanged();
+    if (sunSphere.visible === true) {
+        starLight.intensity = 0.2;
+    } else {
+        starLight.intensity = 1;
+    }
+
+    quaternion.setFromAxisAngle(moonAxis, .01);
+    moonSphere.position.applyQuaternion(quaternion);
+
+
+
+    if (timer % 1000) {
+        starRotation += 0.0001;
+        starField.rotateY(Math.PI / 360 * starRotation);
+    }
+    PLANET.lighting.update();
 };

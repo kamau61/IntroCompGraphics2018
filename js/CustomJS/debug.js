@@ -6,51 +6,38 @@ PLANET.debug.Debug = function () {
         reset: function () {
             params.color = 0;
             updateColor();
-            this.SmoothTerrain();
-            this.RoughOcean();
-            this.DefaultLevels();
+            this.defaultTerrain();
+            this.defaultOcean();
+            this.defaultLevels();
+            gui.updateDisplay();
         },
         generate: function () {
             simplex = new SimplexNoise();
-            update();
+            planet.update(true);
         },
-        SmoothTerrain: function () {
-            params.PlanetRadius = 100;
-            params.PlanetDetail = 7;
-            params.TerrainDisplacement = 0.1;
+        defaultTerrain: function () {
+            params.TerrainDisplacement = 10;
             params.TerrainDensity = 0.1;
             params.TerrainDetail = 9;
-            update();
+            planet.update(true);
         },
-        SharpTerrain: function () {
-            params.TerrainDensity = 0.03;
-            params.TerrainDetail = 9;
-            params.PlanetRadius = 100;
-            params.TerrainDisplacement = 0.25;
-            update();
-        },
-        SmoothOcean: function () {
-            params.WaveSpeed = 0.25;
-            params.WaveLength = 5;
-            params.WaveHeight = 0.025;
-        },
-        RoughOcean: function () {
+        defaultOcean: function () {
             params.WaveSpeed = 0.25;
             params.WaveLength = 1;
             params.WaveHeight = 0.05;
         },
-        DefaultLevels: function () {
+        defaultLevels: function () {
             planet.climate.set(25.5);
+            params.Temperature = 25.5;
         },
-        RandomColor: function(){
-            params.Color = Math.floor(Math.random()*colorSchemes.length);
+        randomColor: function () {
+            params.Color = Math.floor(Math.random() * colorSchemes.length);
             updateColor();
         }
     };
 
     let update = function () {
-        planet.update();
-        // updateCamera(params.PlanetRadius);
+        planet.update(false);
     };
 
     let updateColor = function () {
@@ -64,52 +51,31 @@ PLANET.debug.Debug = function () {
         colors.SnowColor = colorSchemes[params.Color].SnowColor;
         colors.SeaColor = colorSchemes[params.Color].SeaColor;
         colors.SeabedColor = colorSchemes[params.Color].SeabedColor;
-        planet.update();
+        colors.LavaColor = colorSchemes[params.Color].LavaColor;
+        colors.StarColor = colorSchemes[params.Color].StarColor;
+update();
     };
-
-    // let updateCamera = function() {
-    //     PLANET.controls.minDistance = params.PlanetRadius * (1 + params.TerrainDisplacement);
-    //     PLANET.controls.maxDistance = params.PlanetRadius * params.CameraMax;
-    //     camera.position.set(0, 0, params.PlanetRadius * params.CameraMax);
-    //     PLANET.controls.update();
-    //     PLANET.controls.saveState();
-    // };
 
     gui = new dat.GUI();
     let planetControls = gui.addFolder('Planet');
-    planetControls.add(params, 'Temperature')
-        .min(CONSTANTS.FREEZE_POINT)
-        .max(CONSTANTS.BOIL_POINT)
-        .onChange(function () {
-            planet.climate.set(params.Temperature);
-        })
-        .step(0.1).listen();
-    planetControls.open();
+    planetControls.close();
     let terrainControls = planetControls.addFolder('Terrain');
-    //TODO onChange -> generate terrain
     terrainControls.add(params, 'TerrainDensity', 0, 1).onChange(update).listen();
     terrainControls.add(params, 'TerrainDisplacement', 0, 50).onChange(update).listen();
     terrainControls.add(params, 'TerrainDetail', 1, 10).step(1).onChange(update).listen();
     terrainControls.add(options, 'generate');
-    terrainControls.add(options, 'SmoothTerrain');
-    terrainControls.add(options, 'SharpTerrain');
+    terrainControls.add(options, 'defaultTerrain');
     let oceanControls = planetControls.addFolder('Ocean');
-    oceanControls.add(params, 'WaterOpacity', 0, 100).onChange(update).listen();
     oceanControls.add(params, 'WaveSpeed', 0, 1).listen();
     oceanControls.add(params, 'WaveLength', 1, 5).listen();
     oceanControls.add(params, 'WaveHeight', 0, 0.3).listen();
-    oceanControls.add(options, 'SmoothOcean');
-    oceanControls.add(options, 'RoughOcean');
-    let forestControls = planetControls.addFolder('Forest');
-    //TODO onChange -> generate forest
-    forestControls.add(params, 'TreeSpread', -1, 1).onChange().listen();
-    forestControls.add(params, 'GrassSpread', -1, 1).onChange().listen();
-    forestControls.add(params, 'ForestDensity', -1, 1).onChange().listen();
+    oceanControls.add(options, 'defaultOcean');
     let levelControls = planetControls.addFolder('Levels');
     levelControls.add(params, 'SnowLevel', 0, 100).onChange(update).listen();
     levelControls.add(params, 'SandLevel', 0, 100).onChange(update).listen();
     levelControls.add(params, 'SeaLevel', 0, 100).onChange(update).listen();
-    levelControls.add(options, 'DefaultLevels');
+    levelControls.add(params, 'LavaLevel', 0, 100).onChange(update).listen();
+    levelControls.add(options, 'defaultLevels');
     let colorControls = planetControls.addFolder('Colors');
     colorControls.addColor(colors, 'LeafColor').onChange(update).listen();
     colorControls.addColor(colors, 'ForestColor').onChange(update).listen();
@@ -132,20 +98,21 @@ PLANET.debug.Debug = function () {
         PrettyMermaid: colorSchemes.indexOf(PrettyMermaid),
         FancyFairy: colorSchemes.indexOf(FancyFairy),
         FlamyDragon: colorSchemes.indexOf(FlamyDragon),
-        LazyPanda: colorSchemes.indexOf(LazyPanda)
+        WillyWonka: colorSchemes.indexOf(WillyWonka)
     }).onChange(updateColor).listen();
-    colorControls.add(options, 'RandomColor');
-    colorControls.open();
+    colorControls.add(options, 'randomColor');
+    colorControls.close();
+    gui.add(params, 'Temperature')
+        .min(CONSTANTS.FREEZE_POINT)
+        .max(CONSTANTS.LAVA_POINT)
+        .onChange(function () {
+            planet.climate.set(params.Temperature);
+        })
+        .step(0.1).listen();
+    gui.add(params, 'BrushSize')
+        .min(1)
+        .max(5)
+        .step(1).listen();
 
-
-    let cameraControls = gui.addFolder('Camera');
-    // cameraControls.add(camera.position, 'x').listen();
-    // cameraControls.add(camera.position, 'y').listen();
-    // cameraControls.add(camera.position, 'z').listen();
-    // cameraControls.add(PLANET.controls, 'movSpeed', 0, 100).name('Moving Speed').listen();
-    // cameraControls.add(PLANET.controls, 'rotSpeed', 0, 10).name('Rotating Speed').listen();
-    // cameraControls.add(PLANET.controls, 'minDistance', 0, 200).name('Minimum Distance').listen();
-    // cameraControls.add(PLANET.controls, 'maxDistance', 200, 1000).name('Maximum Distance').listen();
-    cameraControls.open();
     gui.add(options, 'reset');
 };
