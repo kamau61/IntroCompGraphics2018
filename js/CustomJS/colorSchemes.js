@@ -1,3 +1,6 @@
+//Color schemes - Boris
+//Holder for color schemes, each hand picked to create a world in a certain theme suggested by its name
+//An array instead of json, so that .length can be called
 let colorSchemes = [
     EarthyTones = {
         LeafColor: 0x5d7650,

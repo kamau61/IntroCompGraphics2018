@@ -1,7 +1,11 @@
 window.PLANET = window.PLANET || {};
 PLANET.debug = PLANET.debug || {};
 
+//Debug - Boris, Issac,
+//Create for debugging
+//Cleaned up and use for control panel
 PLANET.debug.Debug = function () {
+    //options buttons
     let options = {
         reset: function () {
             params.color = 0;
@@ -12,7 +16,7 @@ PLANET.debug.Debug = function () {
             gui.updateDisplay();
         },
         generate: function () {
-            simplex = new SimplexNoise();
+            simplex = new SimplexNoise(); //reseed generator
             planet.update(true);
         },
         defaultTerrain: function () {
@@ -35,13 +39,12 @@ PLANET.debug.Debug = function () {
             updateColor();
         }
     };
-
     let update = function () {
         planet.update(false);
     };
 
     let updateColor = function () {
-        //colors = colorSchemes[params.Color];//somehow this does not trigger listen of the color panels
+        //colors = colorSchemes[params.Color];  //somehow this does not trigger listen of the color panels
         colors.LeafColor = colorSchemes[params.Color].LeafColor;
         colors.ForestColor = colorSchemes[params.Color].ForestColor;
         colors.GrassColor = colorSchemes[params.Color].GrassColor;
@@ -52,7 +55,7 @@ PLANET.debug.Debug = function () {
         colors.SeaColor = colorSchemes[params.Color].SeaColor;
         colors.SeabedColor = colorSchemes[params.Color].SeabedColor;
         colors.LavaColor = colorSchemes[params.Color].LavaColor;
-update();
+        update();
     };
 
     gui = new dat.GUI();
@@ -60,7 +63,7 @@ update();
     planetControls.close();
     let terrainControls = planetControls.addFolder('Terrain');
     terrainControls.add(params, 'TerrainDensity', 0, 1).onChange(update).listen();
-    terrainControls.add(params, 'TerrainDisplacement', 0, 50).onChange(update).listen();
+    terrainControls.add(params, 'TerrainDisplacement', 0, 50).onChange(update).listen(); //TODO update min distance of controls
     terrainControls.add(params, 'TerrainDetail', 1, 10).step(1).onChange(update).listen();
     terrainControls.add(options, 'generate');
     terrainControls.add(options, 'defaultTerrain');
@@ -86,7 +89,7 @@ update();
     colorControls.addColor(colors, 'SeaColor').onChange(update).listen();
     colorControls.addColor(colors, 'SeabedColor').onChange(update).listen();
     colorControls.addColor(colors, 'LavaColor').onChange(update).listen();
-    colorControls.addColor( starController, "StarColor" ).onChange( PLANET.lighting.update );
+    colorControls.addColor(starController, "StarColor").onChange(PLANET.lighting.update);
     colorControls.add(params, 'Color', {
         EarthyTones: colorSchemes.indexOf(EarthyTones),
         QuickSilver: colorSchemes.indexOf(QuickSilver),

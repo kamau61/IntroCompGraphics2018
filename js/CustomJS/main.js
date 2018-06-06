@@ -5,6 +5,7 @@ PLANET.main = PLANET.main || {};
 let scene, camera, renderer, light, canvas, gui, simplex, timer, manager, color, utils, raycaster, controls;
 
 const CONSTANTS = {
+    //temperatures for climate
     OPT_TEMP: 25.5,
     FREEZE_POINT: -10,
     BOIL_POINT: 100,
@@ -20,36 +21,36 @@ let params = {
     Color: 0,
 
     //params regarding terrain generation
-    TerrainDisplacement: 10,//10% of radius
-    TerrainDensity: 0.1,//frequency of noise generator
-    TerrainDetail: 9,//number of layers of noise
+    TerrainDisplacement: 10,    //10% of radius
+    TerrainDensity: 0.1,        //frequency of noise generator
+    TerrainDetail: 9,           //number of layers of noise
 
     //params regarding terrain type
-    SnowLevel: 50,//50% of height above water from top
-    SandLevel: 10,//10% of height above water
-    SeaLevel: 50,//50% of terrain displacement
-    LavaLevel: 0,//0% of terrain displacement
-    TreeSpread: -0.5,//0.6, //less the number, wider each forest, -1/+1
-    GrassSpread: -0.5,//0, //less the number, wider each grassland, -1/+1
-    ForestDensity: 0.3, //more the number, more forests, 0.1/0.3
+    SnowLevel: 50,              //50% of height above water from top
+    SandLevel: 10,              //10% of height above water
+    SeaLevel: 50,               //50% of terrain displacement
+    LavaLevel: 0,               //0% of terrain displacement
+    TreeSpread: -0.5,           //less the number, wider each forest, -1/+1
+    GrassSpread: -0.5,          //less the number, wider each grassland, -1/+1
+    ForestDensity: 0.3,         //more the number, more forests, 0.1/0.3
 
     //params regarding tree models
     TreeScale: 0.01,
     TreeCount: 2000,
 
     //params regarding ocean
-    WaterOpacity: 90,
-    WaveSpeed: 0.25,
-    WaveLength: 1,
-    WaveHeight: 0.05,
+    WaterOpacity: 90,           //90% visible
+    WaveSpeed: 0.25,            //how fast a wave travels
+    WaveLength: 1,              //how long is a wave
+    WaveHeight: 0.05,           //how tall is a wave
 
     CameraMax: 2,
 
     BrushSize: 2,
 };
 
-let colors = colorSchemes[0];
-let res = {
+let colors = colorSchemes[0];   //colors of the planet
+let res = {                     //resources such as geometries, materials, etc
     TreesGeometry: [],
     TreesMaterials: [],
     DeadTreesGeometry: [],
