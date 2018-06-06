@@ -59,7 +59,7 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
     //Generate terrain by moving vertices according to noise
     terrain.generateTerrain = function () {
         let length, offset;
-        let max = utils.getPeakLevel();                                                 //max terrain displacement
+        let max = params.PlanetRadius * params.TerrainDisplacement / 100;               //max terrain displacement
         for (let vertex of geometry.vertices) {
             if (!vertex.originalPos) {                                                  //create a position of vertex does already have one
                 vertex.originalPos = new THREE.Vector3(vertex.x, vertex.y, vertex.z);

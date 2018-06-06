@@ -193,6 +193,7 @@
 </script>
 
 <script id="lavaVertShader" type="x-shader/x-fragment">
+        //Perlin noise begins
         vec3 mod289(vec3 x) {
             return x - floor(x * (1.0 / 289.0)) * 289.0;
         }
@@ -267,10 +268,13 @@
             vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);
             float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x);
             return 2.2 * n_xyz;
-        }
+        }//perlin noise finishes
+
         varying float noise;
         uniform float time;
         uniform float level;
+
+        //bubbles in lava
         float turbulence (vec3 p) {
             float t = -.5;
             for(float f = 1.; f <= 10.; f++) {
@@ -279,12 +283,13 @@
             }
             return t;
         }
+
         void main() {
-            noise = -1. * turbulence(.5 * normal + time);
-            float b = 5. * pnoise(.05 * position + vec3(2. + time), vec3(level));
-            float displacement = -noise + b;
-            vec3 newPosition = normal * (displacement + level);
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.);
+            noise = -1. * turbulence(.5 * normal + time);                               //set noise for fragment shader
+            float b = 5. * pnoise(.05 * position + vec3(2. + time), vec3(level));       //perlin noise with respect of the bubble
+            float displacement = -noise + b;                                            //displacement from noise
+            vec3 newPosition = normal * (displacement + level);                         //move along normal (from threejs)
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.);   //move vertex (by threejs)
         }
 
 </script>
@@ -292,7 +297,11 @@
 <script id="lavaFragShader" type="x-shader/x-fragment">
         varying float noise;
         void main() {
-            gl_FragColor = vec4(1. - 2. * noise, .5-3.*noise, 0., 1.);
+            float r = 1. - 2. * noise;  //red channel
+            float g = .5 - 3. * noise;  //green channel for a dash of yellow
+            float b = 0.;               //blue channel, unused
+            float a = 1.;               //alpha channel, unused
+            gl_FragColor = vec4(r, g, b, a);
         }
 
 </script>
