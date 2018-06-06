@@ -5,7 +5,7 @@ let sunLight = new THREE.DirectionalLight(0xffffff, 1);
 let moonLight = new THREE.DirectionalLight(0xeeeeff, 0.2);
 let starLight = new THREE.AmbientLight(0x7f7f7f, 0.2);
 let clock = new THREE.Clock();
-let distance = 10000;
+let distance = 5000;
 let starRotation = 0;
 let material = new THREE.MeshBasicMaterial({color: Math.random() * 0xff00000 - 0xff00000});
 
@@ -52,7 +52,7 @@ PLANET.lighting.Lighting = function () {
 
     function initSky() {
         sky = new THREE.Sky();
-        sky.scale.setScalar(distance);
+        sky.scale.setScalar(distance*1.2);
         scene.add(sky);
 
         sunSphere = new THREE.Mesh(
@@ -66,7 +66,7 @@ PLANET.lighting.Lighting = function () {
         );
 
         let mergedGeometry = new THREE.Geometry();
-        let geometry = new THREE.SphereGeometry(50, 1);
+        let geometry = new THREE.SphereGeometry(20, 1);
         for (let i = -distance * 2; i < distance * 2; i += 50) {
             let x = Math.random() * distance * 2 - distance;
             let y = i;
