@@ -124,12 +124,33 @@
             }
         }
 
+        #info {
+    				position: absolute;
+    				top: 10px; width: 100%;
+    				color: #ffffff;
+    				padding: 5px;
+    				font-family: Monospace;
+    				font-size: 13px;
+    				text-align: center-left;
+    				z-index:100;
+    			}
+        h2{
+            text-shadow: 0 0 5px white;
+          }
     </style>
 </head>
 <body oncontextmenu="return false;">
 <section id="loading-screen">
     <div id="loader"></div>
 </section>
+<div id="info">
+  <h2>Little planet</h2><br />
+  - Arrows: Move<br />
+  - Click Drag: Modify Terrain<br />
+  - Enter: Cinematic camera<br />
+  - Esc: Reset camera<br /><br />
+  Made by Alex, Boris, Isaac, Kyle.
+</div>
 
 <script id="treeVertShader" type="x-shader/x-vertex">
         #define SHADER_NAME vertInstanced
@@ -163,7 +184,7 @@
             vPosition = positionEye;
             gl_Position = projectionMatrix * vec4(positionEye, 1.0);
         }
-    
+
 </script>
 
 <script id="treeFragShader" type="x-shader/x-fragment">
@@ -189,7 +210,7 @@
             gl_FragColor = vec4(gray * color, 1.0);
             gl_FragColor.a = vAlpha;
         }
-    
+
 </script>
 
 <script id="lavaVertShader" type="x-shader/x-fragment">
