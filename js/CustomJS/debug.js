@@ -52,7 +52,6 @@ PLANET.debug.Debug = function () {
         colors.SeaColor = colorSchemes[params.Color].SeaColor;
         colors.SeabedColor = colorSchemes[params.Color].SeabedColor;
         colors.LavaColor = colorSchemes[params.Color].LavaColor;
-        colors.StarColor = colorSchemes[params.Color].StarColor;
 update();
     };
 
@@ -86,6 +85,8 @@ update();
     colorControls.addColor(colors, 'SnowColor').onChange(update).listen();
     colorControls.addColor(colors, 'SeaColor').onChange(update).listen();
     colorControls.addColor(colors, 'SeabedColor').onChange(update).listen();
+    colorControls.addColor(colors, 'LavaColor').onChange(update).listen();
+    colorControls.addColor( starController, "StarColor" ).onChange( PLANET.lighting.update );
     colorControls.add(params, 'Color', {
         EarthyTones: colorSchemes.indexOf(EarthyTones),
         QuickSilver: colorSchemes.indexOf(QuickSilver),
