@@ -14,7 +14,9 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
     terrain.receiveShadow = true;
     terrain.frustumCulled = false;
 
+    //Create a single source of tree geometry
     let treeGeo = new THREE.InstancedBufferGeometry().copy(res.TreesGeometry[Math.floor(Math.random() * res.TreesGeometry.length)]);
+    //Add attributes for each instance of a tree
     let mcol0 = new THREE.InstancedBufferAttribute(new Float32Array(params.TreeCount * 3), 3, 1);
     let mcol1 = new THREE.InstancedBufferAttribute(new Float32Array(params.TreeCount * 3), 3, 1);
     let mcol2 = new THREE.InstancedBufferAttribute(new Float32Array(params.TreeCount * 3), 3, 1);
@@ -22,7 +24,9 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
     let treeLights = new THREE.InstancedBufferAttribute(new Float32Array(params.TreeCount * 3), 3, 1);
     let treeAlpha = new THREE.InstancedBufferAttribute(new Float32Array(params.TreeCount), 1, 1);
     let treeCount = 0;
+    //Materials for the different groups of geometry that make up a tree
     let mat = [
+        //Trunk material
         new THREE.RawShaderMaterial({
             uniforms: {
                 "color": {type: "3f", value: new THREE.Color()},
@@ -32,6 +36,7 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
             fragmentShader: document.getElementById('treeFragShader').textContent,
             transparent: false
         }),
+        //Leaf Material
         new THREE.RawShaderMaterial({
             uniforms: {
                 "color": {type: "3f", value: new THREE.Color()},
@@ -108,6 +113,7 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
         }
     };
 
+    //Add Tree to a face
     terrain.addTree = function (face) {
         let matrix = terrain.calculateMatrix(face.position);
         let me = matrix.elements;
@@ -125,6 +131,7 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
         treeCount++;
     };
 
+    //Calculate matrix manipulation
     terrain.calculateMatrix = function (facePos) {
         let position = new THREE.Vector3();
         let quaternion = new THREE.Quaternion();
@@ -140,6 +147,7 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
         return matrix;
     };
 
+    //Combine matrix columns into a single matrix
     terrain.getTreeMatrix = function (face) {
         let matrix = new THREE.Matrix4();
         matrix.set(
@@ -162,7 +170,7 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
         return matrix;
     };
 
-
+    //Update the state of the tree based on face updates
     terrain.updateTree = function (face, snowLevel, sandLevel, seaLevel, lavaLevel) {
         let matrix = terrain.getTreeMatrix(face);
         let position = new THREE.Vector3();
@@ -227,6 +235,7 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
                 terrain.updateTree(face, snowLevel, sandLevel, seaLevel, lavaLevel);
             }
         }
+        //Update tree materials
         mat[0].uniforms.color.value.setHex(colors.TrunkColor);
         mat[1].uniforms.color.value.setHex(colors.LeafColor);
         mat.colorsNeedUpdate = true;
@@ -236,6 +245,7 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
     };
 
     terrain.animate = function () {
+        //update lighting for trees
         for (let i = 0; i < params.TreeCount; i++) {
             treeMesh.geometry.attributes.light.setXYZ(i, sunSphere.position.x, sunSphere.position.y, sunSphere.position.z);
             treeMesh.geometry.attributes.light.needsUpdate = true;
@@ -247,9 +257,11 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
     let currentMouse = new THREE.Vector2;
     let vertices = new Set();
 
+    //move an individual point
     function movePoint(vertex, amount) {
         let direction = vertex.clone().normalize();
         vertex.addScaledVector(direction, amount);
+        //Check max & min overflows
         if (vertex.length() >= params.PlanetRadius * (1 + (params.TerrainDisplacement / 100))) {
             vertex.setLength(params.PlanetRadius * (1 + (params.TerrainDisplacement / 100)));
         } else if (vertex.length() <= params.PlanetRadius * (1 - (params.TerrainDisplacement / 100))) {
@@ -257,12 +269,14 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
         }
     }
 
-    function moveFace(amount) {
+    //Move selected vertices
+    function moveSelected(amount) {
         let count = 0;
         let interval = 3;
         vertices.forEach(vert => {
             movePoint(vert, amount);
             count++;
+            //Adjust amount based on distance from selected face
             if (count === interval) {
                 amount = amount * Math.cos(utils.map((interval - 3) / 6, 0, params.BrushSize, 0, Math.PI / 2));
                 interval += 6;
@@ -271,6 +285,7 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
         })
     }
 
+    //Mouse down event
     terrain.modifyTerrain = function (event) {
         let mouse = new THREE.Vector2;
         mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
@@ -307,6 +322,7 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
         }
     };
 
+    //Gets neighbouring vertices added to the set
     terrain.getNeighbours = function (brushSize) {
         for (let i = 1; i < brushSize; i++) {
             let vertIndex = [];
@@ -326,10 +342,7 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
         }
     };
 
-    terrain.onMouseDown = function (event) {
-
-    };
-
+    //Move terrain on mouse movement on y axis
     terrain.onMouseMove = function (event) {
         if (!draging) {
             return;
@@ -338,12 +351,13 @@ PLANET.terrain.Terrain = function (bufferGeometry) {
         let movementY = currentMouse.y - dragPos.y;
 
         let currentHeight = controls.object.position.length() - params.PlanetRadius;
-        moveFace(movementY * currentHeight);
+        moveSelected(movementY * currentHeight);
         dragPos.copy(currentMouse);
         terrain.geometry.verticesNeedUpdate = true;
         terrain.update();
     };
 
+    //Clear vertices
     terrain.onMouseUp = function (event) {
         draging = false;
         vertices.clear();

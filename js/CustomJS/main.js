@@ -87,6 +87,7 @@ PLANET.main.main = function () {
     });
 };
 
+//Load models using a loading manager
 PLANET.main.loadModels = function () {
     manager = new THREE.LoadingManager();
 
@@ -95,6 +96,7 @@ PLANET.main.loadModels = function () {
 
     };
 
+    //Initiate function calls after all models have loaded
     manager.onLoad = function () {
         console.log('Loading complete!');
         planet = new PLANET.planet.Planet(planetGeometry, lavaGeometry);
