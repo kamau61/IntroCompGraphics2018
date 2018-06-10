@@ -12,6 +12,8 @@ PLANET.flyControls.FlyControls = function (camera) {
     //Some preset values;
     const PI_2 = Math.PI / 2;
     const DEG1 = Math.PI / 180;
+    const origin = new THREE.Vector3(0, 0, 0);
+    const initPosition = new THREE.Vector3(0, 0, params.PlanetRadius * params.CameraMax);
     const dirLeft = new THREE.Vector3(-1, 0, 0);
     // const dirUp = new THREE.Vector3(0, 1, 0);
     // const dirFront = new THREE.Vector3(0, 0, 1);
@@ -19,6 +21,7 @@ PLANET.flyControls.FlyControls = function (camera) {
     let nearGround = false;   //If it's on minimum distance.
     let flyMode = false;      //If it's on self control mode. For demonstrate use.
     let freeControl = false;  //If it's on free control mode.
+    let isResetting = false;
 
     //All different direction controls
     let moveForward = false;
@@ -41,7 +44,7 @@ PLANET.flyControls.FlyControls = function (camera) {
     let facingPoint = new THREE.Vector3();
     let facingTarget = new THREE.Vector3();
     let movingTarget = new THREE.Vector3();
-    let flySpeed = 1;
+    let flySpeed = 30;
 
     // let height = params.PlanetRadius * params.CameraMax;
     let tiltedAngle = 0;
@@ -53,16 +56,19 @@ PLANET.flyControls.FlyControls = function (camera) {
     let tempObj = new THREE.Object3D();
 
     this.object = holder;             //The object that hold the camera.
-    this.position = holder.position;  //Holder's position.
-    this.movingSpeed = 1;            //Camera Moving speed.
-    this.rotatingSpeed = 1;           //Camera rotating speed.
+    //this.position = holder.position;  //Holder's position.
+    this.movingSpeed = 30;            //Camera Moving speed.
+    this.rotatingSpeed = 30;           //Camera rotating speed.
     this.tiltToAngle = DEG1 * 30;       //The angle that camera need to tilt when it's on ground.
     // this.minDistance = params.PlanetRadius * (1.1 + params.TerrainDisplacement / 100);  //The minimum distance of Camera to central of the planet.
     this.minDistance = utils.getPeakLevel() + 10;
     this.maxDistance = params.PlanetRadius * 4;     //The maximum distance of camera to central of the planet.
     this.viewChangingDist = params.PlanetRadius * 0.3;  //The distance that camera starts to change the angle when close to planet.
+    let farAway = this.minDistance + this.viewChangingDist;
+    holder.position.copy(initPosition);
 
-    holder.position.set(0, 0, params.PlanetRadius * params.CameraMax);
+    var prevTime = performance.now();
+    var delta = 0.05;
 
     //Get the direction in world coordinate.
     function directionToWorld(obj, dir) {
@@ -202,12 +208,17 @@ PLANET.flyControls.FlyControls = function (camera) {
                     rollRight = false;
                     break;  // E
                 case 27:
-                    flyMode = false;
-                    resetCamera();
-                    break;  //ESC
+                    if (flyMode){
+                      isResetting = true;
+                    }else{
+                      resetCamera();
+                    }
+                    break;
                 case 13:
-                    flyMode = true;
-                    initFlymode();
+                    if (holder.position.length() > farAway){
+                      flyMode = true;
+                      initFlymode();
+                    }
                     break;
                 case 84:
                     test();
@@ -231,12 +242,17 @@ PLANET.flyControls.FlyControls = function (camera) {
                     else moveRight = false;
                     break;  // right
                 case 27:
-                    flyMode = false;
-                    resetCamera();
+                    if (flyMode){
+                      isResetting = true;
+                    }else{
+                      resetCamera();
+                    }
                     break;
                 case 13:
-                    flyMode = true;
-                    initFlymode();
+                    if (holder.position.length() > farAway){
+                      flyMode = true;
+                      initFlymode();
+                    }
                     break;
                 case 84:
                     test();
@@ -275,6 +291,9 @@ PLANET.flyControls.FlyControls = function (camera) {
 
     //Main function of camera. Needs to be called for controls and movements.
     this.update = function () {
+        var time = performance.now();
+        delta = ( time - prevTime ) / 1000;
+
         holder.getWorldDirection(facingTo);
 
         //Self-control flying mode.
@@ -282,9 +301,9 @@ PLANET.flyControls.FlyControls = function (camera) {
             this.fly();
         } else {
             //Rotate holder
-            holder.rotateY(DEG1 * this.rotatingSpeed * (Number(turnLeft) - Number(turnRight)));
-            holder.rotateZ(DEG1 * this.rotatingSpeed * (Number(rollLeft) - Number(rollRight)));
-            holder.rotateX(DEG1 * this.rotatingSpeed * (Number(headDown) - Number(headUp)));
+            holder.rotateY(DEG1 * this.rotatingSpeed * delta * (Number(turnLeft) - Number(turnRight)));
+            holder.rotateZ(DEG1 * this.rotatingSpeed * delta * (Number(rollLeft) - Number(rollRight)));
+            holder.rotateX(DEG1 * this.rotatingSpeed * delta * (Number(headDown) - Number(headUp)));
 
             //When camera is on the minDistance
             if (nearGround) {
@@ -300,24 +319,24 @@ PLANET.flyControls.FlyControls = function (camera) {
                 }
                 //Move forward to keep user in the same height.
                 else {
-                    orbitTo(0, Number(moveForward) - Number(moveBackward), this.movingSpeed / this.position.length());
+                    orbitTo(0, Number(moveForward) - Number(moveBackward), this.movingSpeed * delta / holder.position.length());
                 }
             }
             //When camera close enough to change the camera's angle.
             else {
               //For orbit left or right.
-                orbitTo(Number(moveLeft) - Number(moveRight), 0, this.rotatingSpeed * DEG1);
+                orbitTo(Number(moveLeft) - Number(moveRight), 0, this.rotatingSpeed * delta * DEG1);
 
                 //Move forward and get the distance.
                 let height = holder.position.length();
-                if (height <= this.minDistance + this.viewChangingDist && height > this.minDistance) {
-                    let orbitalMovement = facingTo.clone().setLength(this.movingSpeed);
+                if (height <= farAway && height > this.minDistance) {
+                    let orbitalMovement = facingTo.clone().setLength(this.movingSpeed * delta);
                     holder.position.add(orbitalMovement.multiplyScalar(Number(moveForward) - Number(moveBackward)));
 
                     //This is the percentage of how much the camera has moved from the view-changing distance to current height.
-                    let distPercent = (this.minDistance + this.viewChangingDist - height) / this.viewChangingDist;
+                    let distPercent = (farAway - height) / this.viewChangingDist;
 
-                    let verticalCompensation = utils.map(distPercent, 0, 1, 0, this.movingSpeed);
+                    let verticalCompensation = utils.map(distPercent, 0, 1, 0, this.movingSpeed * delta);
                     let verticalMovement = holder.position.clone().normalize().setLength(verticalCompensation);
                     holder.position.add(verticalMovement.multiplyScalar(Number(moveBackward) - Number(moveForward)));
 
@@ -342,7 +361,7 @@ PLANET.flyControls.FlyControls = function (camera) {
                 }
                 //When camera still far way.
                 else {
-                    let length = holder.position.length() - (Number(moveForward) - Number(moveBackward)) * this.movingSpeed;
+                    let length = holder.position.length() - (Number(moveForward) - Number(moveBackward)) * this.movingSpeed * delta;
                     length = length < this.maxDistance ? length : this.maxDistance;
                     holder.position.setLength(length);
                 }
@@ -352,7 +371,10 @@ PLANET.flyControls.FlyControls = function (camera) {
         //Just to make sure holder doesn't go under the minDistance;
         if (holder.position.length() < this.minDistance) {
             holder.position.setLength(this.minDistance);
+            rotateHolderXTo(PI_2);
         }
+
+        prevTime = time;
     };
 
     //A random point around planet. Always move a quarter of planet.
@@ -375,21 +397,22 @@ PLANET.flyControls.FlyControls = function (camera) {
         tempVector2.normalize();
         facingTarget.copy(holder.position.clone().add(tempVector2)).setLength(params.PlanetRadius);
         facingPoint.copy(facingTarget);
-        velocityNew.copy(tempVector2).setLength(flySpeed);
+        velocityNew.copy(tempVector2).setLength(flySpeed*delta);
         velocity.copy(velocityNew);
     }
 
     //Fly mode.
     this.fly = function () {
+      if (!isResetting){
         //If movingTarget is reached. Randomize movingTarget again.
         if (holder.position.distanceTo(movingTarget) < 5) {
             movingTarget.copy(holder.position);
-            randomDest(movingTarget, this.minDistance, this.minDistance * 2);
+            randomDest(movingTarget, this.minDistance, this.minDistance * 3);
             velocity.copy(velocityNew);
         } else {
             //Move from current point to movingTarget.
             velocity.multiplyScalar(0.9);
-            velocityNew.copy(movingTarget.clone().sub(holder.position)).setLength(flySpeed);
+            velocityNew.copy(movingTarget.clone().sub(holder.position)).setLength(flySpeed*delta);
             let move = velocity.clone().add(velocityNew);
             move.add(holder.position);
             if (move.length() < this.minDistance)
@@ -404,6 +427,15 @@ PLANET.flyControls.FlyControls = function (camera) {
         else {
             facingPoint.add(facingTarget.clone().sub(facingPoint).normalize());
         }
+      }else{
+        var pos = 2*this.minDistance > this.minDistance+2*this.viewChangingDist ? 2*this.minDistance : this.minDistance+2*this.viewChangingDist;
+        holder.position.lerp(holder.position.clone().setLength(pos), 0.2);
+        facingPoint.lerp(origin, 0.2);
+        if (holder.position.length() > pos - 2 && facingPoint.distanceTo(origin) < 2){
+          isResetting = false;
+          flyMode = false;
+        }
+      }
 
         //Keep looking at facingPoint.
         holder.lookAt(facingPoint);

@@ -58,10 +58,11 @@ let res = {
 let planet;
 let axis = new THREE.Vector3(1, 0, 0);
 
-PLANET.main.main = function () {
+PLANET.main.main = function (details) {
     timer = 0;
     utils = new PLANET.utils();
     colors = colorSchemes[params.Color];
+    params.PlanetDetail = details;
     //init scene
     scene = new THREE.Scene();
     PLANET.main.loadModels();
