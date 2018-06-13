@@ -7,13 +7,20 @@ let distance = 5000;
 let inclination = 0;
 let quaternion = new THREE.Quaternion();
 let material = new THREE.MeshBasicMaterial({color: 0xffffff});
-
+let lastTime = performance.now();
+let deltaTime = 0.05;
 let starController  = {
   StarColor: 0xffffff
 };
 
+PLANET.lighting.sunSpeed = 0.05;
+
 //UPDATE LOOP: Updates sun position and keeps it in line with the sky. Also updates star color
 PLANET.lighting.update = function () {
+    var thisTime = performance.now();
+    deltaTime = ( thisTime - lastTime ) / 1000;
+    lastTime = thisTime;
+
     let uniforms = sky.material.uniforms;
     uniforms.turbidity.value = 1;
     uniforms.rayleigh.value = 0;
@@ -145,13 +152,13 @@ PLANET.lighting.Lighting.prototype = Object.create(THREE.Object3D.prototype);
 PLANET.lighting.animate = function () {
 
     //Used to set sun position, called in update loop
-    inclination += 0.005;
+    inclination += PLANET.lighting.sunSpeed*deltaTime;
     if (inclination > 1) {
         inclination = -1;
     }
 
     //Used to set moon position, different axis from sun loop
-    quaternion.setFromAxisAngle(moonAxis, .005);
+    quaternion.setFromAxisAngle(moonAxis, deltaTime/16);
     moonSphere.position.applyQuaternion(quaternion);
 
     //Used to rotate the star field

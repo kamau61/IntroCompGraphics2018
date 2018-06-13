@@ -407,7 +407,7 @@ PLANET.flyControls.FlyControls = function (camera) {
         //If movingTarget is reached. Randomize movingTarget again.
         if (holder.position.distanceTo(movingTarget) < 5) {
             movingTarget.copy(holder.position);
-            randomDest(movingTarget, this.minDistance, this.minDistance * 3);
+            randomDest(movingTarget, this.minDistance, this.minDistance * 2.5);
             velocity.copy(velocityNew);
         } else {
             //Move from current point to movingTarget.

@@ -58,6 +58,8 @@ update();
     gui = new dat.GUI();
     let planetControls = gui.addFolder('Planet');
     planetControls.close();
+    let lightingControls = planetControls.addFolder('Sun');
+    lightingControls.add(PLANET.lighting, 'sunSpeed', 0.01, 0.5).name('MoveSpeed').step(0.01).listen();
     let terrainControls = planetControls.addFolder('Terrain');
     terrainControls.add(params, 'TerrainDensity', 0, 1).onChange(update).listen();
     terrainControls.add(params, 'TerrainDisplacement', 0, 50).onChange(update).listen();
